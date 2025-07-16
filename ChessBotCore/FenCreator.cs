@@ -46,7 +46,7 @@ public static class FenCreator {
         }
         
     }
-    public static StringBuilder EncodePieces(char[,] board) {
+    public static StringBuilder EncodeMatrixIntoString(char[,] board) {
         Debug.Assert(board.GetLength(0) == 8 
                      && board.GetLength(1) == 8);
 
@@ -54,7 +54,7 @@ public static class FenCreator {
         for (int i = 0; i < 8; i++) {
             int emptyCells = 0;
             for (int j = 0; j < 8; j++) {
-                char cell = board[i, j];
+                char cell = board[7-i, j];
                 if (cell == default) { // cell is empty
                     if (j == 7) { // end of row
                         sb.Append(emptyCells + 1);
