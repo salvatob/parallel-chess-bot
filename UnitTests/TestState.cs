@@ -23,69 +23,57 @@ public class TestState {
         public string? Name { get; init; }
         public required State State { get; init; }
         public required Dictionary<(int row, int col), char> MatrixCreatorDict { get; init; }
+        public override string ToString() {
+            return Name ?? "xddx";
+        }
     }
     
-    public static IEnumerable<object> StateToMatrix_Data => new[] {
+    public static IEnumerable<object[]> StateToMatrix_Data => new[] {
         new StateToMatrixDataType {
             Name = "WhiteQueenA1",
-            State = State.Initial() with { WhiteQueens = 0b1000_0000 },
+            State = State.Empty() with { WhiteQueens = 0b1000_0000 },
             MatrixCreatorDict = new() {[(0,0)] = 'Q'}
         },
         
         new StateToMatrixDataType {
-            Name = "WhiteQueensAllBoard",
-            State = State.Initial() with {WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF},
+            Name = nameof(AllBoardWhiteQueens),
+            State = State.Empty() with {WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF},
             MatrixCreatorDict = AllBoardWhiteQueens
+        },
+        new StateToMatrixDataType {
+            Name = "BlackRooksInMiddle",
+            State = State.Empty() with{
+                BlackRooks = (ulong) 0b_0001_1000_0001_1000 << (8*3)
+            },
+            MatrixCreatorDict = new() {
+                [(3,3)] = 'b',
+                [(3,4)] = 'b',
+                [(4,3)] = 'b',
+                [(4,4)] = 'b'
+            }
         }
         
-    };
+    }.Select(i=> new object[] {i});
     
     
     [Theory]
     // [InlineData(WhiteQueenA1State)]
     [MemberData(nameof(StateToMatrix_Data))]
-    public void StateToMatrix_OneQueenA1(StateToMatrixDataType data) {
+    
+    public void StateToMatrix_SparseBoard(StateToMatrixDataType data) {
         //arrange
-        Dictionary<(int row, int col), char> nondefaultValues = new() {
-            [(0,0)] = 'Q'
-        };
-
+        
         //act
         // var state = WhiteQueenA1State;
         var expected = new char[8 * 8];
-        foreach (var ((r,c),val) in nondefaultValues) {
+        foreach (var ((r,c),val) in data.MatrixCreatorDict) {
             expected[r * 8 + c] = val;
         }
 
-        char[,] actual = FenCreator.EncodeIntoMatrix(state);
+        char[,] actual = FenCreator.EncodeIntoMatrix(data.State);
         var flat = actual.Flatten();
 
         //assert
         Assert.Equal(expected, flat);
-    }
-    
-    
-    [Fact]
-    public void PrintingStatePiecesOnly_OneQueen() {
-        // arrange
-        var state = State.Initial() with { WhiteQueens = 0b1000_0000 };
-        var expected = "8/8/8/8/8/8/8/Q7";
-        
-        // act
-        // var actual = FenCreator.GetFen();
-
-        // assert
-    }
-    
-    
-    
-    [Fact]
-    public void PrintingStatePiecesOnly_DefaultState() {
-        // arrange
-        var expected = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        var defaultState = State.Initial();
-        var piecesPartOfFen = FenCreator.GetFen(defaultState);
-        // act
-        // assert
     }
 }
