@@ -9,8 +9,15 @@ public readonly record struct State {
     public const char WhiteKingSymbol = 'K';
     public const char WhitePawnSymbol = 'P';
     public const char WhiteBishopSymbol = 'B';
-    public const char WhiteKnightSymbol = 'K';
+    public const char WhiteKnightSymbol = 'N';
     public const char WhiteRookSymbol = 'R';
+    
+    public const char BlackQueenSymbol = 'q';
+    public const char BlackKingSymbol = 'k';
+    public const char BlackPawnSymbol = 'p';
+    public const char BlackBishopSymbol = 'b';
+    public const char BlackKnightSymbol = 'n';
+    public const char BlackRookSymbol = 'r';
 
     public ulong WhitePawns { get; init; }
     public ulong WhiteRooks { get; init; }

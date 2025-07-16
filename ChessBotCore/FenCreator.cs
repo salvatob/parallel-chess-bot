@@ -7,22 +7,45 @@ public static class FenCreator {
     
     public static string GetFen(State state) {
 
-        return "";
+        throw new NotImplementedException();
     }
 
     public static char[,] EncodeIntoMatrix(State state) {
         char[,] board = new char[8, 8];
+        
+        EncodePiecesIntoMatrix(state.WhiteQueens, State.WhiteQueenSymbol, board);
+        EncodePiecesIntoMatrix(state.WhitePawns, State.WhitePawnSymbol, board);
+        EncodePiecesIntoMatrix(state.WhiteBishops, State.WhiteBishopSymbol, board);
+        EncodePiecesIntoMatrix(state.WhiteKing, State.WhiteKingSymbol, board);
+        EncodePiecesIntoMatrix(state.WhiteKnights, State.WhiteKnightSymbol, board);
+        EncodePiecesIntoMatrix(state.WhiteRooks, State.WhiteRookSymbol, board);
+        
+        EncodePiecesIntoMatrix(state.BlackQueens, State.BlackQueenSymbol, board);
+        EncodePiecesIntoMatrix(state.BlackPawns, State.BlackPawnSymbol, board);
+        EncodePiecesIntoMatrix(state.BlackBishops, State.BlackBishopSymbol, board);
+        EncodePiecesIntoMatrix(state.BlackKing, State.BlackKingSymbol, board);
+        EncodePiecesIntoMatrix(state.BlackKnights, State.BlackKnightSymbol, board);
+        EncodePiecesIntoMatrix(state.BlackRooks, State.BlackRookSymbol, board);
+        
+        return board;
+    }
+
+
+    private static void EncodePiecesIntoMatrix(ulong pieces, char pieceSymbol, char[,] board) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (IsPieceOnCoordinates(i, j, state.WhiteQueens)) {
-                    board[i, j] = State.WhiteQueenSymbol;
+                if (IsPieceOnCoordinates(i, j, pieces)) {
+                    if (board[i, j] != default)
+                        throw new InvalidOperationException(
+                            "A state has two pieces at the same place." +
+                            $" {pieceSymbol} and{board[i, j]} are both on [{i},{j}]"
+                        );
+                    board[i, j] = pieceSymbol;
                 }
             }
         }
-
-        return board;
+        
     }
-    
     public static StringBuilder EncodePieces(char[,] board) {
         Debug.Assert(board.GetLength(0) == 8 
                      && board.GetLength(1) == 8);
