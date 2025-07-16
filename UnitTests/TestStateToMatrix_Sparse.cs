@@ -5,12 +5,12 @@ namespace TestProject1;
 /// <summary>
 /// Tests transformation between a string (FEN), and internal game state  representation.
 /// </summary>
-public class TestState {
+public class TestStateToMatrix_Sparse {
     static string WhiteQueenA1FenPrefix = "8/8/8/8/8/8/8/Q7";
     static State WhiteQueenA1State = State.Initial() with { WhiteQueens = 0b1000_0000 };
     static Dictionary<(int row, int col), char> AllBoardWhiteQueens = [];
 
-    static TestState() {
+    static TestStateToMatrix_Sparse() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 AllBoardWhiteQueens[(i, j)] = 'Q';
