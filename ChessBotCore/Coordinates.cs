@@ -15,19 +15,28 @@ public readonly struct Coordinates {
     
     
     public static Coordinates FromString(string square) {
-        if (square.Length != 2) throw new Exception("square notation not parsed -- str.length != 2");
+        if (square.Length != 2) throw new Exception("square notation not parsed: str.length != 2");
+        char c1 = square[0];
+        char c2 = char.ToLower(square[1]);
+        if (!char.IsLetter(c1) || c2 > 'h') throw new ArgumentException("square notation not parsed: " +
+                                                                        "first character must be a letter between a-h");
+        if (!char.IsDigit(c2)) throw new ArgumentException("square notation not parsed: " +
+                                                           "second character must be a digit");
         return new Coordinates {
-            Col = square[0] - 'a',
-            Row = square[1] - '0' - 1
+            Col = c1 - 'a',
+            Row = c2 - '0' - 1
         };
-
+        
     }
-    
     
     public int To1D() {
         return Row * 8 + Col;
     }
 
+    public static int To1D(int i, int j) {
+        return i * 8 + j;
+    }
+    
     public static Coordinates From1D(int coordinate) {
         return new() {
             Row = coordinate / 8,
