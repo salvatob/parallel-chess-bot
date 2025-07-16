@@ -6,10 +6,55 @@ namespace ChessBotCore;
 public static class FenCreator {
     
     public static string GetFen(State state) {
-
-        throw new NotImplementedException();
+        string pieces = EncodePieces(state);
+        char activeColor = state.WhiteIsActive ? 'w' : 'b';
+        string castles = EncodeCastles(state);
+        string enpassant = EncodeEnPassant(state);
+        string halfClock = state.HalfMovesSincePawnMoveOrCapture.ToString();
+        string fullClock = state.FullMoves.ToString();
+        
+        return String.Join(" ", [pieces, activeColor, castles, enpassant, halfClock, fullClock]);
     }
 
+    private static string EncodePieces(State state) {
+        var matrix = EncodeIntoMatrix(state);
+        var sb = EncodeMatrixIntoString(matrix);
+        return sb.ToString();
+    }
+
+    private static string EncodeCastles(State state) {
+        StringBuilder sb = new();
+        if (state.WhiteCastleKingSide)   sb.Append('K');
+        if (state.WhiteCastleQueenSide)   sb.Append('Q');
+        if (state.BlackCastleKingSide)   sb.Append('k');
+        if (state.BlackCastleQueenSide)   sb.Append('q');
+        if (sb.Length == 0) return "-";
+        return sb.ToString();
+    }
+
+    private static string EncodeEnPassant(State state) {
+        Coordinates? enPassantCoordinates = state.GetEnPassantCoordinates();
+        return enPassantCoordinates is null ? "-" : enPassantCoordinates.ToString()!;
+    }
+    
+    private static void EncodeOtherStateAttributes(State state, StringBuilder sb) {
+        
+        sb.Append(' ');
+        sb.Append(state.WhiteIsActive ? 'w' : 'b');
+        sb.Append(' ');
+        Coordinates? enPassantCoordinates = state.GetEnPassantCoordinates();
+        sb.Append(
+            enPassantCoordinates is null
+                ? '-'
+                : enPassantCoordinates.ToString());
+        sb.Append(' ');
+        
+        if (state.WhiteCastleKingSide)   sb.Append('K');
+        if (state.WhiteCastleQueenSide)   sb.Append('Q');
+        if (state.BlackCastleKingSide)   sb.Append('k');
+        if (state.BlackCastleQueenSide)   sb.Append('q');
+    }
+    
     public static char[,] EncodeIntoMatrix(State state) {
         char[,] board = new char[8, 8];
         
