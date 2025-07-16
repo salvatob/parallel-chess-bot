@@ -29,7 +29,7 @@ public class TestStateToFen {
         var actual = FenCreator.GetFen(stateData.State);
 
         // assert
-        Assert.StartsWith(actual, expected);
+        Assert.Equal(expected, actual);
     }
     
 }
