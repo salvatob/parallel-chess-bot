@@ -4,7 +4,7 @@ using System.Text;
 namespace ChessBotCore;
 
 public readonly record struct State {
-    private const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public const char WhiteQueenSymbol = 'Q';
     public const char WhiteKingSymbol = 'K';
     public const char WhitePawnSymbol = 'P';
@@ -33,21 +33,38 @@ public readonly record struct State {
     public ulong BlackQueens { get; init; }
     public ulong BlackKing { get; init; }
 
+    public bool WhiteIsActive { get; init; }
+
+    public bool WhiteCastleKingSide { get; init; }
+    public bool WhiteCastleQueenSide { get; init; }
+    public bool BlackCastleKingSide { get; init; }
+    public bool BlackCastleQueenSide { get; init; }
     
-        return new State() {
-            WhitePawns = 0b_1111_1111_0000_0000,
-            WhiteRooks = 0b_1000_0001,
+    public int HalfMovesSincePawnMoveOrCapture { get; init; } = 0;
+    public int FullMoves { get; init; } = 1;
+    
+    
     public static State Initial =>
+        new() {
+            WhitePawns   = 0b_1111_1111_0000_0000,
+            WhiteRooks   = 0b_1000_0001,
             WhiteKnights = 0b_0100_0010,
             WhiteBishops = 0b0010_0100,
-            WhiteQueens = 0b0001_0000,
-            WhiteKing = 0b_0000_1000,
-            BlackPawns = (ulong)0b_1111_1111 << (5 * 8),
-            BlackRooks = (ulong)0b_1000_0001  << (7 * 8),
+            WhiteQueens  = 0b0001_0000,
+            WhiteKing    = 0b_0000_1000,
+            
+            BlackPawns   = (ulong)0b_1111_1111 << (6 * 8),
+            BlackRooks   = (ulong)0b_1000_0001 << (7 * 8),
             BlackKnights = (ulong)0b_0100_0010 << (7 * 8),
-            BlackBishops = (ulong)0b0010_0100 << (7 * 8),
-            BlackQueens = (ulong)0b0001_0000 << (7 * 8),
-            BlackKing = (ulong)0b_0000_1000 << (7 * 8),
+            BlackBishops = (ulong)0b_0010_0100 << (7 * 8),
+            BlackQueens  = (ulong)0b_0001_0000 << (7 * 8),
+            BlackKing    = (ulong)0b_0000_1000 << (7 * 8),
+            
+            WhiteCastleKingSide  = true,
+            WhiteCastleQueenSide = true,
+            BlackCastleKingSide  = true,
+            BlackCastleQueenSide = true,
+            WhiteIsActive = true
         };
 
     public static State Empty => new State();
