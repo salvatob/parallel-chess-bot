@@ -89,7 +89,8 @@ public readonly record struct State {
             WhiteCastleQueenSide = true,
             BlackCastleKingSide  = true,
             BlackCastleQueenSide = true,
-            WhiteIsActive = true
+            WhiteIsActive = true,
+            FullMoves = 1
         };
 #pragma warning restore CS0612
     
