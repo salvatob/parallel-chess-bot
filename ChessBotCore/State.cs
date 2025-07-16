@@ -96,14 +96,11 @@ public readonly record struct State {
     
     
 #pragma warning disable CS0612   // “obsolete” warning id
-    public static State Empty => new State();
+    public static State Empty => new();
     
 #pragma warning restore CS0612
     
-    public State DeletePawns() {
-        return this with { BlackPawns = 0, WhitePawns = 0 };
-    }
-
+    
     public bool EnPassantAvailable => EnPassant > 0;
 
     public Coordinates? GetEnPassantCoordinates() {
