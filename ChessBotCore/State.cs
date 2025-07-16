@@ -49,11 +49,9 @@ public readonly record struct State {
             BlackQueens = (ulong)0b0001_0000 << (7 * 8),
             BlackKing = (ulong)0b_0000_1000 << (7 * 8),
         };
-    }
 
-    public static State Empty() {
-        return new State();
-    }
+    public static State Empty => new State();
+    
     
     public State DeletePawns() {
         return this with { BlackPawns = 0, WhitePawns = 0 };
