@@ -1,9 +1,32 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using System.Text;
 
 namespace ChessBotCore;
 
 public readonly record struct State {
+    [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", error:false)]
+    public State(int i) {
+        WhitePawns = 0;
+        WhiteRooks = 0;
+        WhiteKnights = 0;
+        WhiteBishops = 0;
+        WhiteQueens = 0;
+        WhiteKing = 0;
+        BlackPawns = 0;
+        BlackRooks = 0;
+        BlackKnights = 0;
+        BlackBishops = 0;
+        BlackQueens = 0;
+        BlackKing = 0;
+        WhiteIsActive = false;
+        WhiteCastleKingSide = false;
+        WhiteCastleQueenSide = false;
+        BlackCastleKingSide = false;
+        BlackCastleQueenSide = false;
+    }
+    
+
     public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public const char WhiteQueenSymbol = 'Q';
     public const char WhiteKingSymbol = 'K';
@@ -39,11 +62,13 @@ public readonly record struct State {
     public bool WhiteCastleQueenSide { get; init; }
     public bool BlackCastleKingSide { get; init; }
     public bool BlackCastleQueenSide { get; init; }
+
+    public ulong EnPassant { get; init; } = 0;
     
     public int HalfMovesSincePawnMoveOrCapture { get; init; } = 0;
     public int FullMoves { get; init; } = 1;
     
-    
+#pragma warning disable CS0612   // “obsolete” warning id
     public static State Initial =>
         new() {
             WhitePawns   = 0b_1111_1111_0000_0000,
@@ -66,11 +91,38 @@ public readonly record struct State {
             BlackCastleQueenSide = true,
             WhiteIsActive = true
         };
-
+#pragma warning restore CS0612
+    
+    
+#pragma warning disable CS0612   // “obsolete” warning id
     public static State Empty => new State();
     
+#pragma warning restore CS0612
     
     public State DeletePawns() {
         return this with { BlackPawns = 0, WhitePawns = 0 };
     }
+
+    public bool EnPassantAvailable => EnPassant > 0;
+
+    public Coordinates? GetEnPassantCoordinates() {
+        return EnPassantAvailable
+            ? MaskToCoordinates(EnPassant)
+            : null;
+    }
+
+    /// <summary>
+    /// For a ulong 64-bit mask with only one bit true, this method returns its coordinates.
+    /// </summary>
+    /// <param name="mask">The mask, which only must have 1 bit true</param>
+    /// <returns>The Coordinates of the masked bit</returns>
+    public static Coordinates MaskToCoordinates(ulong mask) {
+        Debug.Assert(HasSingleBit(mask));
+        int coordinate1D = BitOperations.TrailingZeroCount(mask);
+        return Coordinates.From1D(coordinate1D);
+    }
+    
+    // from chatGPT
+    private static bool HasSingleBit(ulong x) 
+        => x != 0 && (x & (x - 1)) == 0;
 }
