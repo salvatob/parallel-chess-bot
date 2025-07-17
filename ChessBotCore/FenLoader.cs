@@ -78,7 +78,7 @@ public static class FenLoader {
         if (lines.Length != 8) throw new ArgumentException($"first part of a {nameof(fenPieces)} string must have 8" +
                                                            $" lines of pieces but doesn't");
         for (var i = 0; i < lines.Length; i++) {
-            var line = lines[i];
+            var line = lines[7-i];
             int offset = 0;
             foreach (char c in line) {
                 if (int.TryParse(c.ToString(), out int emptyCells)) {
@@ -86,7 +86,7 @@ public static class FenLoader {
                     continue;
                 }
 
-                board[i, offset] = c;
+                board[i, 7-offset] = c;
                 offset++;
             }
         }
