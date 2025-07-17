@@ -13,7 +13,7 @@ public class TestStateToFen {
     }
     
     public static IEnumerable<object[]> StateToFenPieces_Data => new[] {
-        new StateToFenDataType() {
+        new StateToFenDataType {
             Name = "DefaultBeginningState",
             State = State.Initial,
             Fen = State.DefaultFen

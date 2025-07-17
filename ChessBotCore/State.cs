@@ -1,11 +1,25 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using System.Text;
 
 namespace ChessBotCore;
 
 public readonly record struct State {
-    [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", error:false)]
+    public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    public const char WhiteQueenSymbol = 'Q';
+    public const char WhiteKingSymbol = 'K';
+    public const char WhitePawnSymbol = 'P';
+    public const char WhiteBishopSymbol = 'B';
+    public const char WhiteKnightSymbol = 'N';
+    public const char WhiteRookSymbol = 'R';
+
+    public const char BlackQueenSymbol = 'q';
+    public const char BlackKingSymbol = 'k';
+    public const char BlackPawnSymbol = 'p';
+    public const char BlackBishopSymbol = 'b';
+    public const char BlackKnightSymbol = 'n';
+    public const char BlackRookSymbol = 'r';
+
+    [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", false)]
     public State(int i) {
         WhitePawns = 0;
         WhiteRooks = 0;
@@ -25,22 +39,6 @@ public readonly record struct State {
         BlackCastleKingSide = false;
         BlackCastleQueenSide = false;
     }
-    
-
-    public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    public const char WhiteQueenSymbol = 'Q';
-    public const char WhiteKingSymbol = 'K';
-    public const char WhitePawnSymbol = 'P';
-    public const char WhiteBishopSymbol = 'B';
-    public const char WhiteKnightSymbol = 'N';
-    public const char WhiteRookSymbol = 'R';
-    
-    public const char BlackQueenSymbol = 'q';
-    public const char BlackKingSymbol = 'k';
-    public const char BlackPawnSymbol = 'p';
-    public const char BlackBishopSymbol = 'b';
-    public const char BlackKnightSymbol = 'n';
-    public const char BlackRookSymbol = 'r';
 
     public ulong WhitePawns { get; init; }
     public ulong WhiteRooks { get; init; }
@@ -64,10 +62,10 @@ public readonly record struct State {
     public bool BlackCastleQueenSide { get; init; }
 
     public ulong EnPassant { get; init; } = 0;
-    
+
     public int HalfMovesSincePawnMoveOrCapture { get; init; } = 0;
     public int FullMoves { get; init; } = 1;
-    
+
 #pragma warning disable CS0612   // “obsolete” warning id
     public static State Initial =>
         new() {
@@ -93,14 +91,14 @@ public readonly record struct State {
             FullMoves = 1
         };
 #pragma warning restore CS0612
-    
-    
+
+
 #pragma warning disable CS0612   // “obsolete” warning id
     public static State Empty => new();
-    
+
 #pragma warning restore CS0612
-    
-    
+
+
     public bool EnPassantAvailable => EnPassant > 0;
 
     public Coordinates? GetEnPassantCoordinates() {
@@ -110,7 +108,7 @@ public readonly record struct State {
     }
 
     /// <summary>
-    /// For a ulong 64-bit mask with only one bit true, this method returns its coordinates.
+    ///     For a ulong 64-bit mask with only one bit true, this method returns its coordinates.
     /// </summary>
     /// <param name="mask">The mask, which only must have 1 bit true</param>
     /// <returns>The Coordinates of the masked bit</returns>
@@ -119,7 +117,7 @@ public readonly record struct State {
         int coordinate1D = BitOperations.TrailingZeroCount(mask);
         return Coordinates.From1D(coordinate1D);
     }
-    
+
     // from chatGPT
     private static bool HasSingleBit(ulong x) 
         => x != 0 && (x & (x - 1)) == 0;

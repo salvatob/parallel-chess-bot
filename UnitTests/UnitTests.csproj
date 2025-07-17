@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ChessBotCore\ChessBotCore.csproj" />
+        <ProjectReference Include="..\ChessBotCore\ChessBotCore.csproj"/>
     </ItemGroup>
 
 </Project>

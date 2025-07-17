@@ -3,12 +3,12 @@ using ChessBotCore;
 namespace TestProject1;
 
 /// <summary>
-/// Tests transformation between a string (FEN), and internal game state  representation.
+///     Tests transformation between a string (FEN), and internal game state  representation.
 /// </summary>
 public class TestStateToMatrix_Sparse {
-    static string WhiteQueenA1FenPrefix = "8/8/8/8/8/8/8/Q7";
-    static State WhiteQueenA1State = State.Empty with { WhiteQueens = 0b1000_0000 };
-    static Dictionary<(int row, int col), char> AllBoardWhiteQueens = [];
+    private static string WhiteQueenA1FenPrefix = "8/8/8/8/8/8/8/Q7";
+    private static State WhiteQueenA1State = State.Empty with { WhiteQueens = 0b1000_0000 };
+    private static Dictionary<(int row, int col), char> AllBoardWhiteQueens = [];
 
     static TestStateToMatrix_Sparse() {
         for (int i = 0; i < 8; i++) {
@@ -16,7 +16,7 @@ public class TestStateToMatrix_Sparse {
                 AllBoardWhiteQueens[(i, j)] = 'Q';
             }
         }
-    } 
+    }
 
     
     public class StateToMatrixDataType {
@@ -34,35 +34,33 @@ public class TestStateToMatrix_Sparse {
             State = State.Empty with { WhiteQueens = 0b1000_0000 },
             MatrixCreatorDict = new() {[(0,0)] = 'Q'}
         },
-        
+
         new StateToMatrixDataType {
             Name = nameof(AllBoardWhiteQueens),
-            State = State.Empty with {WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF},
+            State = State.Empty with { WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF },
             MatrixCreatorDict = AllBoardWhiteQueens
         },
         new StateToMatrixDataType {
             Name = "BlackRooksInMiddle",
-            State = State.Empty with{
-                BlackRooks = (ulong) 0b_0001_1000_0001_1000 << (8*3)
+            State = State.Empty with {
+                BlackRooks = (ulong)0b_0001_1000_0001_1000 << (8 * 3)
             },
-            MatrixCreatorDict = new() {
-                [(3,3)] = 'r',
-                [(3,4)] = 'r',
-                [(4,3)] = 'r',
-                [(4,4)] = 'r'
+            MatrixCreatorDict = new Dictionary<(int row, int col), char> {
+                [(3, 3)] = 'r',
+                [(3, 4)] = 'r',
+                [(4, 3)] = 'r',
+                [(4, 4)] = 'r'
             }
         }
-        
     }.Select(i=> new object[] {i});
     
     
     [Theory]
     // [InlineData(WhiteQueenA1State)]
     [MemberData(nameof(StateToMatrix_Data))]
-    
     public void StateToMatrix_SparseBoard(StateToMatrixDataType data) {
         //arrange
-        
+
         //act
         // var state = WhiteQueenA1State;
         var expected = new char[8 * 8];

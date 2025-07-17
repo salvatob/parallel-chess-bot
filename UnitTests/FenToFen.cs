@@ -3,7 +3,6 @@ using ChessBotCore;
 namespace TestProject1;
 
 public class FenToFen {
-
     [Theory]
     [InlineData(State.DefaultFen)]
     [InlineData("8/4k3/8/8/8/8/r6r/R3K2R w KQ - 0 1")]
