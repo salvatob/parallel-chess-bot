@@ -7,5 +7,8 @@
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestCoordinates.Coordinates_FromString&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.FenToFen.Default&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.FenToFen.CreateStateFromFenThenFenFromState&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestBitMasks.TestColMask&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestBitMasks.PrintRowMask_0&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestBitMasks&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

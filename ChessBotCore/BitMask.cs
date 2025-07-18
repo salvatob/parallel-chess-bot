@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace ChessBotCore;
 
 public static class BitMask {
@@ -9,12 +11,49 @@ public static class BitMask {
             Row[i] = (ulong)(0b1111_1111UL << (8 * i));
     }
     
+    
+    public static ulong[] Col { get; private set; }
+
+    private static void InitCols() {
+        Col = new ulong[8];
+
+        ulong col0 = 0UL;
+
+        for (int i = 0; i < 8; i++) {
+            col0 |= 1UL << (i * 8);
+        }
+        
+        for (int i = 0; i < 8; i++) 
+            Col[7-i] = BitOperations.RotateLeft(col0,i);
+            // Col[i] = col0 >>> i;
+    }
+    
+    
+    
     static BitMask() {
         InitRows();
+        InitCols();
+    }
+
+    
+    /// <summary>
+    /// Print ulong in a board representation. Used mainly for debugging.
+    /// </summary>
+    /// <param name="mask">The ulong to print</param>
+    /// <returns>The string representation</returns>
+    public static string PrintUlong(ulong mask) {
+        long bitsAsLong = (long)mask;
+        string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
+        string[] parts = new string[8];
+        for (int i = 0; i < 8; i++) {
+            parts[i] = whole[(i*8)..((i+1)*8)];
+        }
+
+        return string.Join(Environment.NewLine, parts);
     }
 }
 
-[Obsolete($"Would be an option, however the performance of {nameof(BitMask)} is better.")]
+[Obsolete($"Would be an option, however the performance of {nameof(BitMask)} is better.", error:false)]
 public static class RowMasksCompletelyStatic {
     public const ulong ROW0 = 0xFFUL;
     public const ulong ROW1 = 0xFF00UL;
