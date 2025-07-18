@@ -121,4 +121,28 @@ public readonly record struct State {
     // from chatGPT
     private static bool HasSingleBit(ulong x) 
         => x != 0 && (x & (x - 1)) == 0;
+
+
+    public ulong GetPieces(bool white) {
+        return white switch {
+            true =>
+                WhiteBishops |
+                WhiteKnights |
+                WhiteQueens |
+                WhiteKing |
+                WhitePawns |
+                WhiteRooks,
+            false => 
+                BlackBishops |
+                BlackKnights |
+                BlackQueens |
+                BlackKing |
+                BlackPawns |
+                BlackRooks,
+        };
+    }
+
+    public ulong GetAllPieces() {
+        return GetPieces(true) | GetPieces(false);
+    }
 }
