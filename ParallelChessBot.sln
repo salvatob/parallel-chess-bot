@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleInterface", "Console
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{70768DF6-ABCD-41C5-B758-3E17703B0120}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{1CAE681F-7FFC-4546-A146-E767E935B75E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{70768DF6-ABCD-41C5-B758-3E17703B0120}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70768DF6-ABCD-41C5-B758-3E17703B0120}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70768DF6-ABCD-41C5-B758-3E17703B0120}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CAE681F-7FFC-4546-A146-E767E935B75E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CAE681F-7FFC-4546-A146-E767E935B75E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CAE681F-7FFC-4546-A146-E767E935B75E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CAE681F-7FFC-4546-A146-E767E935B75E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

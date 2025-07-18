@@ -1,0 +1,39 @@
+namespace ChessBotCore;
+
+public static class BitMask {
+    public static ulong[] Row { get; private set; }
+
+    private static void InitRows() {
+        Row = new ulong[8];
+        for (int i = 0; i < 8; i++) 
+            Row[i] = (ulong)(0b1111_1111UL << (8 * i));
+    }
+    
+    static BitMask() {
+        InitRows();
+    }
+}
+
+[Obsolete($"Would be an option, however the performance of {nameof(BitMask)} is better.")]
+public static class RowMasksCompletelyStatic {
+    public const ulong ROW0 = 0xFFUL;
+    public const ulong ROW1 = 0xFF00UL;
+    public const ulong ROW2 = 0xFF0000UL;
+    public const ulong ROW3 = 0xFF000000UL;
+    public const ulong ROW4 = 0xFF00000000UL;
+    public const ulong ROW5 = 0xFF0000000000UL;
+    public const ulong ROW6 = 0xFF000000000000UL;
+    public const ulong ROW7 = 0xFF00000000000000UL;
+
+    public static ulong GetMask(int row) => row switch {
+        0 => ROW0,
+        1 => ROW1,
+        2 => ROW2,
+        3 => ROW3,
+        4 => ROW4,
+        5 => ROW5,
+        6 => ROW6,
+        7 => ROW7,
+        _ => throw new ArgumentOutOfRangeException(nameof(row))
+    };
+}
