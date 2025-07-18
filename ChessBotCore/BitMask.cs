@@ -34,23 +34,6 @@ public static class BitMask {
         InitRows();
         InitCols();
     }
-
-    
-    /// <summary>
-    /// Print ulong in a board representation. Used mainly for debugging.
-    /// </summary>
-    /// <param name="mask">The ulong to print</param>
-    /// <returns>The string representation</returns>
-    public static string PrintUlong(ulong mask) {
-        long bitsAsLong = (long)mask;
-        string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
-        string[] parts = new string[8];
-        for (int i = 0; i < 8; i++) {
-            parts[i] = whole[(i*8)..((i+1)*8)];
-        }
-
-        return string.Join(Environment.NewLine, parts);
-    }
 }
 
 [Obsolete($"Would be an option, however the performance of {nameof(BitMask)} is better.", error:false)]

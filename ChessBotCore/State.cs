@@ -103,24 +103,11 @@ public readonly record struct State {
 
     public Coordinates? GetEnPassantCoordinates() {
         return EnPassantAvailable
-            ? MaskToCoordinates(EnPassant)
+            ? BitBoardHelpers.MaskToCoordinates(EnPassant)
             : null;
     }
 
-    /// <summary>
-    ///     For a ulong 64-bit mask with only one bit true, this method returns its coordinates.
-    /// </summary>
-    /// <param name="mask">The mask, which only must have 1 bit true</param>
-    /// <returns>The Coordinates of the masked bit</returns>
-    public static Coordinates MaskToCoordinates(ulong mask) {
-        Debug.Assert(HasSingleBit(mask));
-        int coordinate1D = BitOperations.TrailingZeroCount(mask);
-        return Coordinates.From1D(coordinate1D);
-    }
-
     // from chatGPT
-    private static bool HasSingleBit(ulong x) 
-        => x != 0 && (x & (x - 1)) == 0;
 
 
     public ulong GetPieces(bool white) {
