@@ -64,8 +64,27 @@ public class BitBoardHelpers {
         return Coordinates.From1D(coordinate1D);
     }
 
+    /// <summary>
+    /// Determines, if the ulong has exactly one bit set to true.
+    /// </summary>
+    /// <param name="x">The ulong to determine</param>
+    /// <returns>True, if it has one bit</returns>
     public static bool HasSingleBit(ulong x) 
         => x != 0 && (x & (x - 1)) == 0;
+
+    public enum Direction {
+        N,S,W,E,
+        NE,NW,SE,SW,
+        NNE,NEE,NNW,NWW,
+        SSE,SEE,SSW,SWW
+    };
+
+    public ulong Move(ulong bits, Direction dir) {
+        return dir switch {
+            Direction.N => bits << 8,
+            _ => throw new NotImplementedException()
+        };
+    }
 }
 
 public static class ULongExtensions {
