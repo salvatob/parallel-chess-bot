@@ -16,13 +16,17 @@ public class BitBoardHelpers {
     /// Print ulong in a board representation. Used mainly for debugging.
     /// </summary>
     /// <param name="mask">The ulong to print</param>
+    /// <param name="splitRows">If true, each row has a space in the middle</param>
     /// <returns>The string representation</returns>
-    public static string PrintUlong(ulong mask) {
+    public static string PrintUlong(ulong mask, bool splitRows=false) {
         long bitsAsLong = (long)mask;
         string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
         string[] parts = new string[8];
         for (int i = 0; i < 8; i++) {
-            parts[i] = whole[(i*8)..((i+1)*8)];
+            string row = whole[(i*8)..((i+1)*8)];
+            if (splitRows) 
+                row = row.Insert(4, " ");
+            parts[i] = row;
         }
 
         return string.Join(Environment.NewLine, parts);
