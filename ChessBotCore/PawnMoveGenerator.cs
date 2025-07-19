@@ -32,13 +32,26 @@ public class PawnMoveGenerator : IMoveGenerator {
         return newPawnBoards;
     }
 
-    public static List<ulong> DoubleMove(ulong pawns, ulong allOtherPieces) {
+    public static List<ulong> DoubleMoveForward(ulong pawns, ulong emptyCells) {
         List<ulong> newPawnBoards = [];
         // moves all pieces two steps forward
         // this variable represents new positions, deleting all that would result in a collision
         ulong startingPawns = pawns & BitMask.Row[1];
-        ulong movedOneCell = (startingPawns << 8) & (~allOtherPieces);
-        ulong moved = (movedOneCell << 8) & (~allOtherPieces);
+        ulong movedOneCell = (startingPawns << 8) & (emptyCells);
+        ulong moved = (movedOneCell << 8) & (emptyCells);
+
+#if DEBUG
+        Console.WriteLine("--pawns--");
+        Console.WriteLine(pawns.PrintAsBitBoard());
+        Console.WriteLine("--emptyCells--");
+        Console.WriteLine(emptyCells.PrintAsBitBoard());
+        Console.WriteLine("--startingPawns--");
+        Console.WriteLine(startingPawns.PrintAsBitBoard());
+        Console.WriteLine("--movedOneCell--");
+        Console.WriteLine(movedOneCell.PrintAsBitBoard());
+        Console.WriteLine("--moved--");
+        Console.WriteLine(moved.PrintAsBitBoard());
+#endif        
         
         while (moved != 0) {
             int currMoved = BitOperations.TrailingZeroCount(moved);

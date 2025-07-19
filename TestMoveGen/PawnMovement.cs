@@ -100,4 +100,54 @@ public class PawnMovement {
 
         possibleMoves.Should().BeEquivalentTo(expectedMoves);
     }
+
+    [Fact]
+    public void White_DoubleMove() {
+        //arrange
+        var pawnsStr = 
+            """
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            1000 1000
+            0100 1010
+            0000 0000
+            """;
+        string[] expectedStr = [
+            """
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0100 0000
+            1000 1000
+            0000 1010
+            0000 0000
+            """
+        ];
+        string otherPiecesStr = 
+            """
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0000
+            0000 0010
+            0000 0000
+            0000 0000
+            """;
+        //act
+
+        ulong pawns = BitBoardHelpers.ParseUlong(pawnsStr);
+        ulong otherPieces = BitBoardHelpers.ParseUlong(otherPiecesStr) | pawns;
+        var expected = expectedStr.Select(BitBoardHelpers.ParseUlong);
+        
+        var pawnDoubleMovesOnly = PawnMoveGenerator.DoubleMoveForward(pawns, ~otherPieces);
+        //assert
+
+        pawnDoubleMovesOnly.Should().BeEquivalentTo(expected);
+
+    }
 }
