@@ -12,10 +12,10 @@ public class RowMaskBench {
     public int RowIndex;
     
     [Benchmark]
-    public ulong ArrayLoad()
+    public Bitboard ArrayLoad()
         => BitMask.Row[RowIndex];
     
     [Benchmark]
-    public ulong SwitchLoad()
+    public Bitboard SwitchLoad()
         => RowMasksCompletelyStatic.GetMask(RowIndex);
 }

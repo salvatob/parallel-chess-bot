@@ -6,7 +6,7 @@ public class TestBitMasks {
     [Fact]
     public void ColMask_0() {
         //arrange
-        ulong mask = BitMask.Col[0];
+        var mask = BitMask.Col[0];
         // ulong expected = 0b1000_0000
         ulong expected = 0x80_80_80_80_80_80_80_80;
 
@@ -125,9 +125,9 @@ public class TestBitMasks {
         // ulong expected = 0xFF_FF_FF_FF_FF_FF_00_FF;
         //act
 
-        ulong one = BitMask.Row[1];
+        var one = BitMask.Row[1];
 
-        ulong two =
+        var two =
             ~ (BitMask.Row[0] |
                BitMask.Row[2] |
                BitMask.Row[3] |

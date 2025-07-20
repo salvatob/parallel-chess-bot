@@ -140,8 +140,8 @@ public class PawnMovement {
             """;
         //act
 
-        ulong pawns = BitBoardHelpers.ParseUlong(pawnsStr);
-        ulong otherPieces = BitBoardHelpers.ParseUlong(otherPiecesStr) | pawns;
+        var pawns = BitBoardHelpers.ParseUlong(pawnsStr);
+        var otherPieces = BitBoardHelpers.ParseUlong(otherPiecesStr) | pawns;
         var expected = expectedStr.Select(BitBoardHelpers.ParseUlong);
         
         var pawnDoubleMovesOnly = PawnMoveGenerator.DoubleMoveForward(pawns, ~otherPieces);

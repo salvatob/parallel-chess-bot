@@ -4,22 +4,22 @@ using System.Numerics;
 namespace ChessBotCore;
 
 public class BitBoardHelpers {
-    public static ulong OneBitMask(int index) {
+    public static Bitboard OneBitMask(int index) {
         return 1UL << index;
     }
     
-    public static ulong OneBitMask(Coordinates coords) {
+    public static Bitboard OneBitMask(Coordinates coords) {
         return 1UL << coords.To1D();
     }
 
     /// <summary>
-    /// Print ulong in a board representation. Used mainly for debugging.
+    /// Print Bitboard in a board representation. Used mainly for debugging.
     /// </summary>
-    /// <param name="mask">The ulong to print</param>
+    /// <param name="mask">The Bitboard to print</param>
     /// <param name="splitRows">If true, each row has a space in the middle</param>
     /// <returns>The string representation</returns>
-    public static string PrintUlong(ulong mask, bool splitRows=false) {
-        long bitsAsLong = (long)mask;
+    public static string PrintUlong(Bitboard mask, bool splitRows=false) {
+        long bitsAsLong = (long)mask.RawBits;
         string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
         string[] parts = new string[8];
         for (int i = 0; i < 8; i++) {
@@ -39,8 +39,8 @@ public class BitBoardHelpers {
     /// <param name="bitBoard">The string of the bitboard</param>
     /// <returns>A Ulong representation of the parsed bitboard.</returns>
     /// <exception cref="ArgumentException">The string does not contain exactly 64 binary digits.</exception>
-    public static ulong ParseUlong(string bitBoard) {
-        ulong board = 0UL;
+    public static Bitboard ParseUlong(string bitBoard) {
+        Bitboard board = 0UL;
         var chars = bitBoard.Where(c => c is '0' or '1').ToArray();
         if (chars.Length != 64)
             throw new ArgumentException($"The {nameof(bitBoard)} string needs to contain exactly 64 binary digits");
@@ -54,23 +54,23 @@ public class BitBoardHelpers {
     
     
     /// <summary>
-    ///     For a ulong 64-bit mask with only one bit true, this method returns its coordinates.
+    ///     For a Bitboard 64-bit mask with only one bit true, this method returns its coordinates.
     /// </summary>
     /// <param name="mask">The mask, which only must have 1 bit true</param>
     /// <returns>The Coordinates of the masked bit</returns>
-    public static Coordinates MaskToCoordinates(ulong mask) {
+    public static Coordinates MaskToCoordinates(Bitboard mask) {
         Debug.Assert(HasSingleBit(mask));
-        int coordinate1D = BitOperations.TrailingZeroCount(mask);
+        int coordinate1D = mask.TrailingZeroCount();
         return Coordinates.From1D(coordinate1D);
     }
 
     /// <summary>
-    /// Determines, if the ulong has exactly one bit set to true.
+    /// Determines, if the Bitboard has exactly one bit set to true.
     /// </summary>
-    /// <param name="x">The ulong to determine</param>
+    /// <param name="x">The Bitboard to determine</param>
     /// <returns>True, if it has one bit</returns>
-    public static bool HasSingleBit(ulong x) 
-        => x != 0 && (x & (x - 1)) == 0;
+    public static bool HasSingleBit(Bitboard x) 
+        => x.RawBits != 0 && (x.RawBits & (x.RawBits - 1)) == 0;
 
     public enum Direction {
         N,S,W,E,
@@ -79,7 +79,7 @@ public class BitBoardHelpers {
         SSE,SEE,SSW,SWW
     };
 
-    public ulong Move(ulong bits, Direction dir) {
+    public Bitboard Move(Bitboard bits, Direction dir) {
         return dir switch {
             Direction.N => bits << 8,
             _ => throw new NotImplementedException()
@@ -87,8 +87,3 @@ public class BitBoardHelpers {
     }
 }
 
-public static class ULongExtensions {
-    public static string PrintAsBitBoard(this ulong val) {
-        return BitBoardHelpers.PrintUlong(val);
-    }
-}

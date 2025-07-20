@@ -17,7 +17,7 @@ var pawnsStr =
 
 var pawns = BitBoardHelpers.ParseUlong(pawnsStr);
 
-foreach (ulong move in PawnMoveGenerator.OneCellForward(pawns, ~pawns)) {
+foreach (var move in PawnMoveGenerator.OneCellForward(pawns, ~pawns)) {
     Console.WriteLine(BitBoardHelpers.PrintUlong(move));
     Console.WriteLine("--------");
 }

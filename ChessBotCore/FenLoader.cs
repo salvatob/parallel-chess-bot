@@ -25,7 +25,7 @@ public static class FenLoader {
         return completeWithCastles;
     }
 
-    private static ulong ParseEnpassant(string enPassant) {
+    private static Bitboard ParseEnpassant(string enPassant) {
         if (enPassant == "-") return 0UL;
 
         Coordinates enPassantCoordinates = Coordinates.FromString(enPassant);
@@ -94,7 +94,7 @@ public static class FenLoader {
         return board;
     }
 
-    private static ulong ParsePiece(char[,] board, ulong pieceBits, char symbol) {
+    private static Bitboard ParsePiece(char[,] board, Bitboard pieceBits, char symbol) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 var cell = board[i, j];
@@ -105,8 +105,8 @@ public static class FenLoader {
         return pieceBits;
     }
 
-    private static void SetBit(ref ulong bits, int index) {
-        ulong mask = 1UL << index;
+    private static void SetBit(ref Bitboard bits, int index) {
+        Bitboard mask = 1UL << index;
         bits |= mask;
     }
 

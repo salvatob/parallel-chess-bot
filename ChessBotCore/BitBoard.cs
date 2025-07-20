@@ -1,0 +1,107 @@
+using System.Diagnostics;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+
+namespace ChessBotCore;
+
+
+// thought of fully by me, written partially by chatGPT
+[DebuggerDisplay("{ToBoardString(),nq}")]
+public readonly struct Bitboard : IEquatable<Bitboard>
+{
+    private readonly ulong _bits;
+
+    public Bitboard(ulong bits) => _bits = bits;
+
+    /// <summary>Expose the raw bits when you really need them.</summary>
+    public ulong RawBits
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _bits;
+    }
+
+    public static implicit operator Bitboard(ulong bits) 
+        => new Bitboard(bits);
+    
+    // public static implicit operator ulong(Bitboard bb) 
+    //     => bb._bits;
+    
+    // // common bitboard constructors
+    // public static Bitboard FromRank(int rank)
+    //     => new Bitboard(0xFFUL << (rank * 8));
+    //
+    // public static Bitboard FromFile(int file)
+    //     => new Bitboard(0x0101_0101_0101_0101UL << file);
+
+    // bit‐ops as operators
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Bitboard operator |(Bitboard a, Bitboard b)
+        => new Bitboard(a._bits | b._bits);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Bitboard operator &(Bitboard a, Bitboard b)
+        => new Bitboard(a._bits & b._bits);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Bitboard operator ~(Bitboard b)
+        => new Bitboard(~b._bits);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Bitboard operator <<(Bitboard b, int dist)
+        => new Bitboard(b._bits << dist);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Bitboard operator >>(Bitboard b, int dist)
+        => new Bitboard(b._bits >> dist);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int PopCount()
+        => BitOperations.PopCount(_bits);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int TrailingZeroCount()
+        => BitOperations.TrailingZeroCount(_bits);
+    
+    // implement equality
+    public bool Equals(Bitboard other) 
+        => _bits == other._bits;
+
+    public override bool Equals(object? obj) 
+        => obj is Bitboard bb && Equals(bb);
+
+    public override int GetHashCode() 
+        => _bits.GetHashCode();
+
+    // nice human‐readable dump
+    public string ToBoardString()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("  a b c d e f g h");
+        for (int rank = 7; rank >= 0; rank--)
+        {
+            sb.Append(rank + 1).Append(' ');
+            for (int file = 0; file < 8; file++)
+            {
+                int sq = rank * 8 + file;
+                bool set = ((_bits >> sq) & 1UL) != 0;
+                sb.Append(set ? '■' : '·').Append(' ');
+            }
+            sb.AppendLine();
+        }
+        return sb.ToString();
+    }
+    
+    public  string Print(bool splitRows=false) {
+        long bitsAsLong = (long)RawBits;
+        string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
+        string[] parts = new string[8];
+        for (int i = 0; i < 8; i++) {
+            string row = whole[(i*8)..((i+1)*8)];
+            if (splitRows) 
+                row = row.Insert(4, " ");
+            parts[i] = row;
+        }
+
+        return string.Join(Environment.NewLine, parts);
+    }
+}

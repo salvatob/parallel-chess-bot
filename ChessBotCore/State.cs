@@ -40,19 +40,19 @@ public readonly record struct State {
         BlackCastleQueenSide = false;
     }
 
-    public ulong WhitePawns { get; init; }
-    public ulong WhiteRooks { get; init; }
-    public ulong WhiteKnights { get; init; }
-    public ulong WhiteBishops { get; init; }
-    public ulong WhiteQueens { get; init; }
-    public ulong WhiteKing { get; init; }
+    public Bitboard WhitePawns { get; init; }
+    public Bitboard WhiteRooks { get; init; }
+    public Bitboard WhiteKnights { get; init; }
+    public Bitboard WhiteBishops { get; init; }
+    public Bitboard WhiteQueens { get; init; }
+    public Bitboard WhiteKing { get; init; }
 
-    public ulong BlackPawns { get; init; }
-    public ulong BlackRooks { get; init; }
-    public ulong BlackKnights { get; init; }
-    public ulong BlackBishops { get; init; }
-    public ulong BlackQueens { get; init; }
-    public ulong BlackKing { get; init; }
+    public Bitboard BlackPawns { get; init; }
+    public Bitboard BlackRooks { get; init; }
+    public Bitboard BlackKnights { get; init; }
+    public Bitboard BlackBishops { get; init; }
+    public Bitboard BlackQueens { get; init; }
+    public Bitboard BlackKing { get; init; }
 
     public bool WhiteIsActive { get; init; }
 
@@ -61,7 +61,7 @@ public readonly record struct State {
     public bool BlackCastleKingSide { get; init; }
     public bool BlackCastleQueenSide { get; init; }
 
-    public ulong EnPassant { get; init; } = 0;
+    public Bitboard EnPassant { get; init; } = 0;
 
     public int HalfMovesSincePawnMoveOrCapture { get; init; } = 0;
     public int FullMoves { get; init; } = 1;
@@ -76,12 +76,12 @@ public readonly record struct State {
             WhiteQueens  = 0b0001_0000,
             WhiteKing    = 0b_0000_1000,
             
-            BlackPawns   = (ulong)0b_1111_1111 << (6 * 8),
-            BlackRooks   = (ulong)0b_1000_0001 << (7 * 8),
-            BlackKnights = (ulong)0b_0100_0010 << (7 * 8),
-            BlackBishops = (ulong)0b_0010_0100 << (7 * 8),
-            BlackQueens  = (ulong)0b_0001_0000 << (7 * 8),
-            BlackKing    = (ulong)0b_0000_1000 << (7 * 8),
+            BlackPawns   = 0b_1111_1111UL << (6 * 8),
+            BlackRooks   = 0b_1000_0001UL << (7 * 8),
+            BlackKnights = 0b_0100_0010UL << (7 * 8),
+            BlackBishops = 0b_0010_0100UL << (7 * 8),
+            BlackQueens  = 0b_0001_0000UL << (7 * 8),
+            BlackKing    = 0b_0000_1000UL << (7 * 8),
             
             WhiteCastleKingSide  = true,
             WhiteCastleQueenSide = true,
@@ -99,7 +99,7 @@ public readonly record struct State {
 #pragma warning restore CS0612
 
 
-    public bool EnPassantAvailable => EnPassant > 0;
+    public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
     public Coordinates? GetEnPassantCoordinates() {
         return EnPassantAvailable
@@ -110,7 +110,7 @@ public readonly record struct State {
     // from chatGPT
 
 
-    public ulong GetPieces(bool white) {
+    public Bitboard GetPieces(bool white) {
         return white switch {
             true =>
                 WhiteBishops |
@@ -129,7 +129,7 @@ public readonly record struct State {
         };
     }
 
-    public ulong GetAllPieces() {
+    public Bitboard GetAllPieces() {
         return GetPieces(true) | GetPieces(false);
     }
 }

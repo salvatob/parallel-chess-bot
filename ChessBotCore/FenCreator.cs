@@ -57,7 +57,7 @@ public static class FenCreator {
     }
 
 
-    private static void EncodePiecesIntoMatrix(ulong pieces, char pieceSymbol, char[,] board) {
+    private static void EncodePiecesIntoMatrix(Bitboard pieces, char pieceSymbol, char[,] board) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++)
                 if (IsPieceOnCoordinates(i, j, pieces)) {
@@ -101,8 +101,8 @@ public static class FenCreator {
         return sb;
     }
 
-    private static bool IsPieceOnCoordinates(int i, int j, ulong pieces) {
-        ulong mask = (ulong)1 << (i * 8 + 7 - j);
-        return (mask & pieces) > 0;
+    private static bool IsPieceOnCoordinates(int i, int j, Bitboard pieces) {
+        Bitboard mask = 1UL << (i * 8 + 7 - j);
+        return (mask & pieces).RawBits != 0;
     }
 }
