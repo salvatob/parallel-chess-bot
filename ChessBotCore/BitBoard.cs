@@ -104,5 +104,7 @@ public readonly struct Bitboard : IEquatable<Bitboard>
 
         return string.Join(Environment.NewLine, parts);
     }
+
+    public Bitboard MovePieces(Direction dir) => BitBoardHelpers.Move(this, dir);
     public static Bitboard Parse(string bitboard) => BitBoardHelpers.ParseBoard(bitboard);
 }

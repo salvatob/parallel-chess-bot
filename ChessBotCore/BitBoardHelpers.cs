@@ -75,18 +75,33 @@ internal static class BitBoardHelpers {
     public static bool HasSingleBit(Bitboard x) 
         => x.RawBits != 0 && (x.RawBits & (x.RawBits - 1)) == 0;
 
-    public enum Direction {
-        N,S,W,E,
-        NE,NW,SE,SW,
-        NNE,NEE,NNW,NWW,
-        SSE,SEE,SSW,SWW
-    };
-
-    public Bitboard Move(Bitboard bits, Direction dir) {
+    public static Bitboard Move(Bitboard bits, Direction dir) {
         return dir switch {
             Direction.N => bits << 8,
-            _ => throw new NotImplementedException()
+            Direction.S => bits >> 8,
+            Direction.E => (bits >> 1) & (~ BitMask.Col[7]) ,
+            Direction.W => (bits << 1) & (~ BitMask.Col[0]),
+            Direction.NE => (bits << 7) & (~ BitMask.Col[7]),
+            // Direction.NW => expr,
+            // Direction.SE => expr,
+            // Direction.SW => expr,
+            // Direction.NNE => expr,
+            // Direction.NEE => expr,
+            // Direction.NNW => expr,
+            // Direction.NWW => expr,
+            // Direction.SSE => expr,
+            // Direction.SEE => expr,
+            // Direction.SSW => expr,
+            // Direction.SWW => expr,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
 }
+
+public enum Direction {
+    N,S,W,E,
+    NE,NW,SE,SW,
+    NNE,NEE,NNW,NWW,
+    SSE,SEE,SSW,SWW
+};
 
