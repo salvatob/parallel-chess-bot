@@ -92,11 +92,11 @@ public class PawnMovement {
         ];
 
         
-        var pawns = BitBoardHelpers.ParseUlong(inputStr);
+        var pawns = Bitboard.Parse(inputStr);
 
         var possibleMoves = PawnMoveGenerator.OneCellForward(pawns, ~pawns);
 
-        var expectedMoves = expectedStr.Select(BitBoardHelpers.ParseUlong);
+        var expectedMoves = expectedStr.Select(Bitboard.Parse);
 
         possibleMoves.Should().BeEquivalentTo(expectedMoves);
     }
@@ -140,9 +140,9 @@ public class PawnMovement {
             """;
         //act
 
-        var pawns = BitBoardHelpers.ParseUlong(pawnsStr);
-        var otherPieces = BitBoardHelpers.ParseUlong(otherPiecesStr) | pawns;
-        var expected = expectedStr.Select(BitBoardHelpers.ParseUlong);
+        var pawns = Bitboard.Parse(pawnsStr);
+        var otherPieces = Bitboard.Parse(otherPiecesStr) | pawns;
+        var expected = expectedStr.Select(Bitboard.Parse);
         
         var pawnDoubleMovesOnly = PawnMoveGenerator.DoubleMoveForward(pawns, ~otherPieces);
         //assert

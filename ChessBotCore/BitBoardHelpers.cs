@@ -39,7 +39,7 @@ public class BitBoardHelpers {
     /// <param name="bitBoard">The string of the bitboard</param>
     /// <returns>A Ulong representation of the parsed bitboard.</returns>
     /// <exception cref="ArgumentException">The string does not contain exactly 64 binary digits.</exception>
-    public static Bitboard ParseUlong(string bitBoard) {
+    internal static Bitboard ParseBoard(string bitBoard) {
         Bitboard board = 0UL;
         var chars = bitBoard.Where(c => c is '0' or '1').ToArray();
         if (chars.Length != 64)
