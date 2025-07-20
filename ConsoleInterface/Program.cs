@@ -18,6 +18,6 @@ var pawnsStr =
 var pawns = Bitboard.Parse(pawnsStr);
 
 foreach (var move in PawnMoveGenerator.OneCellForward(pawns, ~pawns)) {
-    Console.WriteLine(BitBoardHelpers.PrintUlong(move));
+    Console.WriteLine(move.Print());
     Console.WriteLine("--------");
 }

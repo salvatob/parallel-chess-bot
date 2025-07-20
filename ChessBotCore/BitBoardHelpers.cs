@@ -1,9 +1,12 @@
 using System.Diagnostics;
-using System.Numerics;
 
 namespace ChessBotCore;
 
-public class BitBoardHelpers {
+/// <summary>
+/// Includes several static methods for the <see cref="Bitboard"/> struct.
+/// All methods outside ChessBotCore assembly should be exposed through the that structure.
+/// </summary>
+internal static class BitBoardHelpers {
     public static Bitboard OneBitMask(int index) {
         return 1UL << index;
     }

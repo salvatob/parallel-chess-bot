@@ -30,7 +30,7 @@ public class TestBitMasks {
                           """;
         //act
         var mask = BitMask.Col[5];
-        var maskString = BitBoardHelpers.PrintUlong(mask);
+        var maskString = mask.Print();
         
         //assert
         Assert.Equal(expected, maskString);
@@ -50,7 +50,7 @@ public class TestBitMasks {
                           """;
         //act
         var mask = BitMask.Col[7];
-        var maskString = BitBoardHelpers.PrintUlong(mask);
+        var maskString = mask.Print();
         
         //assert
         Assert.Equal(expected, maskString);
@@ -71,7 +71,7 @@ public class TestBitMasks {
                           """;
         //act
         var mask = BitMask.Col[0];
-        var maskString = BitBoardHelpers.PrintUlong(mask);
+        var maskString = mask.Print();
         
         //assert
         Assert.Equal(expected, maskString);
@@ -92,7 +92,7 @@ public class TestBitMasks {
                           """;
         //act
         var mask = BitMask.Row[0];
-        var maskString = BitBoardHelpers.PrintUlong(mask);
+        var maskString = mask.Print();
         
         //assert
         Assert.Equal(expected, maskString);
@@ -113,7 +113,7 @@ public class TestBitMasks {
                           """;
         //act
         var mask = BitMask.Row[7];
-        var maskString = BitBoardHelpers.PrintUlong(mask);
+        var maskString = mask.Print();
         
         //assert
         Assert.Equal(expected, maskString);
