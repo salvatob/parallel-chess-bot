@@ -1,21 +1,21 @@
 namespace ChessBotCore;
 
-public enum KnightDriections {
+public enum KnightDirections {
     NNE,NEE,NNW,NWW,
     SSE,SEE,SSW,SWW
 }
 
 public class KnightMoveGenerator : IMoveGenerator {
-    private static KnightDriections[] MoveDirections = {
-        KnightDriections.NNE,
-        KnightDriections.NEE,
-        KnightDriections.SEE,
-        KnightDriections.SSE,
-        KnightDriections.NNW,
-        KnightDriections.NWW,
-        KnightDriections.SWW,
-        KnightDriections.SSW
-    };
+    private static KnightDirections[] MoveDirections = [
+        KnightDirections.NNE,
+        KnightDirections.NEE,
+        KnightDirections.SEE,
+        KnightDirections.SSE,
+        KnightDirections.NNW,
+        KnightDirections.NWW,
+        KnightDirections.SWW,
+        KnightDirections.SSW
+    ];
     
 
     public static List<Move> GenerateMoves(State state) {
@@ -40,7 +40,7 @@ public class KnightMoveGenerator : IMoveGenerator {
             
             // var splitIntoMoves = SplitIntoMoves(knights, movedKnights, dir);
 
-            KnightDriections oppositeDir = OppositeDir(dir);
+            KnightDirections oppositeDir = OppositeDir(dir);
             // foreach moved knight
             while (movedKnights.RawBits != 0) {
                 // select one new knight position
@@ -89,9 +89,9 @@ public class KnightMoveGenerator : IMoveGenerator {
         };
     }
     
-    public static List<Bitboard> SplitIntoMoves(Bitboard before, Bitboard after, KnightDriections dir) {
+    public static List<Bitboard> SplitIntoMoves(Bitboard before, Bitboard after, KnightDirections dir) {
         List<Bitboard> result = [];
-        KnightDriections oppositeDir = OppositeDir(dir);
+        KnightDirections oppositeDir = OppositeDir(dir);
         while (after.RawBits != 0) {
             int currMoved = after.TrailingZeroCount();
 
@@ -107,40 +107,40 @@ public class KnightMoveGenerator : IMoveGenerator {
         return result;
     }
 
-    private static Bitboard Move(Bitboard bits, KnightDriections dir) {
+    private static Bitboard Move(Bitboard bits, KnightDirections dir) {
         Bitboard withoutLeftCol = ~ BitMask.Col[0];
         Bitboard withoutRightCol = ~ BitMask.Col[7];
         Bitboard withoutTwoLeftCols = ~ (BitMask.Col[0] | BitMask.Col[1]);
         Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);
 
 #if DEBUG
-        if (dir is KnightDriections.SEE or KnightDriections.NEE) {
+        if (dir is KnightDirections.SEE or KnightDirections.NEE) {
             int _ = 4;
         }
 #endif
         return dir switch {
-            KnightDriections.NNE =>  (bits << 17) & withoutLeftCol ,
-            KnightDriections.NEE =>  (bits << 10) & withoutTwoRightCols,
-            KnightDriections.SEE =>  (bits >>  6) & withoutTwoRightCols,
-            KnightDriections.SSE =>  (bits >> 15) & withoutLeftCol ,
-            KnightDriections.NNW =>  (bits << 15) & withoutRightCol ,
-            KnightDriections.NWW =>  (bits <<  6) & withoutTwoLeftCols,
-            KnightDriections.SWW =>  (bits >> 10) & withoutTwoLeftCols,
-            KnightDriections.SSW =>  (bits >> 17) & withoutRightCol ,
+            KnightDirections.NNE =>  (bits << 17) & withoutLeftCol ,
+            KnightDirections.NEE =>  (bits << 10) & withoutTwoRightCols,
+            KnightDirections.SEE =>  (bits >>  6) & withoutTwoRightCols,
+            KnightDirections.SSE =>  (bits >> 15) & withoutLeftCol ,
+            KnightDirections.NNW =>  (bits << 15) & withoutRightCol ,
+            KnightDirections.NWW =>  (bits <<  6) & withoutTwoLeftCols,
+            KnightDirections.SWW =>  (bits >> 10) & withoutTwoLeftCols,
+            KnightDirections.SSW =>  (bits >> 17) & withoutRightCol ,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
 
-    private static KnightDriections OppositeDir(KnightDriections dir) {
+    private static KnightDirections OppositeDir(KnightDirections dir) {
         return dir switch {
-            KnightDriections.SSW => KnightDriections.NNE,
-            KnightDriections.SWW => KnightDriections.NEE,
-            KnightDriections.NWW => KnightDriections.SEE,
-            KnightDriections.NNW => KnightDriections.SSE,
-            KnightDriections.SSE => KnightDriections.NNW,
-            KnightDriections.SEE => KnightDriections.NWW,
-            KnightDriections.NEE => KnightDriections.SWW,
-            KnightDriections.NNE => KnightDriections.SSW,
+            KnightDirections.SSW => KnightDirections.NNE,
+            KnightDirections.SWW => KnightDirections.NEE,
+            KnightDirections.NWW => KnightDirections.SEE,
+            KnightDirections.NNW => KnightDirections.SSE,
+            KnightDirections.SSE => KnightDirections.NNW,
+            KnightDirections.SEE => KnightDirections.NWW,
+            KnightDirections.NEE => KnightDirections.SWW,
+            KnightDirections.NNE => KnightDirections.SSW,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
