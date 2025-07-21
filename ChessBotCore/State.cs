@@ -3,6 +3,22 @@ using System.Numerics;
 
 namespace ChessBotCore;
 
+public enum Pieces {
+    WhitePawns,
+    WhiteRooks,
+    WhiteKnights,
+    WhiteBishops,
+    WhiteQueens,
+    WhiteKing,
+    
+    BlackPawns,
+    BlackRooks,
+    BlackKnights,
+    BlackBishops,
+    BlackQueens,
+    BlackKing 
+}
+
 public readonly record struct State {
     public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public const char WhiteQueenSymbol = 'Q';
@@ -20,7 +36,7 @@ public readonly record struct State {
     public const char BlackRookSymbol = 'r';
 
     [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", false)]
-    public State(int i) {
+    public State(int _) {
         WhitePawns = 0;
         WhiteRooks = 0;
         WhiteKnights = 0;
@@ -98,7 +114,19 @@ public readonly record struct State {
 
 #pragma warning restore CS0612
 
-
+    /// <summary>
+    /// Returns a copy of current state, where some properties are updated automatically.
+    /// <see cref="WhiteIsActive"/>, <see cref="FullMoves"/> clock, are updated automatically.
+    /// Pieces are left untouched, user must change them on their own.
+    /// Specific properties such as <seealso cref="EnPassant"/> or castling are also left to the user to handle.
+    /// </summary>
+    /// <returns>A copy with fullmove clock and active color automatically updated.</returns>
+    public State Next() {
+        return this with {
+            WhiteIsActive = !this.WhiteIsActive,
+            FullMoves = this.WhiteIsActive ? this.FullMoves : this.FullMoves + 1
+        };
+    }
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
     public Coordinates? GetEnPassantCoordinates() {
@@ -107,9 +135,11 @@ public readonly record struct State {
             : null;
     }
 
-    // from chatGPT
-
-
+    /// <summary>
+    /// Return Bitboard of all pieces of certain color.
+    /// </summary>
+    /// <param name="white">If true, returns white pieces, else black pieces.</param>
+    /// <returns>The combination bitmap of the pieces.</returns>
     public Bitboard GetPieces(bool white) {
         return white switch {
             true =>
@@ -128,8 +158,72 @@ public readonly record struct State {
                 BlackRooks,
         };
     }
-
+    
     public Bitboard GetAllPieces() {
         return GetPieces(true) | GetPieces(false);
     }
+
+    public Bitboard GetActivePieces() => GetPieces(WhiteIsActive);
+    
+    public Bitboard GetInactivePieces() => GetPieces(!WhiteIsActive);
+
+    /// <summary>
+    /// Determines whether any piece of current state collide with
+    /// </summary>
+    /// <param name="mask">The board to check against. Should be unary bitboard (only 1 bit set).</param>
+    /// <returns>Pieces enum entry, if collision has been found, null if no pieces collide</returns>
+    public Pieces? DetectPieces(Bitboard mask) {
+        if ((WhitePawns & mask).Empty) return Pieces.WhitePawns;
+        if ((WhiteRooks & mask).Empty) return Pieces.WhiteRooks;
+        if ((WhiteKnights & mask).Empty) return Pieces.WhiteKnights;
+        if ((WhiteBishops & mask).Empty) return Pieces.WhiteBishops;
+        if ((WhiteQueens & mask).Empty) return Pieces.WhiteQueens;
+        if ((WhiteKing & mask).Empty) return Pieces.WhiteKing;
+        if ((BlackPawns & mask).Empty) return Pieces.BlackPawns;
+        if ((BlackRooks & mask).Empty) return Pieces.BlackRooks;
+        if ((BlackKnights & mask).Empty) return Pieces.BlackKnights;
+        if ((BlackBishops & mask).Empty) return Pieces.BlackBishops;
+        if ((BlackQueens & mask).Empty) return Pieces.BlackQueens;
+        if ((BlackKing & mask).Empty) return Pieces.BlackKing;
+        return null;
+    }
+    
+    
+    public State With(Pieces changedPieces, Bitboard newPieces) {
+        return changedPieces switch {
+            Pieces.WhitePawns => this with { WhitePawns = newPieces },
+            Pieces.WhiteRooks => this with { WhiteRooks = newPieces },
+            Pieces.WhiteKnights => this with { WhiteKnights = newPieces },
+            Pieces.WhiteBishops => this with { WhiteBishops = newPieces },
+            Pieces.WhiteQueens => this with { WhiteQueens = newPieces },
+            Pieces.WhiteKing => this with { WhiteKing = newPieces },
+            Pieces.BlackPawns => this with { BlackPawns = newPieces },
+            Pieces.BlackRooks => this with { BlackRooks = newPieces },
+            Pieces.BlackKnights => this with { BlackKnights = newPieces },
+            Pieces.BlackBishops => this with { BlackBishops = newPieces },
+            Pieces.BlackQueens => this with { BlackQueens = newPieces },
+            Pieces.BlackKing => this with { BlackKing = newPieces },
+            _ => throw new ArgumentOutOfRangeException(nameof(changedPieces), changedPieces, null)
+        };
+    }
+    
+    
+    public Bitboard GetPieces(Pieces pieces) {
+        return pieces switch {
+            Pieces.WhitePawns => this.WhitePawns,
+            Pieces.WhiteRooks => this.WhiteRooks,
+            Pieces.WhiteKnights => this.WhiteKnights,
+            Pieces.WhiteBishops => this.WhiteBishops,
+            Pieces.WhiteQueens => this.WhiteQueens,
+            Pieces.WhiteKing => this.WhiteKing,
+            Pieces.BlackPawns => this.BlackPawns,
+            Pieces.BlackRooks => this.BlackRooks,
+            Pieces.BlackKnights => this.BlackKnights,
+            Pieces.BlackBishops => this.BlackBishops,
+            Pieces.BlackQueens => this.BlackQueens,
+            Pieces.BlackKing => this.BlackKing,
+            _ => throw new ArgumentOutOfRangeException(nameof(pieces), pieces, null)
+        };
+    }
+
 }
