@@ -70,7 +70,7 @@ public readonly record struct State {
     public Bitboard BlackQueens { get; init; }
     public Bitboard BlackKing { get; init; }
 
-    public bool WhiteIsActive { get; init; }
+    public bool WhiteIsActive { get; init; } = true;
 
     public bool WhiteCastleKingSide { get; init; }
     public bool WhiteCastleQueenSide { get; init; }
@@ -110,7 +110,10 @@ public readonly record struct State {
 
 
 #pragma warning disable CS0612   // “obsolete” warning id
-    public static State Empty => new();
+    public static State Empty => new() {
+        WhiteIsActive = true,
+        FullMoves = 1
+    };
 
 #pragma warning restore CS0612
 
