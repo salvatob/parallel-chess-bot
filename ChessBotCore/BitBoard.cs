@@ -6,7 +6,8 @@ namespace ChessBotCore;
 
 
 // thought of fully by me, written partially by chatGPT
-[DebuggerDisplay("{PrettyPrint(),nq}")]
+[DebuggerDisplay("{DebugPrint(),nq}")]
+// [DebuggerDisplay("{PrettyPrint(),nq}")]
 public readonly struct Bitboard : IEquatable<Bitboard>
 {
     private readonly ulong _bits;
@@ -110,4 +111,24 @@ public readonly struct Bitboard : IEquatable<Bitboard>
 
     public Bitboard MovePieces(Direction dir) => BitBoardHelpers.Move(this, dir);
     public static Bitboard Parse(string bitboard) => BitBoardHelpers.ParseBoard(bitboard);
+
+    public string DebugPrint() {
+        if (_bits == 0) return "Empty board.";
+        if (PopCount() == 1) {
+            var coords = Coordinates.From1D(TrailingZeroCount());
+            return $"one bit on {coords.ToString()}.";
+        }
+        
+        if (PopCount() == 63) {
+            var negative = ~this;
+            var coords = Coordinates.From1D(negative.TrailingZeroCount());
+            return $"Negative mask of {coords.ToString()}.";
+        }
+        
+        return _bits.ToString();
+    }
+
+    public override string ToString() {
+        return PrettyPrint();
+    }
 }
