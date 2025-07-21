@@ -17,66 +17,76 @@ public class KnightMoveGenerator : IMoveGenerator {
         KnightDriections.SSW
     };
     
-    public static List<State> GenerateMoves(State state) {
-        throw new NotImplementedException();
-    }
 
-    public List<Move> GenarateMovePositions(State state) {
+    public static List<Move> GenerateMoves(State state) {
         List<Move> possibleMoves = [];
         var knights = state.WhiteIsActive ? state.WhiteKnights : state.BlackKnights;
         var allyPieces = state.GetActivePieces();
-        var enemyPieces = state.GetInactivePieces();
+        // var enemyPieces = state.GetInactivePieces();
+#if DEBUG
+        Console.WriteLine("knights");
+        Console.WriteLine(knights);
+#endif
         
         foreach (var dir in MoveDirections) {
             var beforeCollision = Move(knights, dir);
-            var movedKnights = beforeCollision & allyPieces;
-            
+            var movedKnights = beforeCollision & (~allyPieces);
 
+#if DEBUG
+
+            Console.WriteLine($"movedKnights in dir {dir}");
+            Console.WriteLine(movedKnights);
+#endif
+            
             // var splitIntoMoves = SplitIntoMoves(knights, movedKnights, dir);
 
             KnightDriections oppositeDir = OppositeDir(dir);
             // foreach moved knight
             while (movedKnights.RawBits != 0) {
+                // select one new knight position
                 int currMoved = movedKnights.TrailingZeroCount();
-
+                
                 Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
                 
-                Bitboard maskBefore = ~(Move(currMoveMask, oppositeDir));
-
+                Bitboard maskBefore = Move(currMoveMask, oppositeDir);
                 
-                Bitboard newKnights = (knights | currMoveMask) & maskBefore;
+                // according to old and new positions create the new State 
+                possibleMoves.Add(CreateMove(maskBefore, currMoveMask, state));                
 
                 movedKnights &= ~currMoveMask;
             }
-
-
-            return possibleMoves;
         }
+        
+        return possibleMoves;
 
     }
 
-    private Move CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
+    private static Move CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
         bool white = state.WhiteIsActive;
         var capture = state.DetectPieces(maskAfter);
-        bool isCapture = !capture.HasValue;
-        if (white) {
-            Bitboard nextWhiteKnights = ((state.WhiteKnights | maskAfter) & (~maskBefore));
-            if (!isCapture) {
-                return new Move(
-                    state.Next() with {
-                        WhiteKnights = nextWhiteKnights
-                    }
-                );
-            }
 
-            var newCapturedPieces = state.GetPieces(capture!.Value) & ~maskAfter;
-            return new Move(
-                (state.Next() with {
-                    WhiteKnights = nextWhiteKnights
-                }).With(capture!.Value, newCapturedPieces)
-            );
+        State nextState;
+        Bitboard nextKnights;
+        // adds the moved knight, removes the before knight
+        if (white) {
+            nextKnights = ((state.WhiteKnights | maskAfter) & (~maskBefore));
+
+            nextState = state.Next() with { WhiteKnights = nextKnights };
+        } else {
+            nextKnights = ((state.BlackKnights | maskAfter) & (~maskBefore));
+
+            nextState = state.Next() with { BlackKnights = nextKnights };
         }
-        
+        // additionally removes the captured piece from its corresponding bitboard 
+        bool isCapture = capture.HasValue;
+        if (isCapture) {
+            var newCapturedPieces = state.GetPieces(capture.Value) & ~maskAfter;
+            nextState = nextState.With(capture.Value, newCapturedPieces);
+        }
+
+        return new Move(nextState) {
+            IsCapture = isCapture
+        };
     }
     
     public static List<Bitboard> SplitIntoMoves(Bitboard before, Bitboard after, KnightDriections dir) {
@@ -102,15 +112,20 @@ public class KnightMoveGenerator : IMoveGenerator {
         Bitboard withoutRightCol = ~ BitMask.Col[7];
         Bitboard withoutTwoLeftCols = ~ (BitMask.Col[0] | BitMask.Col[1]);
         Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);
-            
+
+#if DEBUG
+        if (dir is KnightDriections.SEE or KnightDriections.NEE) {
+            int _ = 4;
+        }
+#endif
         return dir switch {
             KnightDriections.NNE =>  (bits << 17) & withoutLeftCol ,
-            KnightDriections.NEE =>  (bits << 10) & withoutTwoLeftCols,
-            KnightDriections.SEE =>  (bits >>  6) & withoutTwoLeftCols,
+            KnightDriections.NEE =>  (bits << 10) & withoutTwoRightCols,
+            KnightDriections.SEE =>  (bits >>  6) & withoutTwoRightCols,
             KnightDriections.SSE =>  (bits >> 15) & withoutLeftCol ,
             KnightDriections.NNW =>  (bits << 15) & withoutRightCol ,
-            KnightDriections.NWW =>  (bits <<  6) & withoutTwoRightCols,
-            KnightDriections.SWW =>  (bits >> 10) & withoutTwoRightCols,
+            KnightDriections.NWW =>  (bits <<  6) & withoutTwoLeftCols,
+            KnightDriections.SWW =>  (bits >> 10) & withoutTwoLeftCols,
             KnightDriections.SSW =>  (bits >> 17) & withoutRightCol ,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
@@ -128,4 +143,5 @@ public class KnightMoveGenerator : IMoveGenerator {
             KnightDriections.NNE => KnightDriections.SSW,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
+    }
 }

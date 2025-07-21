@@ -3,7 +3,7 @@ using System.Numerics;
 namespace ChessBotCore;
 
 public class PawnMoveGenerator : IMoveGenerator {
-    public static List<State> GenerateMoves(State state) {
+    public static List<Move> GenerateMoves(State state) {
         throw new NotImplementedException();
     }
 
