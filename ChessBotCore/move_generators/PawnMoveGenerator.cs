@@ -2,10 +2,6 @@ using System.Numerics;
 
 namespace ChessBotCore;
 
-public interface IMoveGenerator {
-    public static abstract List<State> GenerateMoves(State state);
-} 
-
 public class PawnMoveGenerator : IMoveGenerator {
     public static List<State> GenerateMoves(State state) {
         throw new NotImplementedException();
