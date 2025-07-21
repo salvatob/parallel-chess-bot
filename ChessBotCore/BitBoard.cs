@@ -19,7 +19,8 @@ public readonly struct Bitboard : IEquatable<Bitboard>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _bits;
     }
-    public bool Empty => _bits == 0;
+
+    public bool IsEmpty() => _bits == 0;
 
     public static implicit operator Bitboard(ulong bits) 
         => new Bitboard(bits);
