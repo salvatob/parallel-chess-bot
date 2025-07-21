@@ -76,23 +76,30 @@ internal static class BitBoardHelpers {
         => x.RawBits != 0 && (x.RawBits & (x.RawBits - 1)) == 0;
 
     public static Bitboard Move(Bitboard bits, Direction dir) {
+        Bitboard withoutLeftCol = ~ BitMask.Col[0];
+        Bitboard withoutRightCol = ~ BitMask.Col[7];
+        Bitboard withoutTwoLeftCols = ~ (BitMask.Col[0] | BitMask.Col[1]);
+        Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);
+            
         return dir switch {
             Direction.N => bits << 8,
             Direction.S => bits >> 8,
-            Direction.E => (bits >> 1) & (~ BitMask.Col[7]) ,
-            Direction.W => (bits << 1) & (~ BitMask.Col[0]),
-            Direction.NE => (bits << 7) & (~ BitMask.Col[7]),
-            // Direction.NW => expr,
-            // Direction.SE => expr,
-            // Direction.SW => expr,
-            // Direction.NNE => expr,
-            // Direction.NEE => expr,
-            // Direction.NNW => expr,
-            // Direction.NWW => expr,
-            // Direction.SSE => expr,
-            // Direction.SEE => expr,
-            // Direction.SSW => expr,
-            // Direction.SWW => expr,
+            Direction.E => (bits >> 1) & withoutLeftCol,
+            Direction.W => (bits << 1) & withoutRightCol,
+            
+            Direction.NE => (bits << 7) & withoutLeftCol,
+            Direction.NW => (bits << 9) & withoutRightCol,
+            Direction.SE => (bits >> 9) & withoutLeftCol,
+            Direction.SW => (bits >> 7) & withoutRightCol,
+            
+            // Direction.NNE =>  (bits << 17) & withoutLeftCol ,
+            // Direction.NEE =>  (bits << 10) & withoutTwoLeftCols,
+            // Direction.SEE =>  (bits >>  6) & withoutTwoLeftCols,
+            // Direction.SSE =>  (bits >> 15) & withoutLeftCol ,
+            // Direction.NNW =>  (bits << 15) & withoutRightCol ,
+            // Direction.NWW =>  (bits <<  6) & withoutTwoRightCols,
+            // Direction.SWW =>  (bits >> 10) & withoutTwoRightCols,
+            // Direction.SSW =>  (bits >> 17) & withoutRightCol ,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
@@ -100,8 +107,6 @@ internal static class BitBoardHelpers {
 
 public enum Direction {
     N,S,W,E,
-    NE,NW,SE,SW,
-    NNE,NEE,NNW,NWW,
-    SSE,SEE,SSW,SWW
+    NE,NW,SE,SW
 };
 
