@@ -12,6 +12,7 @@ public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
         Direction.W
     ];
 
+    //TODO
     protected override Pieces WhitePiece => Pieces.WhiteRooks;
     protected override Pieces BlackPiece => Pieces.BlackRooks;
 }

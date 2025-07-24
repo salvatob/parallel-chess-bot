@@ -23,21 +23,21 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
         var capture = state.DetectPieces(maskAfter);
 
         State nextState;
-        Bitboard nextPiecesBoard;
+        Bitboard boardAfterTheMove;
         // adds the moved knight, removes the before knight
         if (white) {
-            nextPiecesBoard = (state.GetPieces(WhitePiece) | maskAfter) & (~maskBefore);
+            boardAfterTheMove = (state.GetPieces(WhitePiece) | maskAfter) & (~maskBefore);
 
-            nextState = state.Next().With(WhitePiece, nextPiecesBoard);
+            nextState = state.Next().With(WhitePiece, boardAfterTheMove);
         } else {
-            nextPiecesBoard = (state.GetPieces(BlackPiece) | maskAfter) & (~maskBefore);
+            boardAfterTheMove = (state.GetPieces(BlackPiece) | maskAfter) & (~maskBefore);
 
-            nextState = state.Next().With(WhitePiece, nextPiecesBoard);
+            nextState = state.Next().With(WhitePiece, boardAfterTheMove);
         }
         // additionally removes the captured piece from its corresponding bitboard 
         bool isCapture = capture.HasValue;
         if (isCapture) {
-            var newCapturedPieces = state.GetPieces(capture.Value) & ~maskAfter;
+            var newCapturedPieces = state.GetPieces(capture!.Value) & ~maskAfter;
             nextState = nextState.With(capture.Value, newCapturedPieces);
         }
 

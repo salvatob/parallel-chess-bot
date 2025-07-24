@@ -22,23 +22,11 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
     public override IEnumerable<Move> GenerateMoves(State state) {
         var knights = state.WhiteIsActive ? state.WhiteKnights : state.BlackKnights;
         var allyPieces = state.GetActivePieces();
-        // var enemyPieces = state.GetInactivePieces();
-#if DEBUG
-        Console.WriteLine("knights");
-        Console.WriteLine(knights);
-#endif
         
         foreach (var dir in KnightDirections) {
             var beforeCollision = BitBoardHelpers.Move(knights, dir);
             var movedKnights = beforeCollision & (~allyPieces);
-
-#if DEBUG
-
-            Console.WriteLine($"movedKnights in dir {dir}");
-            Console.WriteLine(movedKnights);
-#endif
-            
-            // var splitIntoMoves = SplitIntoMoves(knights, movedKnights, dir);
+         
 
             Direction oppositeDir =BitBoardHelpers. OppositeDir(dir);
             // foreach moved knight
@@ -59,34 +47,5 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
         
 
     }
-
-    private new Move  CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
-        bool white = state.WhiteIsActive;
-        var capture = state.DetectPieces(maskAfter);
-
-        State nextState;
-        Bitboard nextKnights;
-        // adds the moved knight, removes the before knight
-        if (white) {
-            nextKnights = ((state.WhiteKnights | maskAfter) & (~maskBefore));
-
-            nextState = state.Next() with { WhiteKnights = nextKnights };
-        } else {
-            nextKnights = ((state.BlackKnights | maskAfter) & (~maskBefore));
-
-            nextState = state.Next() with { BlackKnights = nextKnights };
-        }
-        // additionally removes the captured piece from its corresponding bitboard 
-        bool isCapture = capture.HasValue;
-        if (isCapture) {
-            var newCapturedPieces = state.GetPieces(capture.Value) & ~maskAfter;
-            nextState = nextState.With(capture.Value, newCapturedPieces);
-        }
-
-        return new Move(nextState) {
-            IsCapture = isCapture
-        };
-    }
-    
 
 }

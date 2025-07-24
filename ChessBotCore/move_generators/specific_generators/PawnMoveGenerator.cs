@@ -14,6 +14,9 @@ public class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     public override IEnumerable<Move> GenerateMoves(State state) {
         throw new NotImplementedException();
     }
+    //TODO implement enpassant
+    //TODO implement promoting
+    //TODO implement capturing
 
     internal List<Bitboard> OneCellForward(Bitboard pawns, Bitboard emptyCells) {
         List<Bitboard> newPawnBoards = [];
@@ -43,19 +46,6 @@ public class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         Bitboard startingPawns = pawns & BitMask.Row[1];
         Bitboard movedOneCell = (startingPawns << 8) & (emptyCells);
         Bitboard moved = (movedOneCell << 8) & (emptyCells);
-
-#if DEBUG
-        Console.WriteLine("--pawns--");
-        Console.WriteLine(pawns.Print());
-        Console.WriteLine("--emptyCells--");
-        Console.WriteLine(emptyCells.Print());
-        Console.WriteLine("--startingPawns--");
-        Console.WriteLine(startingPawns.Print());
-        Console.WriteLine("--movedOneCell--");
-        Console.WriteLine(movedOneCell.Print());
-        Console.WriteLine("--moved--");
-        Console.WriteLine(moved.Print());
-#endif        
         
         while (moved.RawBits != 0) {
             int currMoved = moved.TrailingZeroCount();

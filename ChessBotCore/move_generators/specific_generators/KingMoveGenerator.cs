@@ -23,27 +23,15 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
         var king = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
         var allyPieces = state.GetActivePieces();
         // var enemyPieces = state.GetInactivePieces();
-#if DEBUG
-        Console.WriteLine("king");
-        Console.WriteLine(king);
-#endif
-        
         foreach (var dir in MoveDirections) {
             var beforeCollision = king.MovePieces(dir);
             var movedKing = beforeCollision & (~allyPieces);
 
-#if DEBUG
-
-            Console.WriteLine($"movedKnights in dir {dir}");
-            Console.WriteLine(movedKing);
-#endif
             
-            // var splitIntoMoves = SplitIntoMoves(knights, movedKnights, dir);
-
             Direction oppositeDir = BitBoardHelpers.OppositeDir(dir);
-            // foreach moved knight
+            // foreach moved king
             while (movedKing.RawBits != 0) {
-                // select one new knight position
+                // select one new king position
                 int currMoved = movedKing.TrailingZeroCount();
                 
                 Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
