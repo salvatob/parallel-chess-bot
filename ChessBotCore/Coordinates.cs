@@ -9,7 +9,7 @@ public readonly struct Coordinates {
     public override string ToString() {
         Debug.Assert(Row is >= 0 and < 8, $"{nameof(Coordinates)}.{nameof(Row)} is outside bounds [0-7]");
         Debug.Assert(Col is >= 0 and < 8, $"{nameof(Coordinates)}.{nameof(Col)} is outside bounds [0-7]");
-        return Convert.ToChar(Col + 'a' - 1) + "" + (Row + 1);
+        return Convert.ToChar(Col + 'a') + "" + (Row + 1);
     }
 
 
@@ -40,7 +40,7 @@ public readonly struct Coordinates {
     public static Coordinates From1D(int coordinate) {
         return new() {
             Row = coordinate / 8,
-            Col = coordinate % 8
+            Col = 7 - coordinate % 8
         };
     }
 }

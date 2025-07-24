@@ -1,9 +1,9 @@
 namespace ChessBotCore;
 
+/// <summary>
+/// Provides an abstraction over move generation.
+/// In itself Should not be bound to the Singleton pattern. 
+/// </summary>
 public interface IMoveGenerator {
-    public static abstract List<Move> GenerateMoves(State state);
-
-    public static List<Bitboard> SplitIntoMoves(Bitboard pieces, Bitboard piecesAfter) {
-        return [];
-    }
+    public IEnumerable<Move> GenerateMoves(State state);
 }
