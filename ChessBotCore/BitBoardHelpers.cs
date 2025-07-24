@@ -79,7 +79,7 @@ internal static class BitBoardHelpers {
         Bitboard withoutLeftCol = ~ BitMask.Col[0];
         Bitboard withoutRightCol = ~ BitMask.Col[7];
         Bitboard withoutTwoLeftCols = ~ (BitMask.Col[0] | BitMask.Col[1]);
-        Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);
+        Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);;
             
         return dir switch {
             Direction.N => bits << 8,
@@ -92,21 +92,49 @@ internal static class BitBoardHelpers {
             Direction.SE => (bits >> 9) & withoutLeftCol,
             Direction.SW => (bits >> 7) & withoutRightCol,
             
-            // Direction.NNE =>  (bits << 17) & withoutLeftCol ,
-            // Direction.NEE =>  (bits << 10) & withoutTwoLeftCols,
-            // Direction.SEE =>  (bits >>  6) & withoutTwoLeftCols,
-            // Direction.SSE =>  (bits >> 15) & withoutLeftCol ,
-            // Direction.NNW =>  (bits << 15) & withoutRightCol ,
-            // Direction.NWW =>  (bits <<  6) & withoutTwoRightCols,
-            // Direction.SWW =>  (bits >> 10) & withoutTwoRightCols,
-            // Direction.SSW =>  (bits >> 17) & withoutRightCol ,
+            Direction.NNE =>  (bits << 17) & withoutLeftCol ,
+            Direction.NEE =>  (bits << 10) & withoutTwoRightCols,
+            Direction.SEE =>  (bits >>  6) & withoutTwoRightCols,
+            Direction.SSE =>  (bits >> 15) & withoutLeftCol ,
+            Direction.NNW =>  (bits << 15) & withoutRightCol ,
+            Direction.NWW =>  (bits <<  6) & withoutTwoLeftCols,
+            Direction.SWW =>  (bits >> 10) & withoutTwoLeftCols,
+            Direction.SSW =>  (bits >> 17) & withoutRightCol ,
+            
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+    
+    public static Direction OppositeDir(Direction dir) {
+        return dir switch {
+            Direction.N => Direction.S,
+            Direction.S => Direction.N,
+            Direction.W => Direction.E,
+            Direction.E => Direction.W,
+            Direction.NE => Direction.SW,
+            Direction.NW => Direction.SE,
+            Direction.SE => Direction.NW,
+            Direction.SW => Direction.NE,
+            
+            Direction.SSW => Direction.NNE,
+            Direction.SWW => Direction.NEE,
+            Direction.NWW => Direction.SEE,
+            Direction.NNW => Direction.SSE,
+            Direction.SSE => Direction.NNW,
+            Direction.SEE => Direction.NWW,
+            Direction.NEE => Direction.SWW,
+            Direction.NNE => Direction.SSW,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
 }
 
+
+
 public enum Direction {
-    N,S,W,E,
-    NE,NW,SE,SW
+    N, S, W, E,
+    NE, NW, SE, SW,
+    NNE, NEE, NNW, NWW,
+    SSE, SEE, SSW, SWW
 };
 
