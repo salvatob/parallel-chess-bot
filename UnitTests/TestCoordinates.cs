@@ -34,4 +34,16 @@ public class TestCoordinates {
         Assert.Equal(i, coords.Row);
         Assert.Equal(j, coords.Col);
     }
+
+    [Fact]
+    public void Coordinates_FromMask() {
+        //arrange
+        var mask = Bitboard.FromCoords(Coordinates.FromString("b3"));
+        var expected = new Coordinates(2, 1);
+        //act
+        var actual = Coordinates.FromMask(mask);
+        //assert
+        Assert.Equal(expected, actual);
+        
+    }
 }
