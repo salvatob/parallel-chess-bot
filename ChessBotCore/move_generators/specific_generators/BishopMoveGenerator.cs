@@ -11,7 +11,7 @@ public class BishopMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
         Direction.SE
     ];
 
-    
+    private BishopMoveGenerator(){}
     
     public static IMoveGenerator Instance => new BishopMoveGenerator();
 }
