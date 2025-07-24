@@ -42,7 +42,9 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
         }
 
         return new Move(nextState) {
-            IsCapture = isCapture
+            IsCapture = isCapture,
+            coordsBefore = Coordinates.FromMask(maskBefore),
+            coordsAfter = Coordinates.FromMask(maskAfter)
         };
     }
 
