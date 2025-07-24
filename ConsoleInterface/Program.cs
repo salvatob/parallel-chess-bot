@@ -44,10 +44,10 @@ var enemyPiecesStr =
 var rooks = Bitboard.Parse(rooksStr);
 var enemyPawns = Bitboard.Parse(enemyPiecesStr);
 var allyPawns = Bitboard.Parse(allyPiecesStr);
-var state = State.Empty with { WhiteRooks = rooks, WhitePawns = allyPawns, BlackPawns = enemyPawns};
+var state = State.Empty with { WhiteKnights = rooks, WhitePawns = allyPawns, BlackPawns = enemyPawns};
 
 
-var moves = RookMoveGenerator.Instance.GenerateMoves(state);
+var moves = KnightMoveGenerator.Instance.GenerateMoves(state);
 
 var moveMap = Bitboard.Empty;
 
@@ -55,8 +55,8 @@ Console.WriteLine("rooks");
 Console.WriteLine(rooks.PrettyPrint());
 
 foreach (Move m in moves) {
-    Console.WriteLine(m.StateAfter.WhiteRooks);
-    // moveMap |= m.StateAfter.WhiteRooks;
+    // Console.WriteLine(m.StateAfter.WhiteKnights);
+    moveMap |= m.StateAfter.WhiteKnights;
 }
 
 Console.WriteLine(moveMap.PrettyPrint());
