@@ -1,13 +1,21 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace ChessBotCore;
 
-public class PawnMoveGenerator : IMoveGenerator {
-    public static List<Move> GenerateMoves(State state) {
+public class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
+    
+    private PawnMoveGenerator(){}
+    public static IMoveGenerator Instance => new PawnMoveGenerator();
+
+    protected override Pieces WhitePiece => Pieces.WhitePawns;
+    protected override Pieces BlackPiece => Pieces.BlackPawns;
+
+    public override IEnumerable<Move> GenerateMoves(State state) {
         throw new NotImplementedException();
     }
 
-    public static List<Bitboard> OneCellForward(Bitboard pawns, Bitboard emptyCells) {
+    internal List<Bitboard> OneCellForward(Bitboard pawns, Bitboard emptyCells) {
         List<Bitboard> newPawnBoards = [];
         // moves all pieces one step forward
         // this variable represents new positions, deleting all that would result in a collision
@@ -28,7 +36,7 @@ public class PawnMoveGenerator : IMoveGenerator {
         return newPawnBoards;
     }
 
-    public static List<Bitboard> DoubleMoveForward(Bitboard pawns, Bitboard emptyCells) {
+    internal List<Bitboard> DoubleMoveForward(Bitboard pawns, Bitboard emptyCells) {
         List<Bitboard> newPawnBoards = [];
         // moves all pieces two steps forward
         // this variable represents new positions, deleting all that would result in a collision

@@ -29,8 +29,9 @@ public static class FenLoader {
         if (enPassant == "-") return 0UL;
 
         Coordinates enPassantCoordinates = Coordinates.FromString(enPassant);
-        int indexCoord = enPassantCoordinates.To1D();
-        return 1UL << indexCoord;
+        // int indexCoord = enPassantCoordinates.To1D();
+        return Bitboard.FromCoords(enPassantCoordinates);
+        // return 1UL << indexCoord;
     }
 
     private static int ParseClock(string clock) {

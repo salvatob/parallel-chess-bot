@@ -1,23 +1,62 @@
-﻿// See https://aka.ms/new-console-template for more information
-
+﻿
 using ChessBotCore;
 
-var pawnsStr =
-"""
-0000 1000
-0000 1000
-0010 0000
-0000 0000
-0000 0010
-0000 0100
-0111 0110
-0000 0000
-""";
+var rooksStr = 
+    """
+    0000 0000
+    0000 0000
+    0000 0000
+    0000 0000
+    
+    0000 0000
+    0001 0000
+    0000 0000
+    0000 0000
+    """;
+
+var allyPiecesStr = 
+    """
+    0000 0000
+    0000 0000
+    0001 0000
+    0000 0000
+    
+    0000 0000
+    0000 0000
+    0000 0000
+    0000 0000
+    """;
+
+var enemyPiecesStr =
+    """
+    0000 0000
+    0000 0000
+    0000 0000
+    0000 0000
+    0000 0000
+    0000 0100
+    0000 0000
+    0000 0000
+    """;
 
 
-var pawns = Bitboard.Parse(pawnsStr);
+//act
+var rooks = Bitboard.Parse(rooksStr);
+var enemyPawns = Bitboard.Parse(enemyPiecesStr);
+var allyPawns = Bitboard.Parse(allyPiecesStr);
+var state = State.Empty with { WhiteRooks = rooks, WhitePawns = allyPawns, BlackPawns = enemyPawns};
 
-foreach (var move in PawnMoveGenerator.OneCellForward(pawns, ~pawns)) {
-    Console.WriteLine(move.Print());
-    Console.WriteLine("--------");
+
+var moves = RookMoveGenerator.Instance.GenerateMoves(state);
+
+var moveMap = Bitboard.Empty;
+
+Console.WriteLine("rooks");
+Console.WriteLine(rooks.PrettyPrint());
+
+foreach (Move m in moves) {
+    Console.WriteLine(m.StateAfter.WhiteRooks);
+    // moveMap |= m.StateAfter.WhiteRooks;
 }
+
+Console.WriteLine(moveMap.PrettyPrint());

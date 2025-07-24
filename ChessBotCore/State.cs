@@ -176,18 +176,18 @@ public readonly record struct State {
     /// <param name="mask">The board to check against. Should be unary bitboard (only 1 bit set).</param>
     /// <returns>Pieces enum entry, if collision has been found, null if no pieces collide</returns>
     public Pieces? DetectPieces(Bitboard mask) {
-        if ((WhitePawns & mask).IsEmpty()) return Pieces.WhitePawns;
-        if ((WhiteRooks & mask).IsEmpty()) return Pieces.WhiteRooks;
-        if ((WhiteKnights & mask).IsEmpty()) return Pieces.WhiteKnights;
-        if ((WhiteBishops & mask).IsEmpty()) return Pieces.WhiteBishops;
-        if ((WhiteQueens & mask).IsEmpty()) return Pieces.WhiteQueens;
-        if ((WhiteKing & mask).IsEmpty()) return Pieces.WhiteKing;
-        if ((BlackPawns & mask).IsEmpty()) return Pieces.BlackPawns;
-        if ((BlackRooks & mask).IsEmpty()) return Pieces.BlackRooks;
-        if ((BlackKnights & mask).IsEmpty()) return Pieces.BlackKnights;
-        if ((BlackBishops & mask).IsEmpty()) return Pieces.BlackBishops;
-        if ((BlackQueens & mask).IsEmpty()) return Pieces.BlackQueens;
-        if ((BlackKing & mask).IsEmpty()) return Pieces.BlackKing;
+        if (!(WhitePawns & mask).IsEmpty()) return Pieces.WhitePawns;
+        if (!(WhiteRooks & mask).IsEmpty()) return Pieces.WhiteRooks;
+        if (!(WhiteKnights & mask).IsEmpty()) return Pieces.WhiteKnights;
+        if (!(WhiteBishops & mask).IsEmpty()) return Pieces.WhiteBishops;
+        if (!(WhiteQueens & mask).IsEmpty()) return Pieces.WhiteQueens;
+        if (!(WhiteKing & mask).IsEmpty()) return Pieces.WhiteKing;
+        if (!(BlackPawns & mask).IsEmpty()) return Pieces.BlackPawns;
+        if (!(BlackRooks & mask).IsEmpty()) return Pieces.BlackRooks;
+        if (!(BlackKnights & mask).IsEmpty()) return Pieces.BlackKnights;
+        if (!(BlackBishops & mask).IsEmpty()) return Pieces.BlackBishops;
+        if (!(BlackQueens & mask).IsEmpty()) return Pieces.BlackQueens;
+        if (!(BlackKing & mask).IsEmpty()) return Pieces.BlackKing;
         return null;
     }
     
