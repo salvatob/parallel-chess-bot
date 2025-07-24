@@ -13,6 +13,12 @@ public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
     ];
 
     //TODO
+    // public override IEnumerable<Move> GenerateMoves(State state) {
+    //     foreach (Move generateMove in base.GenerateMoves(state)) {
+    //         
+    //     }
+    // }
+
     protected override Pieces WhitePiece => Pieces.WhiteRooks;
     protected override Pieces BlackPiece => Pieces.BlackRooks;
 }
