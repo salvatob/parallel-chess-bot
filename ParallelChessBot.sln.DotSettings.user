@@ -1,5 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1499ed94_002Df98f_002D4c81_002D9ec0_002D3d70986a9428/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestStateToFenPieces" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1499ed94_002Df98f_002D4c81_002D9ec0_002D3d70986a9428/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestStateToFenPieces" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestStateToFen.TestStateToFenPieces&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestCoordinates.Coordinates_ToString&lt;/TestId&gt;&#xD;
@@ -12,10 +12,11 @@
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.PawnMovement.White_OneCellForward&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.PawnMovement.White_DoubleMove&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.MovingPieces&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.CompileTimeTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e9e749ee_002D23e8_002D41d0_002D8f20_002D91fac2c9167e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="StateToMatrix_OneQueen" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e9e749ee_002D23e8_002D41d0_002D8f20_002D91fac2c9167e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="StateToMatrix_OneQueen" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestStateToFen.TestStateToFenPieces&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestCoordinates.Coordinates_ToString&lt;/TestId&gt;&#xD;
@@ -27,5 +28,6 @@
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestBitMasks&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.PawnMovement.White_OneCellForward&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.PawnMovement.White_DoubleMove&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.CompileTimeTests.BitboardMoveGenerator_HasNoPublicConstructors&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
