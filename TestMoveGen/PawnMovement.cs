@@ -94,7 +94,7 @@ public class PawnMovement {
         
         var pawns = Bitboard.Parse(inputStr);
 
-        var possibleMoves = PawnMoveGenerator.OneCellForward(pawns, ~pawns);
+        var possibleMoves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).OneCellForward(pawns, ~pawns);
 
         var expectedMoves = expectedStr.Select(Bitboard.Parse);
 
@@ -144,7 +144,7 @@ public class PawnMovement {
         var otherPieces = Bitboard.Parse(otherPiecesStr) | pawns;
         var expected = expectedStr.Select(Bitboard.Parse);
         
-        var pawnDoubleMovesOnly = PawnMoveGenerator.DoubleMoveForward(pawns, ~otherPieces);
+        var pawnDoubleMovesOnly = ((PawnMoveGenerator)PawnMoveGenerator.Instance).DoubleMoveForward(pawns, ~otherPieces);
         //assert
 
         pawnDoubleMovesOnly.Should().BeEquivalentTo(expected);
