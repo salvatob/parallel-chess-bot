@@ -49,7 +49,7 @@ public readonly record struct State {
         BlackBishops = 0;
         BlackQueens = 0;
         BlackKing = 0;
-        WhiteIsActive = false;
+        WhiteIsActive = true;
         WhiteCastleKingSide = false;
         WhiteCastleQueenSide = false;
         BlackCastleKingSide = false;
