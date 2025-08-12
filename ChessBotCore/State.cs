@@ -120,11 +120,11 @@ public readonly record struct State {
 
     /// <summary>
     /// Returns a copy of current state, where some properties are updated automatically.
-    /// <see cref="WhiteIsActive"/>, <see cref="FullMoves"/> clock, are updated automatically.
-    /// Pieces are left untouched, user must change them on their own.
-    /// Specific properties such as <seealso cref="EnPassant"/> or castling are also left to the user to handle.
+    /// <see cref="WhiteIsActive"/>, <see cref="FullMoves"/> clock and HalfMoves clock, are updated automatically.
+    /// Pieces are left untouched, user should change them on their own.
+    /// Specific properties such as <see cref="EnPassant"/> or castling are also left to the user to handle.
     /// </summary>
-    /// <returns>A copy with fullmove clock and active color automatically updated.</returns>
+    /// <returns>A copy with clocks and active color automatically updated.</returns>
     public State Next() {
         return this with {
             WhiteIsActive = !this.WhiteIsActive,
@@ -133,7 +133,7 @@ public readonly record struct State {
         };
     }
 
-    public State WithHalfClockUpdated() {
+    public State WithHalfClockReset() {
         return this with {
             HalfMovesSincePawnMoveOrCapture = 0
         };

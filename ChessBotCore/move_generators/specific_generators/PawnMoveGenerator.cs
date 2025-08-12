@@ -56,9 +56,9 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         {
             State newState;
             if (whitesMove) {
-                newState = state.Next().WithHalfClockUpdated() with {WhitePawns = board};
+                newState = state.Next().WithHalfClockReset() with {WhitePawns = board};
             } else {
-                newState = state.Next().WithHalfClockUpdated() with {BlackPawns = board};
+                newState = state.Next().WithHalfClockReset() with {BlackPawns = board};
             }
 
             
