@@ -125,7 +125,7 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
             return $"Negative mask of {coords.ToString()}.";
         }
         
-        return _bits.ToString();
+        return "0x"+_bits.ToString("X");
     }
 
     public override string ToString() {
