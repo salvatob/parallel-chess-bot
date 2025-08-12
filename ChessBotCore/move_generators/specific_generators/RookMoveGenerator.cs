@@ -12,7 +12,7 @@ public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
         Direction.W
     ];
 
-    //TODO
+    // TODO castles forbidding after moving the rook
     // public override IEnumerable<Move> GenerateMoves(State state) {
     //     foreach (Move generateMove in base.GenerateMoves(state)) {
     //         
