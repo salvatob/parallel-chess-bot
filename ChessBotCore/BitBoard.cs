@@ -78,6 +78,7 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
     public string PrettyPrint()
     {
         var sb = new System.Text.StringBuilder();
+        sb.AppendLine();
         sb.AppendLine("  a b c d e f g h");
         for (int rank = 7; rank >= 0; rank--)
         {
