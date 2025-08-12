@@ -92,9 +92,9 @@ public class PawnMovement {
         ];
 
         
-        var pawns = Bitboard.Parse(inputStr);
+        Bitboard pawns = Bitboard.Parse(inputStr);
 
-        var possibleMoves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).OneCellForward(pawns, ~pawns);
+        var possibleMoves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).OneCellForward(pawns, ~pawns, true);
 
         var expectedMoves = expectedStr.Select(Bitboard.Parse);
 
@@ -144,10 +144,23 @@ public class PawnMovement {
         var otherPieces = Bitboard.Parse(otherPiecesStr) | pawns;
         var expected = expectedStr.Select(Bitboard.Parse);
         
-        var pawnDoubleMovesOnly = ((PawnMoveGenerator)PawnMoveGenerator.Instance).DoubleMoveForward(pawns, ~otherPieces);
+        var pawnDoubleMovesOnly = ((PawnMoveGenerator)PawnMoveGenerator.Instance).DoubleMoveForward(pawns, ~otherPieces, true);
         //assert
 
         pawnDoubleMovesOnly.Should().BeEquivalentTo(expected);
 
+    }
+
+    [Fact]
+    public void WhiteCapture() {
+        //arrange
+        var whitePawn = Bitboard.FromCoords(Coordinates.FromString("c2"));
+        var blackPawns = Bitboard.FromCoords(Coordinates.FromString("b3")) | Bitboard.FromCoords(Coordinates.FromString("d3"));
+
+        
+        //act
+
+        
+        //assert
     }
 }
