@@ -12,12 +12,16 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,
         RookMoveGenerator.Instance ,
-        // TODO
-        // PawnMoveGenerator.Instance,
+        PawnMoveGenerator.Instance,
         QueenMoveGenerator.Instance,
         BishopMoveGenerator.Instance
     );
     
+    /// <summary>
+    /// Generates all pseudo-legal moves from a set state struct
+    /// </summary>
+    /// <param name="state">The state from which to generate the moves</param>
+    /// <returns>Lazy IEnumerable of Move structs</returns>
     public IEnumerable<Move> GenerateMoves(State state) {
         foreach (IMoveGenerator generator in _generators) {
             foreach (Move move in generator.GenerateMoves(state)) {
@@ -26,9 +30,14 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         }
     }
 
+    
+    /// <summary>
+    /// Generates all  <b>LEGAL</b> moves from a set state struct
+    /// </summary>
+    /// <param name="state">The state from which to generate the moves</param>
+    /// <returns>Lazy IEnumerable of Move structs</returns>
     public IEnumerable<Move> GetLegalMoves(State state) {
         return GenerateMoves(state).Where(CheckMoveLegality);
-
     }
 
     private bool CheckMoveLegality(Move move) {
