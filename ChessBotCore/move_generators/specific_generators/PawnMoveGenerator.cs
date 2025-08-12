@@ -92,7 +92,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                 yield break;
             }
 
-            var newPawns = pawns | (~promotionMask);
+            var newPawns = pawns | promotionMask;
 
             Pieces[] piecesToPromoteTo = whitesMove
                 ? [Pieces.WhiteQueens, Pieces.WhiteKnights, Pieces.WhiteRooks, Pieces.WhiteBishops]
