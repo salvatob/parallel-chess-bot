@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Text;
 
 namespace ChessBotCore;
 
@@ -229,4 +230,61 @@ public readonly record struct State {
         };
     }
 
+    public string PrettyPrint() {
+        char[,] board = new char[8,8];
+
+        // Fill with empty squares
+        for (int r = 0; r < 8; r++)
+            for (int f = 0; f < 8; f++)
+                board[r, f] = '.';
+
+        // Helper to place a piece from bitboard
+        void PlacePieces(Bitboard bitboard, char symbol) {
+            ulong bits = bitboard.RawBits;
+            while (bits != 0)
+            {
+                int square = BitOperations.TrailingZeroCount(bits);
+                bits &= bits - 1; // clear LS1B
+
+                int rank = square / 8; // 0 = rank 1, 7 = rank 8
+                int file = square % 8; // 0 = file a, 7 = file h
+
+                // Flip rank so rank 8 is at the top
+                board[7 - rank, file] = symbol;
+            }
+        }
+
+        // White pieces
+        PlacePieces(WhitePawns,   'P');
+        PlacePieces(WhiteKnights, 'N');
+        PlacePieces(WhiteBishops, 'B');
+        PlacePieces(WhiteRooks,   'R');
+        PlacePieces(WhiteQueens,  'Q');
+        PlacePieces(WhiteKing,   'K');
+
+        // Black pieces
+        PlacePieces(BlackPawns,   'p');
+        PlacePieces(BlackKnights, 'n');
+        PlacePieces(BlackBishops, 'b');
+        PlacePieces(BlackRooks,   'r');
+        PlacePieces(BlackQueens,  'q');
+        PlacePieces(BlackKing,   'k');
+
+        // Print board
+        var sb = new StringBuilder();
+        sb.AppendLine();
+        for (int r = 0; r < 8; r++) {
+            sb.Append($"{8 - r}  "); // rank label
+            
+            for (int f = 0; f < 8; f++)
+                sb.Append(board[r, 7-f] + " ");
+            sb.AppendLine();
+            
+        }
+
+        // File labels
+        sb.AppendLine("   a b c d e f g h");
+        return sb.ToString();
+    }
+    
 }
