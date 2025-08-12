@@ -27,8 +27,8 @@ public readonly struct Coordinates {
 
     public static Coordinates FromString(string square) {
         if (square.Length != 2) throw new Exception("square notation not parsed: str.length != 2");
-        char c1 = square[0];
-        char c2 = char.ToLower(square[1]);
+        char c1 = char.ToLower(square[0]);
+        char c2 = square[1];
         if (!char.IsLetter(c1) || c2 > 'h')
             throw new ArgumentException("square notation not parsed: " +
                                         "first character must be a letter between a-h");
