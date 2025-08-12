@@ -5,6 +5,8 @@ public struct Move {
     public required bool IsCapture { get; init; }
     public bool IsPromotion { get; init; }
     public bool IsCheck { get; init; }
+    public bool IsCastle { get; init; }
+    
     // public string strRepresentation =
     public Coordinates coordsBefore { get; set; }
     public Coordinates coordsAfter { get; set; }
