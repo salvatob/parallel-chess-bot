@@ -24,7 +24,7 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
 
         State nextState;
         Bitboard boardAfterTheMove;
-        // adds the moved knight, removes the before knight
+        // adds the moved piece, removes the before piece
         if (white) {
             boardAfterTheMove = (state.GetPieces(WhitePiece) | maskAfter) & (~maskBefore);
 
