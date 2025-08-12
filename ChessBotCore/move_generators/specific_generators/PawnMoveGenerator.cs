@@ -56,10 +56,12 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         {
             State newState;
             if (whitesMove) {
-                newState = state.Next() with {WhitePawns = board};
+                newState = state.Next().WithHalfClockUpdated() with {WhitePawns = board};
             } else {
-                newState = state.Next() with {BlackPawns = board};
+                newState = state.Next().WithHalfClockUpdated() with {BlackPawns = board};
             }
+
+            
             Move newMove = new Move(newState) {IsCapture = false};
 
             yield return newMove;
@@ -67,7 +69,6 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     }
     
     //TODO implement enpassant
-
     
     /// <summary>
     /// Wrapper method, that will expand promotion moves to all four possibilites.
@@ -89,25 +90,25 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             // means the move is not promotion
             if (promotionMask.IsEmpty()) {
                 yield return move;
-                yield break;
-            }
+                
+            } else {
+                var newPawns = pawns | promotionMask;
 
-            var newPawns = pawns | promotionMask;
-
-            Pieces[] piecesToPromoteTo = whitesMove
-                ? [Pieces.WhiteQueens, Pieces.WhiteKnights, Pieces.WhiteRooks, Pieces.WhiteBishops]
-                : [Pieces.BlackQueens, Pieces.BlackKnights, Pieces.BlackRooks, Pieces.BlackBishops];
+                Pieces[] piecesToPromoteTo = whitesMove
+                    ? [Pieces.WhiteQueens, Pieces.WhiteKnights, Pieces.WhiteRooks, Pieces.WhiteBishops]
+                    : [Pieces.BlackQueens, Pieces.BlackKnights, Pieces.BlackRooks, Pieces.BlackBishops];
 
 
-            Pieces currentPawns = whitesMove ? Pieces.WhitePawns : Pieces.BlackPawns;
-            // create new queen, knight etc.
-            foreach (Pieces piece in piecesToPromoteTo) {
-                Bitboard newPieces = state.GetPieces(piece) | promotionMask;
-                State newState = state.With(piece, newPieces).With(currentPawns, newPawns);
+                Pieces currentPawns = whitesMove ? Pieces.WhitePawns : Pieces.BlackPawns;
+                // create new queen, knight etc.
+                foreach (Pieces piece in piecesToPromoteTo) {
+                    Bitboard newPieces = state.GetPieces(piece) | promotionMask;
+                    State newState = state.With(piece, newPieces).With(currentPawns, newPawns);
             
-                yield return move with {IsPromotion = true, StateAfter = newState};
-            }
+                    yield return move with {IsPromotion = true, StateAfter = newState};
+                }
         
+            }
         }
     }
     
@@ -152,6 +153,8 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             Bitboard emptySpaceAfterMoving = ~currMoveMask.MovePieces(oppositeDirection).MovePieces(oppositeDirection);
 
             Bitboard newPawns = (pawns | currMoveMask) & emptySpaceAfterMoving;
+            
+            // TODO make this double move set enpassant possibility to the Move struct
             yield return newPawns;
 
             moved &= ~currMoveMask;
@@ -161,10 +164,10 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     internal IEnumerable<Move> GenerateCaptures(State state) {
         var enemyPieces = state.GetInactivePieces();
         var pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
-        Direction[]  directions = 
-            state.WhiteIsActive ? [_whiteDiagonal1, _whiteDiagonal2] : [_blackDiagonal1, _blackDiagonal2];
+        Direction[]  directions = state.WhiteIsActive 
+            ? [_whiteDiagonal1, _whiteDiagonal2] 
+            : [_blackDiagonal1, _blackDiagonal2];
 
-        // var dir = _whiteDiagonal1;
         foreach (Direction dir in directions) {
             var pawnsThatCapturedSomething = pawns.MovePieces(dir) & enemyPieces;
 

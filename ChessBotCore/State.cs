@@ -128,9 +128,17 @@ public readonly record struct State {
     public State Next() {
         return this with {
             WhiteIsActive = !this.WhiteIsActive,
-            FullMoves = this.WhiteIsActive ? this.FullMoves : this.FullMoves + 1
+            FullMoves = this.WhiteIsActive ? this.FullMoves : this.FullMoves + 1,
+            HalfMovesSincePawnMoveOrCapture = HalfMovesSincePawnMoveOrCapture + 1
         };
     }
+
+    public State WithHalfClockUpdated() {
+        return this with {
+            HalfMovesSincePawnMoveOrCapture = 0
+        };
+    }
+    
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
     public Coordinates? GetEnPassantCoordinates() {
