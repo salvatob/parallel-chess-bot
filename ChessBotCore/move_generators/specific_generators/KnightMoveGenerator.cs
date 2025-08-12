@@ -44,8 +44,5 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
                 movedKnights &= ~currMoveMask;
             }
         }
-        
-
     }
-
 }
