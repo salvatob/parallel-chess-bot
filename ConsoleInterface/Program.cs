@@ -1,62 +1,44 @@
 ﻿
 using ChessBotCore;
 
-var rooksStr = 
-    """
-    0000 0000
-    0000 0000
-    0000 0000
-    0000 0000
-    
-    0000 0000
-    0001 0000
-    0000 0000
-    0000 0000
-    """;
+TryPawnCaptures();
+return;
 
-var allyPiecesStr = 
-    """
-    0000 0000
-    0000 0000
-    0001 0000
-    0000 0000
-    
-    0000 0000
-    0000 0000
-    0000 0000
-    0000 0000
-    """;
-
-var enemyPiecesStr =
-    """
-    0000 0000
-    0000 0000
-    0000 0000
-    0000 0000
-    0000 0000
-    0000 0100
-    0000 0000
-    0000 0000
-    """;
+var whiteKing = Bitboard.FromCoords(Coordinates.FromString("e1"));
+var blackKing = Bitboard.FromCoords(Coordinates.FromString("e8"));
+var blackRooks = Bitboard.FromCoords(Coordinates.FromString("e5"));
 
 
-//act
-var rooks = Bitboard.Parse(rooksStr);
-var enemyPawns = Bitboard.Parse(enemyPiecesStr);
-var allyPawns = Bitboard.Parse(allyPiecesStr);
-var state = State.Empty with { WhiteKnights = rooks, WhitePawns = allyPawns, BlackPawns = enemyPawns};
+var state = State.Empty with { WhiteKing = whiteKing, BlackKing = blackKing, BlackRooks = blackRooks};
+
+Console.WriteLine("----- Before -----");
+Console.WriteLine(state.PrettyPrint());
+
+var moves = GeneratorWrapper.Default.GetLegalMoves(state);
 
 
-var moves = KnightMoveGenerator.Instance.GenerateMoves(state);
-
-var moveMap = Bitboard.Empty;
-
-Console.WriteLine("rooks");
-Console.WriteLine(rooks.PrettyPrint());
-
+int c = 1;
 foreach (Move m in moves) {
-    // Console.WriteLine(m.StateAfter.WhiteKnights);
-    moveMap |= m.StateAfter.WhiteKnights;
+    Console.WriteLine($"Move : {c++}");
+    Console.WriteLine(m.StateAfter.PrettyPrint());
+    // moveMap |= m.StateAfter.WhiteKnights;
 }
 
-Console.WriteLine(moveMap.PrettyPrint());
+void TryPawnCaptures() {
+    var whitePawn = Bitboard.FromCoords(Coordinates.FromString("c7"));
+    var blackPawns = Bitboard.FromCoords(Coordinates.FromString("b8"));
+
+    var state = State.Empty with { WhitePawns = whitePawn, BlackPawns = blackPawns};
+
+    // var moves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateCaptures(state);
+    var moves = PawnMoveGenerator.Instance.GenerateMoves(state);
+
+    Console.WriteLine("--- before ---");
+    Console.WriteLine(state.PrettyPrint());
+
+    int c = 1;
+    foreach (var m in moves) {
+        Console.WriteLine($"--- {c++} ---");
+        Console.WriteLine(m.StateAfter.PrettyPrint());
+    }
+}

@@ -8,5 +8,6 @@
     <ItemGroup>
         <InternalsVisibleTo Include="TestMoveGen" />
         <InternalsVisibleTo Include="UnitTests" />
+        <InternalsVisibleTo Include="ConsoleInterface" />
     </ItemGroup>
 </Project>
