@@ -163,6 +163,10 @@ public readonly record struct State {
         };
     }
     
+    /// <summary>
+    /// Returns mask of all occupied positions. All zeros are empty positions
+    /// </summary>
+    /// <returns>Bitmask of all squares occupied by any piece.</returns>
     public Bitboard GetAllPieces() {
         return GetPieces(true) | GetPieces(false);
     }

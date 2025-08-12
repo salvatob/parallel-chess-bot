@@ -28,7 +28,7 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
             var movedKnights = beforeCollision & (~allyPieces);
          
 
-            Direction oppositeDir =BitBoardHelpers. OppositeDir(dir);
+            Direction oppositeDir = BitBoardHelpers.OppositeDir(dir);
             // foreach moved knight
             while (movedKnights.RawBits != 0) {
                 // select one new knight position
