@@ -92,14 +92,14 @@ internal static class BitBoardHelpers {
             Direction.SE => (bits >> 9) & withoutLeftCol,
             Direction.SW => (bits >> 7) & withoutRightCol,
             
-            Direction.NNE =>  (bits << 17) & withoutLeftCol ,
-            Direction.NEE =>  (bits << 10) & withoutTwoRightCols,
-            Direction.SEE =>  (bits >>  6) & withoutTwoRightCols,
-            Direction.SSE =>  (bits >> 15) & withoutLeftCol ,
-            Direction.NNW =>  (bits << 15) & withoutRightCol ,
-            Direction.NWW =>  (bits <<  6) & withoutTwoLeftCols,
-            Direction.SWW =>  (bits >> 10) & withoutTwoLeftCols,
-            Direction.SSW =>  (bits >> 17) & withoutRightCol ,
+            Direction.NNE =>  (bits << 15) & withoutLeftCol,
+            Direction.NEE =>  (bits <<  6) & withoutTwoLeftCols,
+            Direction.SEE =>  (bits >> 10) & withoutTwoLeftCols,
+            Direction.SSE =>  (bits >> 17) & withoutLeftCol,
+            Direction.NNW =>  (bits << 17) & withoutRightCol,
+            Direction.NWW =>  (bits << 10) & withoutTwoRightCols,
+            Direction.SWW =>  (bits >> 6 ) & withoutTwoRightCols,
+            Direction.SSW =>  (bits >> 15) & withoutRightCol,
             
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
