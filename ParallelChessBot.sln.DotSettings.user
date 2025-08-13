@@ -16,6 +16,7 @@
     &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestCoordinates&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.TestAgainstTestDatabase.GetAllMoves&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.TestAgainstTestDatabase&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::70768DF6-ABCD-41C5-B758-3E17703B0120::net9.0::TestProject1.TestStateToFen&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
