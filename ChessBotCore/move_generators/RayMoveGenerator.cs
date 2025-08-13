@@ -3,20 +3,20 @@ namespace ChessBotCore;
 /// <summary>
 /// Implements most of the logic fom move generation of ray pieces (bishop, rook, queen)
 /// </summary>
-public abstract class RayMoveGenerator : MoveGeneratorBase{
+public abstract class RayMoveGenerator : MoveGeneratorBase {
 
     
     protected abstract Direction[] RayDirections { get; }
 
     
     public override IEnumerable<Move> GenerateMoves(State state) {
-        var rooks = state.WhiteIsActive ? state.WhiteRooks : state.BlackRooks;
+        var rayPiece = state.GetPieces(state.WhiteIsActive ? WhitePiece : BlackPiece);
         var allyPieces = state.GetActivePieces();
         var enemyPieces = state.GetInactivePieces();
         var allPieces = state.GetAllPieces();
         
         foreach (var dir in RayDirections) {
-            Bitboard  moveMask = BitBoardHelpers.Move(rooks, dir);
+            Bitboard  moveMask = BitBoardHelpers.Move(rayPiece, dir);
             var oppositeDir = BitBoardHelpers.OppositeDir(dir);
 
             // send all pieces as rays as far as possible
