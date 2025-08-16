@@ -79,7 +79,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             var pawns = whitesMove ? state.WhitePawns : state.BlackPawns;
 
             var promotionMask = pawns & lastRow;
-            Debug.Assert(promotionMask.TrailingZeroCount() > 1,
+            Debug.Assert(promotionMask.PopCount() <= 1,
                 "More than one pawn promotion at once is not possible");
 
             // means the move is not promotion
@@ -87,7 +87,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                 yield return move;
                 
             } else {
-                var newPawns = pawns | promotionMask;
+                var newPawns = pawns & (~lastRow);
 
                 Pieces[] piecesToPromoteTo = whitesMove
                     ? [Pieces.WhiteQueens, Pieces.WhiteKnights, Pieces.WhiteRooks, Pieces.WhiteBishops]
