@@ -32,7 +32,7 @@ public sealed class GeneratorWrapper : IMoveGenerator {
 
     
     /// <summary>
-    /// Generates all  <b>LEGAL</b> moves from a set state struct
+    /// Generates all <b>LEGAL</b> moves from a set state struct
     /// </summary>
     /// <param name="state">The state from which to generate the moves</param>
     /// <returns>Lazy IEnumerable of Move structs</returns>
