@@ -41,6 +41,8 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
             nextState = nextState.With(capture.Value, newCapturedPieces);
         }
 
+        if (isCapture) nextState = nextState.WithHalfClockReset();
+        
         return new Move(nextState) {
             IsCapture = isCapture,
             coordsBefore = Coordinates.FromMask(maskBefore),
