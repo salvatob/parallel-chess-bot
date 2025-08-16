@@ -50,9 +50,9 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
             }
         }
 
-        foreach (var castleMove in GenerateCastleMoves(state)) {
-            yield return castleMove;
-        }
+        // foreach (var castleMove in GenerateCastleMoves(state)) {
+        //     yield return castleMove;
+        // }
     }
 
     //TODO implement castling logic
@@ -62,7 +62,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
         // if (kingSideCastleAvailable) {
         //     
         // }
-        yield break;
+        return [];
     }
     
     private Move DisableCastling(Move move) {
