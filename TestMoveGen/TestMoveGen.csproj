@@ -25,4 +25,10 @@
       <ProjectReference Include="..\ChessBotCore\ChessBotCore.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="testcases\**\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>

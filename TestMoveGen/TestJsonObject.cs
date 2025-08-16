@@ -1,4 +1,4 @@
-namespace TestMoveGen.testcases;
+namespace TestMoveGen;
 public class RootObject {
     public string Description { get; set; }
     public TestCases[] TestCases { get; set; }
@@ -6,8 +6,9 @@ public class RootObject {
 
 public class TestCases {
     public Start Start { get; set; }
-    public Expected[] Expected { get; set; } 
-    public override string ToString() => Start.Description;
+    public Expected[] Expected { get; set; }
+    public string? TestSet { get; set; }
+    public override string ToString() => $"{TestSet??"unknown"}: "+Start.Description;
 
 }
 
