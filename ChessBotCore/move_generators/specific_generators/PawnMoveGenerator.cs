@@ -14,12 +14,9 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
 
     private Direction _whiteForward = Direction.N;
     private Direction _blackForward = Direction.S;
-    
-    private Direction _whiteDiagonal1 = Direction.NW;
-    private Direction _whiteDiagonal2 = Direction.NE;
-    
-    private Direction _blackDiagonal1 = Direction.SW;
-    private Direction _blackDiagonal2 = Direction.SE;
+
+    private Direction[] _whiteDiagonals = [Direction.NW, Direction.NE];
+    private Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
     
     
 
@@ -60,7 +57,6 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             } else {
                 newState = state.Next().WithHalfClockReset() with {BlackPawns = board};
             }
-
             
             Move newMove = new Move(newState) {IsCapture = false};
 
@@ -76,7 +72,6 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     /// <param name="moves">IEnumerable of the moves that have a pawn in the last row.</param>
     /// <returns>IEnumerable of the new moves, with all promotion options accounted.</returns>
     internal IEnumerable<Move> HandlePromotions(IEnumerable<Move> moves) {
-
         foreach (Move move in moves) {
             var state = move.StateAfter;
             bool whitesMove = !state.WhiteIsActive;
@@ -113,7 +108,6 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     }
     
     internal IEnumerable<Bitboard> OneCellForward(Bitboard pawns, Bitboard emptyCells, bool colorWhite) {
-        
         Direction dirForward = colorWhite ? _whiteForward : _blackForward;
         Direction oppositeDirection = BitBoardHelpers.OppositeDir(dirForward);
         // moves all pieces one step forward
@@ -164,9 +158,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     internal IEnumerable<Move> GenerateCaptures(State state) {
         var enemyPieces = state.GetInactivePieces();
         var pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
-        Direction[]  directions = state.WhiteIsActive 
-            ? [_whiteDiagonal1, _whiteDiagonal2] 
-            : [_blackDiagonal1, _blackDiagonal2];
+        var directions = state.WhiteIsActive ? _whiteDiagonals : _blackDiagonals;
 
         foreach (Direction dir in directions) {
             var pawnsThatCapturedSomething = pawns.MovePieces(dir) & enemyPieces;
