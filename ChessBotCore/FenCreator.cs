@@ -64,7 +64,7 @@ public static class FenCreator {
                     if (board[i, j] != default)
                         throw new InvalidOperationException(
                             "A state has two pieces at the same place." +
-                            $" {pieceSymbol} and {board[i, j]} are both on [{i},{j}]"
+                            $" {pieceSymbol} and {board[i, j]} are both on [{new Coordinates(i,j)}]"
                         );
                     board[i, j] = pieceSymbol;
                 }
