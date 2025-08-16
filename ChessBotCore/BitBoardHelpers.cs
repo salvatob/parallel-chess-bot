@@ -104,6 +104,17 @@ internal static class BitBoardHelpers {
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
+
+    public static Bitboard Move(Bitboard bits, Direction dir, int distance) {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(distance, 0);
+        Bitboard buffer = bits;
+        for (int i = 0; i < distance; i++) {
+            // buffer = BitBoardHelpers.Move(buffer, dir);
+            buffer = buffer.MovePieces(dir);
+        }
+
+        return buffer;
+    }
     
     public static Direction OppositeDir(Direction dir) {
         return dir switch {
@@ -124,7 +135,7 @@ internal static class BitBoardHelpers {
             Direction.SEE => Direction.NWW,
             Direction.NEE => Direction.SWW,
             Direction.NNE => Direction.SSW,
-            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, $"Direction {dir} is not recognized.")
         };
     }
 }
