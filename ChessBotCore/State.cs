@@ -83,6 +83,9 @@ public readonly record struct State {
     public int HalfMovesSincePawnMoveOrCapture { get; init; } = 0;
     public int FullMoves { get; init; } = 1;
 
+    public string Fen => FenCreator.GetFen(this);
+
+    
 #pragma warning disable CS0612   // “obsolete” warning id
     public static State Initial =>
         new() {
@@ -133,6 +136,11 @@ public readonly record struct State {
         };
     }
 
+    /// <summary>
+    /// Returns copy of the struct, where the half move clock has been reset to zero.
+    /// Should be used after executing a move with a capture, or a pawn advance.
+    /// </summary>
+    /// <returns></returns>
     public State WithHalfClockReset() {
         return this with {
             HalfMovesSincePawnMoveOrCapture = 0
