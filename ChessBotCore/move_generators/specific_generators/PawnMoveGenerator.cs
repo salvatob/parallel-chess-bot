@@ -45,23 +45,45 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         bool whitesMove = state.WhiteIsActive;
         var currentPawns = whitesMove ? state.WhitePawns : state.BlackPawns;
         Bitboard emptySpace = ~state.GetAllPieces();
+        var currentPieces = whitesMove ? Pieces.WhitePawns : Pieces.BlackPawns;
         
-        // foreach standard move
-        foreach (var board in 
-                 OneCellForward(currentPawns, emptySpace, whitesMove)
-                     .Concat(DoubleMoveForward(currentPawns, emptySpace, whitesMove))) 
-        {
-            State newState;
-            if (whitesMove) {
-                newState = state.Next().WithHalfClockReset() with {WhitePawns = board};
-            } else {
-                newState = state.Next().WithHalfClockReset() with {BlackPawns = board};
-            }
+        
+        // foreach standard move forward
+        foreach (var board in OneCellForward(currentPawns, emptySpace, whitesMove)) {
+            yield return SetupNewMove(board);
+        }
+        // foreach double move forward
+        foreach (var board in DoubleMoveForward(currentPawns, emptySpace, whitesMove)) {
+            var enPassantMask = FindEnpassant(whitesMove, currentPawns, board);
+            
+            Move newMove = SetupNewMove(board);
+            newMove.StateAfter = newMove.StateAfter with { EnPassant = enPassantMask };
+            yield return newMove;
+        }
+        
+        
+        
+        Move SetupNewMove(Bitboard board) {
+            State newState  = 
+                state.Next()
+                    .WithHalfClockReset().
+                    With(currentPieces, board);
             
             Move newMove = new Move(newState) {IsCapture = false};
 
-            yield return newMove;
+            return newMove;
         }
+    }
+
+    private Bitboard FindEnpassant(bool white, Bitboard pawnsBefore, Bitboard pawnsAfter) {
+        Direction dirBackward = white ? _blackForward : _whiteForward; 
+
+        // represents the piece after moving
+        Bitboard movemask = (pawnsBefore ^ pawnsAfter) & (~ pawnsBefore);
+        Debug.Assert(movemask.PopCount() == 1);
+
+        // enpassant square is defined as the square the pawn hopped ove, so move the mask one square back
+        return movemask.MovePieces(dirBackward);
     }
     
     //TODO implement enpassant
