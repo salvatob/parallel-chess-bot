@@ -32,7 +32,7 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
         } else {
             boardAfterTheMove = (state.GetPieces(BlackPiece) | maskAfter) & (~maskBefore);
 
-            nextState = state.Next().With(WhitePiece, boardAfterTheMove);
+            nextState = state.Next().With(BlackPiece, boardAfterTheMove);
         }
         // additionally removes the captured piece from its corresponding bitboard 
         bool isCapture = capture.HasValue;
