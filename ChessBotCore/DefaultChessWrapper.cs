@@ -1,6 +1,6 @@
 namespace ChessBotCore;
 
-public class DefaultChessWrapper : ChessWrapperBase {
+public sealed class DefaultChessWrapper : ChessWrapperBase {
     
     public GeneratorWrapper Generator = GeneratorWrapper.Default;
 

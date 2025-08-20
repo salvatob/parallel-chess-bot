@@ -1,6 +1,6 @@
 namespace ChessBotCore;
 
-public class ParallelChessWrapper : ChessWrapperBase {
+public sealed class ParallelChessWrapper : ChessWrapperBase {
     private long _nodesExplored = 0;
     private object _nodesLock = new();
     

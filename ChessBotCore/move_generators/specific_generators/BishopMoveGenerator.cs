@@ -1,6 +1,6 @@
 namespace ChessBotCore;
 
-public class BishopMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
+public sealed class BishopMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
     protected override Pieces WhitePiece => Pieces.WhiteBishops;
     protected override Pieces BlackPiece => Pieces.BlackBishops;
 

@@ -3,7 +3,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks;
 
-public class BitOperationMethods {
+public sealed class BitOperationMethods {
 
     public static List<ulong> RandomData { get; set; }
 
