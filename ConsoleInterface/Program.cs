@@ -1,44 +1,42 @@
 ﻿
+
+using System.Diagnostics;
 using ChessBotCore;
 
-TryPawnCaptures();
+
+
+void TryPerft(int depth, IChessWrapper chess) {
+// void TryPerft(int depth, Func<State, int, long> perft) {
+ 
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    GC.Collect();
+
+    var sw = Stopwatch.StartNew();
+
+    // var memoryBefore = GC.GetAllocatedBytesForCurrentThread();
+    var leavesExplored = chess.EvalPerft(State.Initial, depth);
+    // var leavesExplored =  perft(State.Initial, depth);
+
+    // var memoryAfter = GC.GetAllocatedBytesForCurrentThread();
+    sw.Stop();
+    // var mem = memoryAfter - memoryBefore;
+
+
+    Console.WriteLine($"Pertf has explored {leavesExplored:N0} leaves in depth {depth} in {sw.Elapsed.ToString()}.");
+    Console.WriteLine($"Comes up to around {(leavesExplored * 1000) / sw.ElapsedMilliseconds:N0} leaves per second");
+    // Console.WriteLine($"{mem/1000_000} MB of memory has been allocated during");
+}
+
+var chess = new ParallelChessWrapper();
+TryPerft(5, chess);
+TryPerft(6, chess);
+
+
 return;
 
-var whiteKing = Bitboard.FromCoords(Coordinates.FromString("e1"));
-var blackKing = Bitboard.FromCoords(Coordinates.FromString("e8"));
-var blackRooks = Bitboard.FromCoords(Coordinates.FromString("e5"));
+// Console.WriteLine("normal");
+// TryPerft(6, new DefaultChessWrapper().EvalPerft);
+// Console.WriteLine("parallel");
+// TryPerft(6, new ParallelChessWrapper().EvalPerft);
 
-
-var state = State.Empty with { WhiteKing = whiteKing, BlackKing = blackKing, BlackRooks = blackRooks};
-
-Console.WriteLine("----- Before -----");
-Console.WriteLine(state.PrettyPrint());
-
-var moves = GeneratorWrapper.Default.GetLegalMoves(state);
-
-
-int c = 1;
-foreach (Move m in moves) {
-    Console.WriteLine($"Move : {c++}");
-    Console.WriteLine(m.StateAfter.PrettyPrint());
-    // moveMap |= m.StateAfter.WhiteKnights;
-}
-
-void TryPawnCaptures() {
-    var whitePawn = Bitboard.FromCoords(Coordinates.FromString("c7"));
-    var blackPawns = Bitboard.FromCoords(Coordinates.FromString("b8"));
-
-    var state = State.Empty with { WhitePawns = whitePawn, BlackPawns = blackPawns};
-
-    // var moves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateCaptures(state);
-    var moves = PawnMoveGenerator.Instance.GenerateMoves(state);
-
-    Console.WriteLine("--- before ---");
-    Console.WriteLine(state.PrettyPrint());
-
-    int c = 1;
-    foreach (var m in moves) {
-        Console.WriteLine($"--- {c++} ---");
-        Console.WriteLine(m.StateAfter.PrettyPrint());
-    }
-}
