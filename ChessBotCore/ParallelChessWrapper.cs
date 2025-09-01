@@ -36,7 +36,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         
         long nodesExplored = 1;
 
-        foreach (var move in Generator.GenerateMoves(state)) {
+        foreach (var move in Generator.GenerateMoves(state).ToList()) {
             nodesExplored += PerftHelper(move.StateAfter, depth - 1);
         }
 
@@ -67,7 +67,11 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
 
         return score;   
     }
-    
+
+    public override Task<Move> GetBestMove(State state, int timeMs) {
+        throw new NotImplementedException();
+    }
+
     private long EvalPerftHelper(State state, int depth) {
         long score = 0;
 

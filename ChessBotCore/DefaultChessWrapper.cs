@@ -3,7 +3,14 @@ namespace ChessBotCore;
 public sealed class DefaultChessWrapper : ChessWrapperBase {
     
     public GeneratorWrapper Generator = GeneratorWrapper.Default;
-
+    public MinimaxEvaluator Minimaxer;
+    private const int _maxDepth = 6;
+    
+    
+    public DefaultChessWrapper() {
+        Minimaxer = new MinimaxEvaluator(Generator);
+    }
+    
     public override long Perft(State state, int depth) {
 
 
@@ -31,7 +38,7 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
         return score;
     }
 
-    public Move GetBestMove(State state, int depth) {
-        
+    public override Task<Move> GetBestMove(State state, int timeLeftMs) {
+        return Task.FromResult(Minimaxer.ChooseBestMove(state, _maxDepth));
     }
 }

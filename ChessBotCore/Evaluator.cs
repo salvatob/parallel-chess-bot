@@ -1,12 +1,17 @@
 namespace ChessBotCore;
 
 public static class Evaluator {
+
+    public static bool IsTerminal(State state) {
+        return state.WhiteKing.IsEmpty() ||
+               state.BlackKing.IsEmpty();
+    }
     public static int Evaluate(State s) {
         // short circuit whole evaluation, because no king means loss
         // returns short, because it is enough to always be larger than normal value,
         // and avoids some overflowing further
-        if (s.WhiteKing.RawBits == 0) return short.MinValue;
-        if (s.BlackKing.RawBits == 0) return short.MaxValue;
+        if (s.WhiteKing.IsEmpty()) return short.MinValue;
+        if (s.BlackKing.IsEmpty()) return short.MaxValue;
 
         int val = 0;
         val += EvalPawns(s);
