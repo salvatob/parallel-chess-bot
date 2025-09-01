@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ChessBotCore;
 
-public static class FenCreator {
+internal static class FenCreator {
     public static string GetFen(State state) {
         string pieces = EncodePieces(state);
         char activeColor = state.WhiteIsActive ? 'w' : 'b';

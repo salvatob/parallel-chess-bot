@@ -118,9 +118,12 @@ public readonly record struct State {
         WhiteIsActive = true,
         FullMoves = 1
     };
-
 #pragma warning restore CS0612
 
+    public static State FromFen(string fen) => FenLoader.ParseFen(fen);
+    public string GetFen() => FenCreator.GetFen(this);
+    
+    
     /// <summary>
     /// Returns a copy of current state, where some properties are updated automatically.
     /// <see cref="WhiteIsActive"/>, <see cref="EnPassant"/>, <see cref="FullMoves"/> clock and HalfMoves clock, are updated automatically.

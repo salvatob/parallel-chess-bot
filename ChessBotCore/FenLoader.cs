@@ -1,6 +1,6 @@
 namespace ChessBotCore;
 
-public static class FenLoader {
+internal static class FenLoader {
     public static State ParseFen(string fen) {
         string[] tokens = fen.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (tokens.Length != 6)
