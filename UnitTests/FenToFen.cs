@@ -20,7 +20,7 @@ public class FenToFen {
         //arrange
 
         //act
-        State parsedState = FenLoader.ParseFen(initialFen);
+        State parsedState = FenParser.ParseFen(initialFen);
         string returnedFen = FenCreator.GetFen(parsedState);
 
         //assert

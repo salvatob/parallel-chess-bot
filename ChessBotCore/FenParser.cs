@@ -1,6 +1,6 @@
 namespace ChessBotCore;
 
-internal static class FenLoader {
+internal static class FenParser {
     public static State ParseFen(string fen) {
         string[] tokens = fen.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (tokens.Length != 6)
@@ -116,4 +116,14 @@ internal static class FenLoader {
         if (color == "b") return false;
         throw new ArgumentException($"The argument {nameof(color)} from FEN string is not in a correct format");
     }
+
+    public static bool DetectActiveColor(string fen) {
+        string[] tokens = fen.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (tokens.Length != 6)
+            throw new ArgumentException($"The {nameof(fen)} argument has incorrect" +
+                                        $" number of parts. Should have 6");
+        string activeColor = tokens[1];
+        return ParseActiveColor(activeColor);
+    }
+    
 }

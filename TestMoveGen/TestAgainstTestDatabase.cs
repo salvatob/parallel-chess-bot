@@ -32,7 +32,7 @@ public class TestAgainstTestDatabase {
         // if (testCase.Start.Fen != "8/8/8/p7/PR1Ppk1p/6pP/6P1/2K5 b - d3 0 1") return;
         
         _out.WriteLine($"TestCase fen : {testCase.Start.Fen}");
-        var start = FenLoader.ParseFen(testCase.Start.Fen);
+        var start = FenParser.ParseFen(testCase.Start.Fen);
 
         IEnumerable<string> expectedEnumerable = 
             from c in testCase.Expected

@@ -120,9 +120,12 @@ public readonly record struct State {
     };
 #pragma warning restore CS0612
 
-    public static State FromFen(string fen) => FenLoader.ParseFen(fen);
+    public static State FromFen(string fen) => FenParser.ParseFen(fen);
     public string GetFen() => FenCreator.GetFen(this);
-    
+
+    public static bool DetectActiveColor(string fen) {
+        return FenParser.DetectActiveColor(fen);
+    }
     
     /// <summary>
     /// Returns a copy of current state, where some properties are updated automatically.
