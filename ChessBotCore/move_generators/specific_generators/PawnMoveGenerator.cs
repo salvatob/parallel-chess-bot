@@ -132,11 +132,12 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     internal IEnumerable<Bitboard> OneCellForward(Bitboard pawns, Bitboard emptyCells, bool colorWhite) {
         Direction dirForward = colorWhite ? _whiteForward : _blackForward;
         Direction oppositeDirection = BitBoardHelpers.OppositeDir(dirForward);
+        
         // moves all pieces one step forward
         // this variable represents new positions, deleting all that would result in a collision
         Bitboard moved = (pawns.MovePieces(dirForward)) & (emptyCells);
         
-        while (moved.RawBits != 0) {
+        while (!moved.IsEmpty()) {
             int currMoved = moved.TrailingZeroCount();
             Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
 
@@ -155,14 +156,14 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         Direction dirForward = colorWhite ? _whiteForward : _blackForward;
         Direction oppositeDirection = BitBoardHelpers.OppositeDir(dirForward);
         
+        // mask of all pawns, that are on the starting row of the respective color, since only there pawns can double jump
+        Bitboard startingPawns = pawns & (colorWhite ? BitMask.Row[1] : BitMask.Row[6]);
+        
         // moves all pieces two steps forward
         // this variable represents new positions, deleting all that would result in a collision
-        Bitboard startingPawns = pawns & BitMask.Row[1];
-        
-        Bitboard movedOneCell = startingPawns.MovePieces(dirForward) & emptyCells;
-        Bitboard moved = movedOneCell.MovePieces(dirForward) & emptyCells;
-        
-        while (moved.RawBits != 0) {
+        Bitboard moved = BitBoardHelpers.Move(startingPawns, dirForward, 2) & emptyCells;
+            
+        while (!moved.IsEmpty()) {
             int currMoved = moved.TrailingZeroCount();
             Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
 
