@@ -1,4 +1,7 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Int64 x:Key="/Default/Dpa/Thresholds/=AllocationClosure/@EntryIndexedValue">1048576</s:Int64>
+	<s:Int64 x:Key="/Default/Dpa/Thresholds/=AllocationLoh/@EntryIndexedValue">10485760</s:Int64>
+	<s:Int64 x:Key="/Default/Dpa/Thresholds/=AllocationTopSoh/@EntryIndexedValue">2097152</s:Int64>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=df36b98d_002Dddb0_002D4d7b_002Db415_002D4f1b32445dc3/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetAllMoves" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::5BC0180D-F3A6-4816-9932-B5500071FEEB::net9.0::TestMoveGen.TestAgainstTestDatabase&lt;/TestId&gt;&#xD;
