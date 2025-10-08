@@ -5,9 +5,12 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     private IMoveGenerator[] _generators;
 
     public GeneratorWrapper(params IMoveGenerator[] generators) {
+        if (generators.Length == 0)
+            throw new ArgumentException("At least one generator should be provided");
         _generators = generators;
     }
 
+    
     public static GeneratorWrapper Default => new GeneratorWrapper(
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,

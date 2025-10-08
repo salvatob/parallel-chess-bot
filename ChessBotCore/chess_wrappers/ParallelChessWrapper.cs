@@ -8,11 +8,11 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
 
 
     public override long Perft(State state, int depth) {
-        _nodesExplored = 1;
+        _nodesExplored = 0;
         if (depth <= 0) return 1;
         
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-        var moves = Generator.GenerateMoves(state);
+        var moves = Generator.GetLegalMoves(state);
         Parallel.ForEach( 
             moves,
             po,
@@ -32,11 +32,11 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
 
     private long PerftHelper(State state, int depth) {
 
-        if (depth == 0) return 0;
+        if (depth <= 0) return 1;
         
-        long nodesExplored = 1;
+        long nodesExplored = 0;
 
-        foreach (var move in Generator.GenerateMoves(state).ToList()) {
+        foreach (var move in Generator.GetLegalMoves(state).ToList()) {
             nodesExplored += PerftHelper(move.StateAfter, depth - 1);
         }
 
