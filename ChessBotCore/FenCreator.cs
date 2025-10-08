@@ -4,6 +4,23 @@ using System.Text;
 namespace ChessBotCore;
 
 internal static class FenCreator {
+
+    public static string? TryGetMoveNotation(State before, State after) {
+        
+        Bitboard piecesBefore = before.GetActivePieces();
+        Bitboard piecesAfter = after.GetInactivePieces();
+
+        var moveBeforeMask = piecesBefore & (~ piecesAfter);
+        var moveAfterMask = (~piecesBefore) & piecesAfter;
+        if (moveBeforeMask.IsEmpty() || moveAfterMask.IsEmpty()) return null;
+        
+        
+        var moveBefore = Coordinates.FromMask(moveBeforeMask);
+        var moveAfter = Coordinates.FromMask(moveAfterMask);
+        return moveBefore.ToString() + moveAfter.ToString();
+
+    } 
+    
     public static string GetFen(State state) {
         string pieces = EncodePieces(state);
         char activeColor = state.WhiteIsActive ? 'w' : 'b';

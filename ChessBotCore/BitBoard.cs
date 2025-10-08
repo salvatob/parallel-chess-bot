@@ -24,6 +24,9 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
     public static implicit operator Bitboard(ulong bits) 
         => new Bitboard(bits);
 
+
+    public static Bitboard FromCoords(string coords) => FromCoords(Coordinates.FromString(coords));
+    
     public static Bitboard FromCoords(Coordinates coords) {
         ulong bits = 1UL << (7 - coords.Col + 8* coords.Row);
         return new Bitboard(bits);

@@ -15,4 +15,12 @@ public struct Move {
     public Move(State stateAfter) {
         StateAfter = stateAfter;
     }
+
+    public static string? TryGetNotation(State before, State after) {
+        return FenCreator.TryGetMoveNotation(before, after);
+    }
+    
+    public readonly string? TryGetNotation(State before) {
+        return FenCreator.TryGetMoveNotation(before, StateAfter);
+    }
 }
