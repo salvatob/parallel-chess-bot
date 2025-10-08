@@ -32,7 +32,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
 
     private long PerftHelper(State state, int depth) {
 
-        if (depth == 0) return 1;
+        if (depth == 0) return 0;
         
         long nodesExplored = 1;
 

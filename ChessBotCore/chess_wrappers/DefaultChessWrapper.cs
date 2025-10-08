@@ -4,7 +4,7 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
     
     public GeneratorWrapper Generator = GeneratorWrapper.Default;
     public MinimaxEvaluator Minimaxer;
-    private const int _maxDepth = 6;
+    private const int _maxDepth = 4;
     
     
     public DefaultChessWrapper() {
@@ -16,9 +16,9 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
 
         if (depth <= 0) return 1;
         
-        long nodesExplored = 1;
+        long nodesExplored = 0;
 
-        foreach (var move in Generator.GenerateMoves(state)) {
+        foreach (var move in Generator.GetLegalMoves(state)) {
             nodesExplored += Perft(move.StateAfter, depth - 1);
         }
 
