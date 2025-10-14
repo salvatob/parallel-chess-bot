@@ -53,8 +53,8 @@ public class TestAgainstTestDatabase {
         var extra   = actual.Except(expected).OrderBy(x => x).ToArray();
         
         // only detect false positives (not generating some legal moves is fine, generating illegal is not)
-        // if (missing.Length == 0 && extra.Length == 0)
-        if (extra.Length == 0)
+        if (missing.Length == 0 && extra.Length == 0)
+        // if (extra.Length == 0)
             return; // success
 
         var msg = new System.Text.StringBuilder();

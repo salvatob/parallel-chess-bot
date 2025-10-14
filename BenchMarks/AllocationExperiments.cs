@@ -30,8 +30,8 @@ public class AllocationExperiments {
     return _gen.GetLegalMoves(_state).ToList();
   }
   
-  [Benchmark]
-  public List<Move> FastGeneration() {
-    return _gen.GetLegalMovesFast(_state).ToList();
-  }
+  // [Benchmark]
+  // public List<Move> FastGeneration() {
+  //   return _gen.GetLegalMovesFast(_state).ToList();
+  // }
 }

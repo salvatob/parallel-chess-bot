@@ -12,6 +12,12 @@ internal class Program {
      
   
         var chessSingle = new DefaultChessWrapper();
+
+        // foreach (var m in chessSingle.GetMovesFast(State.Initial)) {
+        //     Console.WriteLine(m.TryGetNotation(State.Initial));
+        // }
+        
+        return;
         var chessMulti = new ParallelChessWrapper();
         // TryPerft(3, chessSingle);
         // TryPerft(3, chessMulti);
