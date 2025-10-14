@@ -1,12 +1,12 @@
-﻿using BenchmarkDotNet.Configs;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.InProcess.Emit;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 
 namespace Benchmarks;
 
-
+// [JsonExporter]
 public class BenchmarkProgram
 {
     public static void Main(string[] args) {
