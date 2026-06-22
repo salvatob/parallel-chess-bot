@@ -13,6 +13,7 @@ ParallelChessBot is a .NET-based chess library and engine designed to explore pa
 - **Perft Testing:** Built-in performance testing (Perft) to verify move generator correctness and speed.
 - **Comprehensive Benchmarking:** Integration with BenchmarkDotNet for precise performance measurements.
 - **Extensive Test Suites:** Unit tests and specialized move generation tests against external databases.
+- [**Web Application**](https://github.com/salvatob/chess-server) allowing users to play online matches agains this engine.
 
 ## Tech Stack
 
