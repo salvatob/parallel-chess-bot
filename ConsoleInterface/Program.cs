@@ -5,12 +5,7 @@ using ChessBotCore;
 
 
 internal class Program {
-
-    private static State BlackStartPos = State.Initial with { WhiteIsActive = false };
-    
     public static void Main(string[] args) {
-     
-  
         var chessSingle = new DefaultChessWrapper();
 
         // foreach (var m in chessSingle.GetMovesFast(State.Initial)) {
