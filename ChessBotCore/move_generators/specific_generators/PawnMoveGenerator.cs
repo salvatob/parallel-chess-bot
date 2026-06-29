@@ -10,11 +10,11 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     protected override Pieces WhitePiece => Pieces.WhitePawns;
     protected override Pieces BlackPiece => Pieces.BlackPawns;
 
-    private Direction _whiteForward = Direction.N;
-    private Direction _blackForward = Direction.S;
+    private readonly Direction _whiteForward = Direction.N;
+    private readonly Direction _blackForward = Direction.S;
 
-    private Direction[] _whiteDiagonals = [Direction.NW, Direction.NE];
-    private Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
+    private readonly Direction[] _whiteDiagonals = [Direction.NW, Direction.NE];
+    private readonly Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
     
     
 
