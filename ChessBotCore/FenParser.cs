@@ -1,7 +1,17 @@
 namespace ChessBotCore;
 
-internal static class FenParser {
+internal class FenParser {
+    private readonly State _state;
+    private FenParser() {
+        _state = State.Empty;
+    }
+    
     public static State ParseFen(string fen) {
+        var parser = new FenParser();
+        return parser.Parse(fen);
+    }
+
+    private State Parse(string fen) {
         string[] tokens = fen.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (tokens.Length != 6)
             throw new ArgumentException($"The {nameof(fen)} argument has incorrect" +
@@ -13,62 +23,50 @@ internal static class FenParser {
         string halfClock = tokens[4];
         string fullClock = tokens[5];
 
+        ParsePieces(pieces);
+        _state.WhiteIsActive = ParseActiveColor(activeColor);
+        _state.EnPassant = ParseEnpassant(enpassant);
+        _state.HalfMovesSincePawnMoveOrCapture = ParseClock(halfClock);
+        _state.FullMoves = ParseClock(fullClock);
+        ParseCastles(castles);
 
-        State incompleteState = ParsePieces(pieces, State.Empty);  
-        incompleteState.WhiteIsActive = ParseActiveColor(activeColor);
-        incompleteState.EnPassant = ParseEnpassant(enpassant);
-        incompleteState.HalfMovesSincePawnMoveOrCapture = ParseClock(halfClock);
-        incompleteState.FullMoves = ParseClock(fullClock);
-        
-
-        State completeWithCastles = ParseCastles(castles, incompleteState);
-        return completeWithCastles;
+        return _state;
     }
 
     private static Bitboard ParseEnpassant(string enPassant) {
         if (enPassant == "-") return 0UL;
 
         Coordinates enPassantCoordinates = Coordinates.FromString(enPassant);
-        // int indexCoord = enPassantCoordinates.To1D();
         return Bitboard.FromCoords(enPassantCoordinates);
-        // return 1UL << indexCoord;
     }
 
-    private static int ParseClock(string clock) {
+    private int ParseClock(string clock) {
         if (int.TryParse(clock, out int res) && res >= 0) return res;
         throw new ArgumentException("A clock part of parsed FEN string is in incorrect format");
     }
 
-    private static State ParseCastles(string castlesString, State incompleteState) {
-        bool wk = castlesString.Contains('K');
-        bool wq = castlesString.Contains('Q');
-        bool bk = castlesString.Contains('k');
-        bool bq = castlesString.Contains('q');
-        
-        incompleteState.WhiteCastleKingSide = wk;
-        incompleteState.WhiteCastleQueenSide = wq;
-        incompleteState.BlackCastleKingSide = bk;
-        incompleteState.BlackCastleQueenSide = bq;
-        return incompleteState;
+    private void ParseCastles(string castlesString) {
+        _state.WhiteCastleKingSide = castlesString.Contains('K');
+        _state.WhiteCastleQueenSide = castlesString.Contains('Q');
+        _state.BlackCastleKingSide = castlesString.Contains('k');
+        _state.BlackCastleQueenSide = castlesString.Contains('q');
     }
 
-    private static State ParsePieces(string fenPieces, State incompleteState) {
+    private void ParsePieces(string fenPieces) {
         var board = FenToMatrix(fenPieces);
 
-        incompleteState.WhiteQueens = ParsePiece(board, incompleteState.WhiteQueens, State.WhiteQueenSymbol);
-        incompleteState.WhitePawns = ParsePiece(board, incompleteState.WhitePawns, State.WhitePawnSymbol);
-        incompleteState.WhiteKing = ParsePiece(board, incompleteState.WhiteKing, State.WhiteKingSymbol);
-        incompleteState.WhiteBishops = ParsePiece(board, incompleteState.WhiteBishops, State.WhiteBishopSymbol);
-        incompleteState.WhiteKnights = ParsePiece(board, incompleteState.WhiteKnights, State.WhiteKnightSymbol);
-        incompleteState.WhiteRooks = ParsePiece(board, incompleteState.WhiteRooks, State.WhiteRookSymbol);
-        incompleteState.BlackQueens = ParsePiece(board, incompleteState.BlackQueens, State.BlackQueenSymbol);
-        incompleteState.BlackPawns = ParsePiece(board, incompleteState.BlackPawns, State.BlackPawnSymbol);
-        incompleteState.BlackKing = ParsePiece(board, incompleteState.BlackKing, State.BlackKingSymbol);
-        incompleteState.BlackBishops = ParsePiece(board, incompleteState.BlackBishops, State.BlackBishopSymbol);
-        incompleteState.BlackKnights = ParsePiece(board, incompleteState.BlackKnights, State.BlackKnightSymbol);
-        incompleteState.BlackRooks = ParsePiece(board, incompleteState.BlackRooks, State.BlackRookSymbol);
-        
-        return incompleteState;
+        _state.WhiteQueens = ParsePiece(board, _state.WhiteQueens, State.WhiteQueenSymbol);
+        _state.WhitePawns = ParsePiece(board, _state.WhitePawns, State.WhitePawnSymbol);
+        _state.WhiteKing = ParsePiece(board, _state.WhiteKing, State.WhiteKingSymbol);
+        _state.WhiteBishops = ParsePiece(board, _state.WhiteBishops, State.WhiteBishopSymbol);
+        _state.WhiteKnights = ParsePiece(board, _state.WhiteKnights, State.WhiteKnightSymbol);
+        _state.WhiteRooks = ParsePiece(board, _state.WhiteRooks, State.WhiteRookSymbol);
+        _state.BlackQueens = ParsePiece(board, _state.BlackQueens, State.BlackQueenSymbol);
+        _state.BlackPawns = ParsePiece(board, _state.BlackPawns, State.BlackPawnSymbol);
+        _state.BlackKing = ParsePiece(board, _state.BlackKing, State.BlackKingSymbol);
+        _state.BlackBishops = ParsePiece(board, _state.BlackBishops, State.BlackBishopSymbol);
+        _state.BlackKnights = ParsePiece(board, _state.BlackKnights, State.BlackKnightSymbol);
+        _state.BlackRooks = ParsePiece(board, _state.BlackRooks, State.BlackRookSymbol);
     }
 
     private static char[,] FenToMatrix(string fenPieces) {
@@ -122,7 +120,7 @@ internal static class FenParser {
             throw new ArgumentException($"The {nameof(fen)} argument has incorrect" +
                                         $" number of parts. Should have 6");
         string activeColor = tokens[1];
+        
         return ParseActiveColor(activeColor);
     }
-    
 }
