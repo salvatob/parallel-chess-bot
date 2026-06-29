@@ -17,13 +17,16 @@ internal class Program {
         //     Console.WriteLine(m.TryGetNotation(State.Initial));
         // }
         
-        return;
+        // return;
+        int depth = 4;
         var chessMulti = new ParallelChessWrapper();
-        // TryPerft(3, chessSingle);
-        // TryPerft(3, chessMulti);
+        Console.WriteLine("single threaded");
+        TryPerft(depth, chessSingle);
+        Console.WriteLine("multi threaded");
+        TryPerft(depth, chessMulti);
         // TryPerft(7, chess);
 
-        DividePerft(State.Initial, 3, chessSingle);
+        // DividePerft(State.Initial, 3, chessSingle);
 
         // Console.WriteLine("normal");
         // TryPerft(6, new DefaultChessWrapper().EvalPerft);
