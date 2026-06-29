@@ -68,9 +68,11 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     private Move DisableCastling(Move move) {
         bool white = !move.StateAfter.WhiteIsActive;
         if (white) {
-            move.StateAfter = move.StateAfter with { WhiteCastleKingSide = false, WhiteCastleQueenSide = false };
+            move.StateAfter.WhiteCastleKingSide = false;
+            move.StateAfter.WhiteCastleQueenSide = false;
         } else {
-            move.StateAfter = move.StateAfter with { BlackCastleKingSide = false, BlackCastleQueenSide = false };
+            move.StateAfter.BlackCastleKingSide = false;
+            move.StateAfter.BlackCastleQueenSide = false;
         }
 
         return move;

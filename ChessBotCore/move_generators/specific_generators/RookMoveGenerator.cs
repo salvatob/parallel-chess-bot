@@ -38,15 +38,21 @@ public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
         Bitboard castleMask = BitMask.Col[kingQueen ? 7 : 0] & BitMask.Row[color ? 0 : 7];
         if (!(rooksMask & castleMask).IsEmpty())
             return stateBefore;
-        return (color, kingQueen) switch {
-            (true, true) => stateBefore with { WhiteCastleKingSide = false },
-            (false, true) => stateBefore with { BlackCastleKingSide = false },
-            (true, false) => stateBefore with { WhiteCastleQueenSide = false },
-            (false, false) => stateBefore with { BlackCastleQueenSide = false },
-
-            // _ => throw new ArgumentOutOfRangeException()
-        };
-
+        switch (color, kingQueen) {
+            case (true, true):
+                stateBefore.WhiteCastleKingSide = false;
+                return stateBefore;
+            case (false, true):
+                stateBefore.BlackCastleKingSide = false;
+                return stateBefore;
+            case (true, false):
+                stateBefore.WhiteCastleQueenSide = false;
+                return stateBefore;
+            case (false, false):
+                stateBefore.BlackCastleQueenSide = false;
+                return stateBefore;
+        }
+        // _ => throw new ArgumentOutOfRangeException()
     }
 
     protected override Pieces WhitePiece => Pieces.WhiteRooks;

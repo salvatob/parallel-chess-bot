@@ -55,7 +55,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             var enPassantMask = FindEnpassant(whitesMove, currentPawns, board);
             
             Move newMove = SetupNewMove(board);
-            newMove.StateAfter = newMove.StateAfter with { EnPassant = enPassantMask };
+            newMove.StateAfter.EnPassant = enPassantMask;
             yield return newMove;
         }
         
