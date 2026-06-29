@@ -130,6 +130,12 @@ public class State {
         return FenParser.DetectActiveColor(fen);
     }
     
+    public State Clone() {
+        var clone = (State)MemberwiseClone();
+        return clone;
+    }
+
+    
     /// <summary>
     /// Pushes the state into a next move, so some properties are updated automatically.
     /// <see cref="WhiteIsActive"/>, <see cref="EnPassant"/>, <see cref="FullMoves"/> clock and HalfMoves clock, are updated automatically.
