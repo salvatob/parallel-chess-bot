@@ -57,31 +57,31 @@ public struct State {
         BlackCastleQueenSide = false;
     }
 
-    public Bitboard WhitePawns { get; init; }
-    public Bitboard WhiteRooks { get; init; }
-    public Bitboard WhiteKnights { get; init; }
-    public Bitboard WhiteBishops { get; init; }
-    public Bitboard WhiteQueens { get; init; }
-    public Bitboard WhiteKing { get; init; }
+    public Bitboard WhitePawns { get; set; }
+    public Bitboard WhiteRooks { get; set; }
+    public Bitboard WhiteKnights { get; set; }
+    public Bitboard WhiteBishops { get; set; }
+    public Bitboard WhiteQueens { get; set; }
+    public Bitboard WhiteKing { get; set; }
 
-    public Bitboard BlackPawns { get; init; }
-    public Bitboard BlackRooks { get; init; }
-    public Bitboard BlackKnights { get; init; }
-    public Bitboard BlackBishops { get; init; }
-    public Bitboard BlackQueens { get; init; }
-    public Bitboard BlackKing { get; init; }
+    public Bitboard BlackPawns { get; set; }
+    public Bitboard BlackRooks { get; set; }
+    public Bitboard BlackKnights { get; set; }
+    public Bitboard BlackBishops { get; set; }
+    public Bitboard BlackQueens { get; set; }
+    public Bitboard BlackKing { get; set; }
 
-    public bool WhiteIsActive { get; init; } = true;
+    public bool WhiteIsActive { get; set; } = true;
 
-    public bool WhiteCastleKingSide { get; init; }
-    public bool WhiteCastleQueenSide { get; init; }
-    public bool BlackCastleKingSide { get; init; }
-    public bool BlackCastleQueenSide { get; init; }
+    public bool WhiteCastleKingSide { get; set; }
+    public bool WhiteCastleQueenSide { get; set; }
+    public bool BlackCastleKingSide { get; set; }
+    public bool BlackCastleQueenSide { get; set; }
 
-    public Bitboard EnPassant { get; init; } = 0;
+    public Bitboard EnPassant { get; set; } = 0;
 
-    public int HalfMovesSincePawnMoveOrCapture { get; init; } = 0;
-    public int FullMoves { get; init; } = 1;
+    public int HalfMovesSincePawnMoveOrCapture { get; set; } = 0;
+    public int FullMoves { get; set; } = 1;
 
     public string Fen => FenCreator.GetFen(this);
 
