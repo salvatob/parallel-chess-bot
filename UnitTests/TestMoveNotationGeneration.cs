@@ -30,7 +30,9 @@ public class TestMoveNotationGeneration {
     _output.WriteLine(wPawnsAfter1.PrettyPrint());
     _output.WriteLine(wPawnsAfter.PrettyPrint());
     
-    var after = before.Next() with { WhitePawns = wPawnsAfter };
+    var after = before;
+    after.Next();
+    after = after with { WhitePawns = wPawnsAfter };
 
     var notation = Move.TryGetNotation(before, after);
     
