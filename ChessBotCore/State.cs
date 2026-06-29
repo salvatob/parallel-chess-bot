@@ -218,24 +218,50 @@ public struct State {
         if (!(BlackKing & mask).IsEmpty()) return Pieces.BlackKing;
         return null;
     }
-    
-    
-    public State With(Pieces changedPieces, Bitboard newPieces) {
-        return changedPieces switch {
-            Pieces.WhitePawns => this with { WhitePawns = newPieces },
-            Pieces.WhiteRooks => this with { WhiteRooks = newPieces },
-            Pieces.WhiteKnights => this with { WhiteKnights = newPieces },
-            Pieces.WhiteBishops => this with { WhiteBishops = newPieces },
-            Pieces.WhiteQueens => this with { WhiteQueens = newPieces },
-            Pieces.WhiteKing => this with { WhiteKing = newPieces },
-            Pieces.BlackPawns => this with { BlackPawns = newPieces },
-            Pieces.BlackRooks => this with { BlackRooks = newPieces },
-            Pieces.BlackKnights => this with { BlackKnights = newPieces },
-            Pieces.BlackBishops => this with { BlackBishops = newPieces },
-            Pieces.BlackQueens => this with { BlackQueens = newPieces },
-            Pieces.BlackKing => this with { BlackKing = newPieces },
-            _ => throw new ArgumentOutOfRangeException(nameof(changedPieces), changedPieces, null)
-        };
+
+
+    public void Set(Pieces changedPieces, Bitboard newPieces) {
+        switch (changedPieces)
+        {
+            case Pieces.WhitePawns:
+                WhitePawns = newPieces;
+                return;
+            case Pieces.WhiteRooks:
+                WhiteRooks = newPieces;
+                return;
+            case Pieces.WhiteKnights:
+                WhiteKnights = newPieces;
+                return;
+            case Pieces.WhiteBishops:
+                WhiteBishops = newPieces;
+                return;
+            case Pieces.WhiteQueens:
+                WhiteQueens = newPieces;
+                return;
+            case Pieces.WhiteKing:
+                WhiteKing = newPieces;
+                return;
+            case Pieces.BlackPawns:
+                BlackPawns = newPieces;
+                return;
+            case Pieces.BlackRooks:
+                BlackRooks = newPieces;
+                return;
+            case Pieces.BlackKnights:
+                BlackKnights = newPieces;
+                return;
+            case Pieces.BlackBishops:
+                BlackBishops = newPieces;
+                return;
+            case Pieces.BlackQueens:
+                BlackQueens = newPieces;
+                return;
+            case Pieces.BlackKing:
+                BlackKing = newPieces;
+                return;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(changedPieces), changedPieces, null);
+        }
     }
     
     
