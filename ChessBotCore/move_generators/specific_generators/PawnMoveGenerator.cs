@@ -154,17 +154,19 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         Direction dirForward = colorWhite ? _whiteForward : _blackForward;
         Direction oppositeDirection = BitBoardHelpers.OppositeDir(dirForward);
         
-        // mask of all pawns, that are on the starting row of the respective color, since only there pawns can double jump
+        // mask of all pawns, that are on the starting row of the respective color, since only those pawns can double jump
         Bitboard startingPawns = pawns & (colorWhite ? BitMask.Row[1] : BitMask.Row[6]);
         
         // moves all pieces two steps forward
         // this variable represents new positions, deleting all that would result in a collision
-        Bitboard moved = BitBoardHelpers.Move(startingPawns, dirForward, 2) & emptyCells;
+        Bitboard moved = BitBoardHelpers.Move(startingPawns, dirForward, 1) & emptyCells;
+        moved = BitBoardHelpers.Move(moved, dirForward, 1) & emptyCells;
             
         while (!moved.IsEmpty()) {
             int currMoved = moved.TrailingZeroCount();
             Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
-
+            
+            // make a mask, by moving the piece twice in teh opposite direction
             Bitboard emptySpaceAfterMoving = ~currMoveMask.MovePieces(oppositeDirection).MovePieces(oppositeDirection);
 
             Bitboard newPawns = (pawns | currMoveMask) & emptySpaceAfterMoving;
