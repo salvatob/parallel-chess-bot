@@ -20,7 +20,7 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
     /// <returns>A <see cref="Move"/> struct</returns>
     protected Move CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
         bool white = state.WhiteIsActive;
-        var capture = state.DetectPieces(maskAfter);
+        Pieces? capture = state.DetectPieceCollision(maskAfter);
 
         State nextState;
         Bitboard boardAfterTheMove;

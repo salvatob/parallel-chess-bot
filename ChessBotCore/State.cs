@@ -199,11 +199,11 @@ public struct State {
     public Bitboard GetInactivePieces() => GetPieces(!WhiteIsActive);
 
     /// <summary>
-    /// Determines whether any piece of current state collide with
+    /// Determines, which (if any) piece of the current state collides with the piece from the provided mask.
     /// </summary>
     /// <param name="mask">The board to check against. Should be unary bitboard (only 1 bit set).</param>
     /// <returns>Pieces enum entry, if collision has been found, null if no pieces collide</returns>
-    public Pieces? DetectPieces(Bitboard mask) {
+    public Pieces? DetectPieceCollision(Bitboard mask) {
         if (!(WhitePawns & mask).IsEmpty()) return Pieces.WhitePawns;
         if (!(WhiteRooks & mask).IsEmpty()) return Pieces.WhiteRooks;
         if (!(WhiteKnights & mask).IsEmpty()) return Pieces.WhiteKnights;
