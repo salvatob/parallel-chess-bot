@@ -101,6 +101,10 @@ public class PawnMovement {
         possibleMoves.Should().BeEquivalentTo(expectedMoves);
     }
 
+    /// <summary>
+    /// All possible double moves of white pawns. Since the right is blocked by the enemy piece,
+    /// only one (the left) pawn can double move. 
+    /// </summary>
     [Fact]
     public void White_DoubleMove() {
         //arrange
