@@ -63,10 +63,10 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         
         // a local function is nice here to not clutter the class
         Move SetupNewMove(Bitboard board) {
-            State newState = state;
-            newState.Next();
-            newState.HalfClockReset();
-            newState.Set(currentPieces, board);
+            State newState = state.Clone()
+                .Next()
+                .HalfClockReset()
+                .Set(currentPieces, board);
             
             Move newMove = new Move(newState) {IsCapture = false};
 
@@ -119,9 +119,9 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                 // create new queen, knight etc.
                 foreach (Pieces piece in piecesToPromoteTo) {
                     Bitboard newPieces = state.GetPieces(piece) | promotionMask;
-                    State newState = state;
-                        newState.Set(piece, newPieces);
-                        newState.Set(currentPawns, newPawns);
+                    State newState = state.Clone()
+                        .Set(piece, newPieces)
+                        .Set(currentPawns, newPawns);
             
                     yield return move with {IsPromotion = true, StateAfter = newState};
                 }

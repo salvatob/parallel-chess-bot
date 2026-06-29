@@ -31,18 +31,18 @@ public class TestStateToMatrix_Sparse {
     public static IEnumerable<object[]> StateToMatrix_Data => new[] {
         new StateToMatrixDataType {
             Name = "WhiteQueenA1",
-            State = new State() { WhiteQueens = 0b1000_0000 },
+            State = new State(State.Empty) { WhiteQueens = 0b1000_0000 },
             MatrixCreatorDict = new() {[(0,0)] = 'Q'}
         },
 
         new StateToMatrixDataType {
             Name = nameof(AllBoardWhiteQueens),
-            State = new State() { WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF },
+            State = new State(State.Empty) { WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF },
             MatrixCreatorDict = AllBoardWhiteQueens
         },
         new StateToMatrixDataType {
             Name = "BlackRooksInMiddle",
-            State = new State() {
+            State = new State(State.Empty) {
                 BlackRooks = (ulong)0b_0001_1000_0001_1000 << (8 * 3)
             },
             MatrixCreatorDict = new Dictionary<(int row, int col), char> {
@@ -56,7 +56,6 @@ public class TestStateToMatrix_Sparse {
     
     
     [Theory]
-    // [InlineData(WhiteQueenA1State)]
     [MemberData(nameof(StateToMatrix_Data))]
     public void StateToMatrix_SparseBoard(StateToMatrixDataType data) {
         //arrange

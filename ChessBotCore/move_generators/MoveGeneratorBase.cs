@@ -23,7 +23,7 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
         Pieces? capture = state.DetectPieceCollision(maskAfter);
 
         // TODO when State becomes a managed class, this needs so be explicit copy
-        State nextState = state;
+        State nextState = state.Clone();
         Bitboard boardAfterTheMove;
         // adds the moved piece, removes the before piece
         if (white) {
