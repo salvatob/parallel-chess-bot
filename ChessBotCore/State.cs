@@ -128,19 +128,20 @@ public struct State {
     }
     
     /// <summary>
-    /// Returns a copy of current state, where some properties are updated automatically.
+    /// Pushes the state into a next move, so some properties are updated automatically.
     /// <see cref="WhiteIsActive"/>, <see cref="EnPassant"/>, <see cref="FullMoves"/> clock and HalfMoves clock, are updated automatically.
     /// Pieces are left untouched, user should change them on their own.
-    /// Specific properties such as castling are also left to the user to handle.
+    /// Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
     /// <returns>A copy with clocks, en passant and active color automatically updated.</returns>
-    public State Next() {
-        return this with {
-            WhiteIsActive = !this.WhiteIsActive,
-            FullMoves = this.WhiteIsActive ? this.FullMoves : this.FullMoves + 1,
-            HalfMovesSincePawnMoveOrCapture = HalfMovesSincePawnMoveOrCapture + 1,
-            EnPassant = default
-        };
+    public void Next()
+    {
+
+        WhiteIsActive = !this.WhiteIsActive;
+        FullMoves = this.WhiteIsActive ? this.FullMoves : this.FullMoves + 1;
+        HalfMovesSincePawnMoveOrCapture = HalfMovesSincePawnMoveOrCapture + 1;
+        EnPassant = default;
+
     }
 
     /// <summary>
