@@ -7,7 +7,7 @@ namespace TestProject1;
 /// </summary>
 public class TestStateToMatrix_Sparse {
     private static string WhiteQueenA1FenPrefix = "8/8/8/8/8/8/8/Q7";
-    private static State WhiteQueenA1State = State.Empty with { WhiteQueens = 0b1000_0000 };
+    // private static State WhiteQueenA1State = State.Empty with { WhiteQueens = 0b1000_0000 };
     private static Dictionary<(int row, int col), char> AllBoardWhiteQueens = [];
 
     static TestStateToMatrix_Sparse() {
@@ -31,18 +31,18 @@ public class TestStateToMatrix_Sparse {
     public static IEnumerable<object[]> StateToMatrix_Data => new[] {
         new StateToMatrixDataType {
             Name = "WhiteQueenA1",
-            State = State.Empty with { WhiteQueens = 0b1000_0000 },
+            State = new State() { WhiteQueens = 0b1000_0000 },
             MatrixCreatorDict = new() {[(0,0)] = 'Q'}
         },
 
         new StateToMatrixDataType {
             Name = nameof(AllBoardWhiteQueens),
-            State = State.Empty with { WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF },
+            State = new State() { WhiteQueens = 0xFFFF_FFFF_FFFF_FFFF },
             MatrixCreatorDict = AllBoardWhiteQueens
         },
         new StateToMatrixDataType {
             Name = "BlackRooksInMiddle",
-            State = State.Empty with {
+            State = new State() {
                 BlackRooks = (ulong)0b_0001_1000_0001_1000 << (8 * 3)
             },
             MatrixCreatorDict = new Dictionary<(int row, int col), char> {

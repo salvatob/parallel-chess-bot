@@ -32,7 +32,7 @@ public class TestMoveNotationGeneration {
     
     var after = before;
     after.Next();
-    after = after with { WhitePawns = wPawnsAfter };
+    after.WhitePawns = wPawnsAfter;
 
     var notation = Move.TryGetNotation(before, after);
     

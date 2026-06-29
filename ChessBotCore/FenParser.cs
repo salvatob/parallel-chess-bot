@@ -14,12 +14,12 @@ internal static class FenParser {
         string fullClock = tokens[5];
 
 
-        State incompleteState = ParsePieces(pieces, State.Empty) with {
-            WhiteIsActive = ParseActiveColor(activeColor),
-            EnPassant = ParseEnpassant(enpassant),
-            HalfMovesSincePawnMoveOrCapture = ParseClock(halfClock),
-            FullMoves = ParseClock(fullClock)
-        };
+        State incompleteState = ParsePieces(pieces, State.Empty);  
+        incompleteState.WhiteIsActive = ParseActiveColor(activeColor);
+        incompleteState.EnPassant = ParseEnpassant(enpassant);
+        incompleteState.HalfMovesSincePawnMoveOrCapture = ParseClock(halfClock);
+        incompleteState.FullMoves = ParseClock(fullClock);
+        
 
         State completeWithCastles = ParseCastles(castles, incompleteState);
         return completeWithCastles;
@@ -44,32 +44,31 @@ internal static class FenParser {
         bool wq = castlesString.Contains('Q');
         bool bk = castlesString.Contains('k');
         bool bq = castlesString.Contains('q');
-        return incompleteState with {
-            WhiteCastleKingSide = wk,
-            WhiteCastleQueenSide = wq,
-            BlackCastleKingSide = bk,
-            BlackCastleQueenSide = bq
-        };
+        
+        incompleteState.WhiteCastleKingSide = wk;
+        incompleteState.WhiteCastleQueenSide = wq;
+        incompleteState.BlackCastleKingSide = bk;
+        incompleteState.BlackCastleQueenSide = bq;
+        return incompleteState;
     }
 
     private static State ParsePieces(string fenPieces, State incompleteState) {
         var board = FenToMatrix(fenPieces);
 
-        return incompleteState with {
-            WhiteQueens = ParsePiece(board, incompleteState.WhiteQueens, State.WhiteQueenSymbol),
-            WhitePawns = ParsePiece(board, incompleteState.WhitePawns, State.WhitePawnSymbol),
-            WhiteKing = ParsePiece(board, incompleteState.WhiteKing, State.WhiteKingSymbol),
-            WhiteBishops = ParsePiece(board, incompleteState.WhiteBishops, State.WhiteBishopSymbol),
-            WhiteKnights = ParsePiece(board, incompleteState.WhiteKnights, State.WhiteKnightSymbol),
-            WhiteRooks = ParsePiece(board, incompleteState.WhiteRooks, State.WhiteRookSymbol),
-
-            BlackQueens = ParsePiece(board, incompleteState.BlackQueens, State.BlackQueenSymbol),
-            BlackPawns = ParsePiece(board, incompleteState.BlackPawns, State.BlackPawnSymbol),
-            BlackKing = ParsePiece(board, incompleteState.BlackKing, State.BlackKingSymbol),
-            BlackBishops = ParsePiece(board, incompleteState.BlackBishops, State.BlackBishopSymbol),
-            BlackKnights = ParsePiece(board, incompleteState.BlackKnights, State.BlackKnightSymbol),
-            BlackRooks = ParsePiece(board, incompleteState.BlackRooks, State.BlackRookSymbol)
-        };
+        incompleteState.WhiteQueens = ParsePiece(board, incompleteState.WhiteQueens, State.WhiteQueenSymbol);
+        incompleteState.WhitePawns = ParsePiece(board, incompleteState.WhitePawns, State.WhitePawnSymbol);
+        incompleteState.WhiteKing = ParsePiece(board, incompleteState.WhiteKing, State.WhiteKingSymbol);
+        incompleteState.WhiteBishops = ParsePiece(board, incompleteState.WhiteBishops, State.WhiteBishopSymbol);
+        incompleteState.WhiteKnights = ParsePiece(board, incompleteState.WhiteKnights, State.WhiteKnightSymbol);
+        incompleteState.WhiteRooks = ParsePiece(board, incompleteState.WhiteRooks, State.WhiteRookSymbol);
+        incompleteState.BlackQueens = ParsePiece(board, incompleteState.BlackQueens, State.BlackQueenSymbol);
+        incompleteState.BlackPawns = ParsePiece(board, incompleteState.BlackPawns, State.BlackPawnSymbol);
+        incompleteState.BlackKing = ParsePiece(board, incompleteState.BlackKing, State.BlackKingSymbol);
+        incompleteState.BlackBishops = ParsePiece(board, incompleteState.BlackBishops, State.BlackBishopSymbol);
+        incompleteState.BlackKnights = ParsePiece(board, incompleteState.BlackKnights, State.BlackKnightSymbol);
+        incompleteState.BlackRooks = ParsePiece(board, incompleteState.BlackRooks, State.BlackRookSymbol);
+        
+        return incompleteState;
     }
 
     private static char[,] FenToMatrix(string fenPieces) {
