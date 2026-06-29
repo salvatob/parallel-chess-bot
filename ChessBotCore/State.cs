@@ -134,14 +134,12 @@ public struct State {
     /// Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
     /// <returns>A copy with clocks, en passant and active color automatically updated.</returns>
-    public void Next()
-    {
-
-        WhiteIsActive = !this.WhiteIsActive;
-        FullMoves = this.WhiteIsActive ? this.FullMoves : this.FullMoves + 1;
-        HalfMovesSincePawnMoveOrCapture = HalfMovesSincePawnMoveOrCapture + 1;
+    public void Next() {
+        WhiteIsActive = !WhiteIsActive;
+        // update fullmove clock after blacks turn
+        if (WhiteIsActive) FullMoves++;
+        HalfMovesSincePawnMoveOrCapture += 1;
         EnPassant = default;
-
     }
 
     /// <summary>
