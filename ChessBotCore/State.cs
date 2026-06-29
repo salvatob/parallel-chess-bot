@@ -145,14 +145,12 @@ public struct State {
     }
 
     /// <summary>
-    /// Returns copy of the struct, where the half move clock has been reset to zero.
+    /// Resets the half-move counter.
     /// Should be used after executing a move with a capture, or a pawn advance.
     /// </summary>
     /// <returns></returns>
-    public State WithHalfClockReset() {
-        return this with {
-            HalfMovesSincePawnMoveOrCapture = 0
-        };
+    public void HalfClockReset() {
+        HalfMovesSincePawnMoveOrCapture = 0;
     }
     
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
