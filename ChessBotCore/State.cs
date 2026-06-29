@@ -182,7 +182,7 @@ public struct State {
                 BlackQueens |
                 BlackKing |
                 BlackPawns |
-                BlackRooks,
+                BlackRooks
         };
     }
     
