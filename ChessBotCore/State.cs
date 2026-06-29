@@ -174,13 +174,14 @@ public class State {
     /// Pieces are left untouched, user should change them on their own.
     /// Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
-    /// <returns>A copy with clocks, en passant and active color automatically updated.</returns>
-    public void Next() {
+    /// <returns>The same instance.</returns>
+    public State Next() {
         WhiteIsActive = !WhiteIsActive;
         // update fullmove clock after blacks turn
         if (WhiteIsActive) FullMoves++;
         HalfMovesSincePawnMoveOrCapture += 1;
         EnPassant = default;
+        return this;
     }
 
     /// <summary>
@@ -188,8 +189,9 @@ public class State {
     /// Should be used after executing a move with a capture, or a pawn advance.
     /// </summary>
     /// <returns></returns>
-    public void HalfClockReset() {
+    public State HalfClockReset() {
         HalfMovesSincePawnMoveOrCapture = 0;
+        return this;
     }
     
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
@@ -258,45 +260,45 @@ public class State {
     }
 
 
-    public void Set(Pieces changedPieces, Bitboard newPieces) {
+    public State Set(Pieces changedPieces, Bitboard newPieces) {
         switch (changedPieces)
         {
             case Pieces.WhitePawns:
                 WhitePawns = newPieces;
-                return;
+                return this;
             case Pieces.WhiteRooks:
                 WhiteRooks = newPieces;
-                return;
+                return this;
             case Pieces.WhiteKnights:
                 WhiteKnights = newPieces;
-                return;
+                return this;
             case Pieces.WhiteBishops:
                 WhiteBishops = newPieces;
-                return;
+                return this;
             case Pieces.WhiteQueens:
                 WhiteQueens = newPieces;
-                return;
+                return this;
             case Pieces.WhiteKing:
                 WhiteKing = newPieces;
-                return;
+                return this;
             case Pieces.BlackPawns:
                 BlackPawns = newPieces;
-                return;
+                return this;
             case Pieces.BlackRooks:
                 BlackRooks = newPieces;
-                return;
+                return this;
             case Pieces.BlackKnights:
                 BlackKnights = newPieces;
-                return;
+                return this;
             case Pieces.BlackBishops:
                 BlackBishops = newPieces;
-                return;
+                return this;
             case Pieces.BlackQueens:
                 BlackQueens = newPieces;
-                return;
+                return this;
             case Pieces.BlackKing:
                 BlackKing = newPieces;
-                return;
+                return this;
             default:
                 throw new ArgumentOutOfRangeException(nameof(changedPieces), changedPieces, null);
         }
