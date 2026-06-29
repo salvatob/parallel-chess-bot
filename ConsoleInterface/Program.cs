@@ -18,7 +18,7 @@ internal class Program {
         // }
         
         // return;
-        int depth = 4;
+        int depth = 5;
         var chessMulti = new ParallelChessWrapper();
         Console.WriteLine("single threaded");
         TryPerft(depth, chessSingle);
