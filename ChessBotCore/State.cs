@@ -36,6 +36,38 @@ public class State {
     public const char BlackKnightSymbol = 'n';
     public const char BlackRookSymbol = 'r';
 
+    public State(State other) {
+        CopyFrom(other);
+    }
+
+    public void CopyFrom(State other) {
+        WhitePawns = other.WhitePawns;
+        WhiteRooks = other.WhiteRooks;
+        WhiteKnights = other.WhiteKnights;
+        WhiteBishops = other.WhiteBishops;
+        WhiteQueens = other.WhiteQueens;
+        WhiteKing = other.WhiteKing;
+
+        BlackPawns = other.BlackPawns;
+        BlackRooks = other.BlackRooks;
+        BlackKnights = other.BlackKnights;
+        BlackBishops = other.BlackBishops;
+        BlackQueens = other.BlackQueens;
+        BlackKing = other.BlackKing;
+
+        WhiteIsActive = other.WhiteIsActive;
+
+        WhiteCastleKingSide = other.WhiteCastleKingSide;
+        WhiteCastleQueenSide = other.WhiteCastleQueenSide;
+        BlackCastleKingSide = other.BlackCastleKingSide;
+        BlackCastleQueenSide = other.BlackCastleQueenSide;
+
+        EnPassant = other.EnPassant;
+
+        HalfMovesSincePawnMoveOrCapture = other.HalfMovesSincePawnMoveOrCapture;
+        FullMoves = other.FullMoves;
+    }
+
     // [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", false)]
     public State() {
         WhitePawns   = 0b_1111_1111_0000_0000;
