@@ -40,23 +40,39 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     /// <param name="state">The state from which to generate the moves</param>
     /// <returns>Lazy IEnumerable of Move structs</returns>
     public IEnumerable<Move> GetLegalMoves(State state) {
-        return GenerateMoves(state).Where(CheckMoveLegality);
+        foreach (var move in GenerateMoves(state)) {
+            if (CheckMoveLegality(move, state)) {
+                yield return move;
+            }
+        }
     }
 
-    private bool CheckMoveLegality(Move move) {
+    private bool CheckMoveLegality(Move move, State state) {
         // castles are already checked
         if (move.IsCastle) return true;
         
-        // if true, we are checking for white king
-        bool kingColor = !move.StateAfter.WhiteIsActive;
-        foreach (Move moveAfter in GenerateMoves(move.StateAfter)) {
-            if (kingColor) {
-                if (moveAfter.StateAfter.WhiteKing.IsEmpty()) return false;
-            } else {
-                if (moveAfter.StateAfter.BlackKing.IsEmpty()) return false;
+        var undo = state.ApplyMove(move);
+        bool legal = true;
+        
+        // After ApplyMove, WhiteIsActive has flipped.
+        // If white just moved, it's now black's turn. 
+        // We need to check if white's king is under attack.
+        bool wasWhiteTurn = !state.WhiteIsActive;
+        Bitboard kingBoard = wasWhiteTurn ? state.WhiteKing : state.BlackKing;
+        
+        if (kingBoard.IsEmpty()) {
+            legal = false; // Should not happen if king was there before
+        } else {
+            int kingSquare = kingBoard.TrailingZeroCount();
+            foreach (Move response in GenerateMoves(state)) {
+                if (response.To == kingSquare) {
+                    legal = false;
+                    break;
+                }
             }
         }
 
-        return true;
+        state.UndoMove(move, undo);
+        return legal;
     }
 }
