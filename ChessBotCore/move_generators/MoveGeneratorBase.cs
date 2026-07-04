@@ -19,38 +19,11 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
     /// <param name="state">The state before the move</param>
     /// <returns>A <see cref="Move"/> struct</returns>
     protected Move CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
-        bool white = state.WhiteIsActive;
         Pieces? capture = state.DetectPieceCollision(maskAfter);
+        MoveFlags flags = MoveFlags.None;
+        if (capture.HasValue) flags |= MoveFlags.Capture;
 
-        // TODO when State becomes a managed class, this needs so be explicit copy
-        State nextState = state.Clone();
-        Bitboard boardAfterTheMove;
-        // adds the moved piece, removes the before piece
-        if (white) {
-            boardAfterTheMove = (state.GetPieces(WhitePiece) | maskAfter) & (~maskBefore);
-
-            nextState.Next();
-            nextState.Set(WhitePiece, boardAfterTheMove);
-        } else {
-            boardAfterTheMove = (state.GetPieces(BlackPiece) | maskAfter) & (~maskBefore);
-
-            nextState.Next();
-            nextState.Set(BlackPiece, boardAfterTheMove);
-        }
-        // additionally removes the captured piece from its corresponding bitboard 
-        bool isCapture = capture.HasValue;
-        if (isCapture) {
-            var newCapturedPieces = state.GetPieces(capture!.Value) & ~maskAfter;
-            nextState.Set(capture.Value, newCapturedPieces);
-        }
-
-        if (isCapture) nextState.HalfClockReset();
-        
-        return new Move(nextState) {
-            IsCapture = isCapture,
-            coordsBefore = Coordinates.FromMask(maskBefore),
-            coordsAfter = Coordinates.FromMask(maskAfter)
-        };
+        return new Move(maskBefore.TrailingZeroCount(), maskAfter.TrailingZeroCount(), flags);
     }
 
 }

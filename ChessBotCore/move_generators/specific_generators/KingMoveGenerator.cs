@@ -39,42 +39,15 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
                 Bitboard maskBefore = currMoveMask.MovePieces(oppositeDir);
 
                 // according to old and new positions create the new State 
-                Move newMove = CreateMove(maskBefore, currMoveMask, state);
-                
-                // disallow castling for current color, since king has just moved
-                newMove = DisableCastling(newMove);
-                yield return newMove;
-
+                yield return CreateMove(maskBefore, currMoveMask, state);
 
                 movedKing &= ~currMoveMask;
             }
         }
-
-        // foreach (var castleMove in GenerateCastleMoves(state)) {
-        //     yield return castleMove;
-        // }
     }
 
     //TODO implement castling logic
     private IEnumerable<Move> GenerateCastleMoves(State state) {
-        // bool kingSideCastleAvailable = state.WhiteIsActive ? state.WhiteCastleKingSide : state.BlackCastleKingSide;
-        //
-        // if (kingSideCastleAvailable) {
-        //     
-        // }
         return [];
-    }
-    
-    private Move DisableCastling(Move move) {
-        bool white = !move.StateAfter.WhiteIsActive;
-        if (white) {
-            move.StateAfter.WhiteCastleKingSide = false;
-            move.StateAfter.WhiteCastleQueenSide = false;
-        } else {
-            move.StateAfter.BlackCastleKingSide = false;
-            move.StateAfter.BlackCastleQueenSide = false;
-        }
-
-        return move;
     }
 }
