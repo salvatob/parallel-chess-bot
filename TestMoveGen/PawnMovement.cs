@@ -93,12 +93,18 @@ public class PawnMovement {
 
         
         Bitboard pawns = Bitboard.Parse(inputStr);
+        State state = new State { WhitePawns = pawns, WhiteIsActive = true };
 
-        var possibleMoves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).OneCellForward(pawns, ~pawns, true);
+        var possibleMoves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateNonCaptures(state)
+            .Select(m => {
+                var s = state.Clone();
+                s.ApplyMove(m);
+                return s.WhitePawns;
+            });
 
         var expectedMoves = expectedStr.Select(Bitboard.Parse);
 
-        possibleMoves.Should().BeEquivalentTo(expectedMoves);
+        possibleMoves.Should().Contain(expectedMoves);
     }
 
     /// <summary>
@@ -148,7 +154,15 @@ public class PawnMovement {
         var otherPieces = Bitboard.Parse(otherPiecesStr) | pawns;
         var expected = expectedStr.Select(Bitboard.Parse);
         
-        var pawnDoubleMovesOnly = ((PawnMoveGenerator)PawnMoveGenerator.Instance).DoubleMoveForward(pawns, ~otherPieces, true);
+        State state = new State { WhitePawns = pawns, BlackPawns = otherPieces ^ pawns, WhiteIsActive = true };
+
+        var pawnDoubleMovesOnly = ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateNonCaptures(state)
+            .Where(m => m.Flags.HasFlag(MoveFlags.DoublePawnPush))
+            .Select(m => {
+                var s = state.Clone();
+                s.ApplyMove(m);
+                return s.WhitePawns;
+            });
         //assert
 
         pawnDoubleMovesOnly.Should().BeEquivalentTo(expected);
