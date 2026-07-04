@@ -193,6 +193,27 @@ public class State {
         HalfMovesSincePawnMoveOrCapture = 0;
         return this;
     }
+    // TODO could shrink this struct down
+    public readonly struct UndoInfo {
+        public readonly Pieces? CapturedPiece;
+        public readonly Bitboard EnPassant;
+        public readonly bool WhiteCastleKingSide;
+        public readonly bool WhiteCastleQueenSide;
+        public readonly bool BlackCastleKingSide;
+        public readonly bool BlackCastleQueenSide;
+        public readonly int HalfMovesSincePawnMoveOrCapture;
+
+        public UndoInfo(State state, Pieces? capturedPiece) {
+            CapturedPiece = capturedPiece;
+            EnPassant = state.EnPassant;
+            WhiteCastleKingSide = state.WhiteCastleKingSide;
+            WhiteCastleQueenSide = state.WhiteCastleQueenSide;
+            BlackCastleKingSide = state.BlackCastleKingSide;
+            BlackCastleQueenSide = state.BlackCastleQueenSide;
+            HalfMovesSincePawnMoveOrCapture = state.HalfMovesSincePawnMoveOrCapture;
+        }
+    }
+
     
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
