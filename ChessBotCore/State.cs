@@ -214,6 +214,237 @@ public class State {
         }
     }
 
+    public UndoInfo ApplyMove(Move move) {
+        int from = move.From;
+        int to = move.To;
+        Bitboard fromMask = 1UL << from;
+        Bitboard toMask = 1UL << to;
+
+        Pieces? movingPiece = DetectPieceCollision(fromMask);
+
+        // This should not happen for legal moves
+        Debug.Assert(movingPiece is not null);
+
+        Pieces? capturedPiece = move.IsEnPassant 
+            ? (WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns)
+            : DetectPieceCollision(toMask);
+
+        UndoInfo undo = new UndoInfo(this, capturedPiece);
+
+        // Handle regular move or capture
+        ExecuteMove(movingPiece.Value, fromMask, toMask, move);
+
+        // Change turn and increment clocks
+        Next();
+
+        // Update metadata (this must happen after Next() so EnPassant isn't wiped)
+        UpdateMetadata(movingPiece.Value, move);
+
+        return undo;
+    }
+
+    public void UndoMove(Move move, UndoInfo undo) {
+        // 1. Reverse Turn
+        ReverseNext();
+
+        // 2. Move Piece Back
+        int from = move.From;
+        int to = move.To;
+        Bitboard fromMask = 1UL << from;
+        Bitboard toMask = 1UL << to;
+
+        if (move.IsPromotion) {
+            Pieces promotedPiece = GetPromotedPiece(move);
+            Pieces pawnPiece = WhiteIsActive ? Pieces.WhitePawns : Pieces.BlackPawns;
+            
+            // Remove promoted piece from 'to'
+            Set(promotedPiece, GetPieces(promotedPiece) & ~toMask);
+            // Put pawn back to 'from'
+            Set(pawnPiece, GetPieces(pawnPiece) | fromMask);
+        } else {
+            Pieces? movingPiece = DetectPieceCollision(toMask);
+            if (movingPiece.HasValue) {
+                MovePiece(movingPiece.Value, toMask, fromMask);
+            }
+        }
+
+        // 3. Restore Captured Piece
+        if (move.IsCapture && undo.CapturedPiece.HasValue) {
+            if (move.IsEnPassant) {
+                Bitboard capturedPawnMask = WhiteIsActive 
+                    ? toMask.MovePieces(Direction.S) 
+                    : toMask.MovePieces(Direction.N);
+                Set(undo.CapturedPiece.Value, GetPieces(undo.CapturedPiece.Value) | capturedPawnMask);
+            } else {
+                Set(undo.CapturedPiece.Value, GetPieces(undo.CapturedPiece.Value) | toMask);
+            }
+        }
+
+        // 4. Handle Castling (Move Rook Back)
+        if (move.IsCastle) {
+            UndoCastling(move);
+        }
+
+        // 5. Restore Metadata
+        EnPassant = undo.EnPassant;
+        WhiteCastleKingSide = undo.WhiteCastleKingSide;
+        WhiteCastleQueenSide = undo.WhiteCastleQueenSide;
+        BlackCastleKingSide = undo.BlackCastleKingSide;
+        BlackCastleQueenSide = undo.BlackCastleQueenSide;
+        HalfMovesSincePawnMoveOrCapture = undo.HalfMovesSincePawnMoveOrCapture;
+    }
+
+    private void ReverseNext() {
+        if (WhiteIsActive) FullMoves--;
+        WhiteIsActive = !WhiteIsActive;
+    }
+
+    private void UndoCastling(Move move) {
+        if (WhiteIsActive) {
+            if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
+                MovePiece(Pieces.WhiteRooks, 1UL << 2, 1UL << 0); // f1 to h1
+            } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
+                MovePiece(Pieces.WhiteRooks, 1UL << 4, 1UL << 7); // d1 to a1
+            }
+        } else {
+            if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
+                MovePiece(Pieces.BlackRooks, 1UL << 58, 1UL << 56); // f8 to h8
+            } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
+                MovePiece(Pieces.BlackRooks, 1UL << 60, 1UL << 63); // d8 to a8
+            }
+        }
+    }
+
+    private void ExecuteMove(Pieces piece, Bitboard fromMask, Bitboard toMask, Move move) {
+        // 1. Handle Captures
+        if (move.IsCapture) {
+            HandleCapture(toMask, move);
+        }
+
+        // 2. Handle Castling (King move is handled by ExecuteMove, but we need to move the Rook)
+        if (move.IsCastle) {
+            HandleCastling(move);
+        }
+
+        // 3. Move the piece
+        if (move.IsPromotion) {
+            HandlePromotion(piece, fromMask, toMask, move);
+        } else {
+            MovePiece(piece, fromMask, toMask);
+        }
+    }
+
+    private void MovePiece(Pieces piece, Bitboard fromMask, Bitboard toMask) {
+        Bitboard currentBoard = GetPieces(piece);
+        Set(piece, (currentBoard & ~fromMask) | toMask);
+    }
+
+    private void HandleCapture(Bitboard toMask, Move move) {
+        if (move.IsEnPassant) {
+            // Captured pawn is on a different square
+            // Note: WhiteIsActive is now the side that just moved if called before Next(), 
+            // but in my new ApplyMove order, Next() is called before UpdateMetadata but AFTER ExecuteMove.
+            // Wait, I should check the order in ApplyMove.
+            
+            // If ApplyMove calls ExecuteMove BEFORE Next(), then WhiteIsActive is the mover.
+            Bitboard capturedPawnMask = WhiteIsActive 
+                ? toMask.MovePieces(Direction.S) 
+                : toMask.MovePieces(Direction.N);
+            
+            Pieces capturedPiece = WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns;
+            Set(capturedPiece, GetPieces(capturedPiece) & ~capturedPawnMask);
+        } else {
+            Pieces? capturedPiece = DetectPieceCollision(toMask);
+            if (capturedPiece.HasValue) {
+                Set(capturedPiece.Value, GetPieces(capturedPiece.Value) & ~toMask);
+            }
+        }
+    }
+
+    private void HandlePromotion(Pieces piece, Bitboard fromMask, Bitboard toMask, Move move) {
+        // Remove pawn from original position
+        Set(piece, GetPieces(piece) & ~fromMask);
+
+        // Add promoted piece to new position
+        Pieces promotedTo = GetPromotedPiece(move);
+        Set(promotedTo, GetPieces(promotedTo) | toMask);
+    }
+
+    private Pieces GetPromotedPiece(Move move) {
+        if (WhiteIsActive) {
+            if (move.Flags.HasFlag(MoveFlags.PromoteToQueen)) return Pieces.WhiteQueens;
+            if (move.Flags.HasFlag(MoveFlags.PromoteToRook)) return Pieces.WhiteRooks;
+            if (move.Flags.HasFlag(MoveFlags.PromoteToBishop)) return Pieces.WhiteBishops;
+            if (move.Flags.HasFlag(MoveFlags.PromoteToKnight)) return Pieces.WhiteKnights;
+            return Pieces.WhiteQueens; // Default
+        } else {
+            if (move.Flags.HasFlag(MoveFlags.PromoteToQueen)) return Pieces.BlackQueens;
+            if (move.Flags.HasFlag(MoveFlags.PromoteToRook)) return Pieces.BlackRooks;
+            if (move.Flags.HasFlag(MoveFlags.PromoteToBishop)) return Pieces.BlackBishops;
+            if (move.Flags.HasFlag(MoveFlags.PromoteToKnight)) return Pieces.BlackKnights;
+            return Pieces.BlackQueens; // Default
+        }
+    }
+
+    private void HandleCastling(Move move) {
+        // King move is already handled by MovePiece in ExecuteMove
+        // We just need to move the Rook
+        if (WhiteIsActive) {
+            if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
+                MovePiece(Pieces.WhiteRooks, 1UL << 0, 1UL << 2); // h1 to f1
+            } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
+                MovePiece(Pieces.WhiteRooks, 1UL << 7, 1UL << 4); // a1 to d1
+            }
+        } else {
+            if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
+                MovePiece(Pieces.BlackRooks, 1UL << 56, 1UL << 58); // h8 to f8
+            } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
+                MovePiece(Pieces.BlackRooks, 1UL << 63, 1UL << 60); // a8 to d8
+            }
+        }
+    }
+
+    private void UpdateMetadata(Pieces piece, Move move) {
+        bool whiteMoved = piece is Pieces.WhitePawns or Pieces.WhiteRooks or Pieces.WhiteKnights or Pieces.WhiteBishops or Pieces.WhiteQueens or Pieces.WhiteKing;
+        
+        // 1. En Passant Square
+        if (move.Flags.HasFlag(MoveFlags.DoublePawnPush)) {
+            EnPassant = whiteMoved 
+                ? (1UL << (move.From + 8)) 
+                : (1UL << (move.From - 8));
+        }
+
+        // 2. Castling Rights
+        UpdateCastlingRights(piece, move);
+
+        // 3. Halfmove clock
+        if (piece == Pieces.WhitePawns || piece == Pieces.BlackPawns || move.IsCapture) {
+            HalfClockReset();
+        }
+    }
+
+    private void UpdateCastlingRights(Pieces piece, Move move) {
+        // If King moves, lose all castling rights for that color
+        if (piece == Pieces.WhiteKing) {
+            WhiteCastleKingSide = false;
+            WhiteCastleQueenSide = false;
+        } else if (piece == Pieces.BlackKing) {
+            BlackCastleKingSide = false;
+            BlackCastleQueenSide = false;
+        }
+
+        // If Rook moves from its original square, or is captured on its original square
+        // White Rooks: a1 (0), h1 (7)
+        // Black Rooks: a8 (56), h8 (63)
+        
+        int from = move.From;
+        int to = move.To;
+
+        if (from == 0 || to == 0) WhiteCastleKingSide = false;
+        if (from == 7 || to == 7) WhiteCastleQueenSide = false;
+        if (from == 56 || to == 56) BlackCastleKingSide = false;
+        if (from == 63 || to == 63) BlackCastleQueenSide = false;
+    }
     
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
