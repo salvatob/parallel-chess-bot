@@ -44,7 +44,11 @@ public class TestAgainstTestDatabase {
         //act
         IEnumerable<Move> moves = GeneratorWrapper.Default.GetLegalMoves(start);
         
-        var moveFens = moves.Select(m => FenCreator.GetFen(m.StateAfter));
+        var moveFens = moves.Select(m => {
+            var nextState = start.Clone();
+            nextState.ApplyMove(m);
+            return FenCreator.GetFen(nextState);
+        });
         
         var expected = new HashSet<string>(expectedEnumerable);
         var actual   = new HashSet<string>(moveFens);
