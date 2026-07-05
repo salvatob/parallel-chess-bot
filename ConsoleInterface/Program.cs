@@ -38,8 +38,10 @@ internal class Program {
         moveCounts["unmarked"] = 0;
         
         foreach (var m in g.GetLegalMoves(s)) {
-            long nodes = chess.Perft(m.StateAfter, depth - 1);
-            var key = m.TryGetNotation(s);
+            var nextState = s.Clone();
+            nextState.ApplyMove(m);
+            long nodes = chess.Perft(nextState, depth - 1);
+            var key = Move.TryGetNotation(s, nextState);
             if (key is null) moveCounts["unmarked"] += nodes;
             else moveCounts[key] = nodes;
         }

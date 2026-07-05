@@ -17,7 +17,9 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
             moves,
             po,
             move => {
-                long nodexFound = PerftHelper(move.StateAfter, depth - 1);
+                var nextState = state.Clone();
+                nextState.ApplyMove(move);
+                long nodexFound = PerftHelper(nextState, depth - 1);
                 
                 lock (_nodesLock) {
                     _nodesExplored += nodexFound;
@@ -31,13 +33,14 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
 
 
     private long PerftHelper(State state, int depth) {
-
         if (depth <= 0) return 1;
         
         long nodesExplored = 0;
 
-        foreach (var move in Generator.GetLegalMoves(state).ToList()) {
-            nodesExplored += PerftHelper(move.StateAfter, depth - 1);
+        foreach (var move in Generator.GetLegalMoves(state)) {
+            var undo = state.ApplyMove(move);
+            nodesExplored += PerftHelper(state, depth - 1);
+            state.UndoMove(move, undo);
         }
 
         return nodesExplored;
@@ -48,7 +51,6 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         long score = 0;
         object scoreLock = new object();
         
-        
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
         var moves = Generator.GenerateMoves(state);
         
@@ -56,7 +58,9 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
             moves,
             po,
             move => {
-                long currScore = EvalPerftHelper(move.StateAfter, depth - 1);
+                var nextState = state.Clone();
+                nextState.ApplyMove(move);
+                long currScore = EvalPerftHelper(nextState, depth - 1);
                 
                 lock (scoreLock) {
                     score += currScore;
@@ -73,13 +77,14 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
     }
 
     private long EvalPerftHelper(State state, int depth) {
-        long score = 0;
-
         if (depth <= 0) return Evaluator.Evaluate(state);
         
+        long score = 0;
 
         foreach (var move in Generator.GenerateMoves(state)) {
-            score += EvalPerft(move.StateAfter, depth - 1);
+            var undo = state.ApplyMove(move);
+            score += EvalPerftHelper(state, depth - 1);
+            state.UndoMove(move, undo);
         }
 
         return score;

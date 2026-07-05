@@ -12,27 +12,28 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
     }
     
     public override long Perft(State state, int depth) {
-
-
         if (depth <= 0) return 1;
         
         long nodesExplored = 0;
 
         foreach (var move in Generator.GetLegalMoves(state)) {
-            nodesExplored += Perft(move.StateAfter, depth - 1);
+            var undo = state.ApplyMove(move);
+            nodesExplored += Perft(state, depth - 1);
+            state.UndoMove(move, undo);
         }
 
         return nodesExplored;
     }
 
     public override long EvalPerft(State state, int depth) {
-
-        long score = 0;
         if (depth <= 0) return Evaluator.Evaluate(state);
         
+        long score = 0;
 
         foreach (var move in Generator.GenerateMoves(state)) {
-            score += EvalPerft(move.StateAfter, depth - 1);
+            var undo = state.ApplyMove(move);
+            score += EvalPerft(state, depth - 1);
+            state.UndoMove(move, undo);
         }
 
         return score;
