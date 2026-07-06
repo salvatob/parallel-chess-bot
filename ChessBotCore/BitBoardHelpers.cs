@@ -8,6 +8,8 @@ namespace ChessBotCore;
 /// All methods outside ChessBotCore assembly should be exposed through the that structure.
 /// </summary>
 internal static class BitBoardHelpers {
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard OneBitMask(int index) {
         return 1UL << index;
     }
@@ -73,6 +75,7 @@ internal static class BitBoardHelpers {
     /// </summary>
     /// <param name="x">The Bitboard to determine</param>
     /// <returns>True, if it has one bit</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasSingleBit(Bitboard x) 
         => x.RawBits != 0 && (x.RawBits & (x.RawBits - 1)) == 0;
 
