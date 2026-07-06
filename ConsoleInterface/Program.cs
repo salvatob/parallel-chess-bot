@@ -13,7 +13,7 @@ internal class Program {
         // }
         
         // return;
-        int depth = 6;
+        int depth = 6; // I want 119,060,324 nodes without castles
         var chessMulti = new ParallelChessWrapper();
         Console.WriteLine("single threaded");
         TryPerft(depth, chessSingle);

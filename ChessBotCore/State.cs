@@ -220,11 +220,11 @@ public class State {
         Bitboard fromMask = 1UL << from;
         Bitboard toMask = 1UL << to;
 
-        Pieces? movingPiece = DetectPieceCollision(fromMask);
+        // Pieces? movingPiece = DetectPieceCollision(fromMask);
+        Pieces movingPiece = move.Piece;
 
         // This should not happen for legal moves
-        Debug.Assert(movingPiece is not null);
-
+        
         Pieces? capturedPiece = move.IsEnPassant 
             ? (WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns)
             : DetectPieceCollision(toMask);
@@ -232,13 +232,13 @@ public class State {
         UndoInfo undo = new UndoInfo(this, capturedPiece);
 
         // Handle regular move or capture
-        ExecuteMove(movingPiece.Value, fromMask, toMask, move);
+        ExecuteMove(movingPiece, fromMask, toMask, move);
 
         // Change turn and increment clocks
         Next();
 
         // Update metadata (this must happen after Next() so EnPassant isn't wiped)
-        UpdateMetadata(movingPiece.Value, move);
+        UpdateMetadata(movingPiece, move);
 
         return undo;
     }

@@ -18,17 +18,17 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
 
     public override IEnumerable<Move> GenerateMoves(State state) {
         foreach (Move move in GenerateCaptures(state)) {
-            foreach (Move promoted in HandlePromotion(move))
+            foreach (Move promoted in HandlePromotion(move, state.WhiteIsActive))
                 yield return promoted;
         }
 
         foreach (Move move in GenerateNonCaptures(state)) {
-            foreach (Move promoted in HandlePromotion(move))
+            foreach (Move promoted in HandlePromotion(move, state.WhiteIsActive))
                 yield return promoted;
         }
     }
 
-    private IEnumerable<Move> HandlePromotion(Move move) {
+    private IEnumerable<Move> HandlePromotion(Move move, bool white) {
         int to = move.To;
         int toRank = to / 8;
         bool isPromotionRank = toRank == 0 || toRank == 7;
@@ -36,17 +36,20 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         if (!isPromotionRank) {
             yield return move;
         } else {
+            Pieces pieceType = white ? Pieces.WhitePawns : Pieces.BlackPawns;
             MoveFlags baseFlags = move.Flags | MoveFlags.Promotion;
-            yield return new Move(move.From, to, baseFlags | MoveFlags.PromoteToQueen);
-            yield return new Move(move.From, to, baseFlags | MoveFlags.PromoteToRook);
-            yield return new Move(move.From, to, baseFlags | MoveFlags.PromoteToBishop);
-            yield return new Move(move.From, to, baseFlags | MoveFlags.PromoteToKnight);
+            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToQueen);
+            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToRook);
+            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToBishop);
+            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToKnight);
         }
     }
 
     internal IEnumerable<Move> GenerateNonCaptures(State state) {
         bool whitesMove = state.WhiteIsActive;
-        var currentPawns = whitesMove ? state.WhitePawns : state.BlackPawns;
+        Pieces pieceType = whitesMove ? Pieces.WhitePawns : Pieces.BlackPawns;
+        
+        Bitboard currentPawns = whitesMove ? state.WhitePawns : state.BlackPawns;
         Bitboard emptySpace = ~state.GetAllPieces();
 
         Direction dirForward = whitesMove ? _whiteForward : _blackForward;
@@ -59,7 +62,8 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             int to = tempOnce.TrailingZeroCount();
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
-            yield return new Move(from, to, MoveFlags.None);
+            
+            yield return new Move(from, to, pieceType, MoveFlags.None);
             tempOnce &= ~toMask;
         }
 
@@ -72,16 +76,18 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             int to = movedTwice.TrailingZeroCount();
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir, 2).TrailingZeroCount();
-            yield return new Move(from, to, MoveFlags.DoublePawnPush);
+            yield return new Move(from, to, pieceType, MoveFlags.DoublePawnPush);
             movedTwice &= ~toMask;
         }
     }
 
     internal IEnumerable<Move> GenerateCaptures(State state) {
-        var enemyPieces = state.GetInactivePieces();
-        var pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
-        var directions = state.WhiteIsActive ? _whiteDiagonals : _blackDiagonals;
-
+        Bitboard enemyPieces = state.GetInactivePieces();
+        Bitboard pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
+        Direction[] directions = state.WhiteIsActive ? _whiteDiagonals : _blackDiagonals;
+        Pieces pieceType = state.WhiteIsActive ? Pieces.WhitePawns : Pieces.BlackPawns;
+        
+        
         foreach (Direction dir in directions) {
             var pawnsThatCapturedSomething = pawns.MovePieces(dir) & enemyPieces;
             var oppositeDir = BitBoardHelpers.OppositeDir(dir);
@@ -91,7 +97,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                 Bitboard toMask = BitBoardHelpers.OneBitMask(to);
                 int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
 
-                yield return new Move(from, to, MoveFlags.Capture);
+                yield return new Move(from, to, pieceType, MoveFlags.Capture);
                 pawnsThatCapturedSomething &= ~toMask;
             }
         }
@@ -100,12 +106,14 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         if (state.EnPassantAvailable) {
             Bitboard epMask = state.EnPassant;
             foreach (Direction dir in directions) {
+                // ReSharper disable once InconsistentNaming
                 Bitboard pawnsThatCanCaptureEP = pawns & BitBoardHelpers.Move(epMask, BitBoardHelpers.OppositeDir(dir));
+                
                 while (!pawnsThatCanCaptureEP.IsEmpty()) {
                     int from = pawnsThatCanCaptureEP.TrailingZeroCount();
                     Bitboard fromMask = BitBoardHelpers.OneBitMask(from);
                     int to = BitBoardHelpers.Move(fromMask, dir).TrailingZeroCount();
-                    yield return new Move(from, to, MoveFlags.Capture | MoveFlags.EnPassant);
+                    yield return new Move(from, to, pieceType, MoveFlags.Capture | MoveFlags.EnPassant);
                     pawnsThatCanCaptureEP &= ~fromMask;
                 }
             }

@@ -19,11 +19,12 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
     /// <param name="state">The state before the move</param>
     /// <returns>A <see cref="Move"/> struct</returns>
     protected Move CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
+        Pieces pieceType = state.WhiteIsActive ? WhitePiece : BlackPiece; 
         Pieces? capture = state.DetectPieceCollision(maskAfter);
         MoveFlags flags = MoveFlags.None;
         if (capture.HasValue) flags |= MoveFlags.Capture;
 
-        return new Move(maskBefore.TrailingZeroCount(), maskAfter.TrailingZeroCount(), flags);
+        return new Move(maskBefore.TrailingZeroCount(), maskAfter.TrailingZeroCount(), pieceType, flags);
     }
 
 }

@@ -19,11 +19,18 @@ public enum MoveFlags : ushort {
     None = 0
 }
 
+
+
 public readonly struct Move : IComparable<Move> {
+    // first 6 bits is from, next 6 is to, next 4 is Pieces, another 16 are flags
     private readonly uint _data;
 
-    public Move(int from, int to, MoveFlags flags = MoveFlags.None) {
-        _data = (uint)(from | (to << 6) | ((uint)flags << 16));
+    static bool GetColor(Pieces p) {
+        return (byte)p > 6;
+    }
+    
+    public Move(int from, int to, Pieces piece, MoveFlags flags = MoveFlags.None) {
+        _data = (uint)((uint)(from | (to << 6) | ((byte)piece << 12)) | ((uint)flags << 16));
     }
 
     public int From => (int)(_data & 0x3F);
@@ -37,7 +44,8 @@ public readonly struct Move : IComparable<Move> {
     public bool IsCastle => Flags.HasFlag(MoveFlags.KingCastle) || Flags.HasFlag(MoveFlags.QueenCastle);
     public bool IsEnPassant => Flags.HasFlag(MoveFlags.EnPassant);
     public bool IsCheck => Flags.HasFlag(MoveFlags.IsCheck);
-
+    public Pieces Piece => (Pieces)((_data >> 12) & 0b1111); // take only 4 bits ideally
+    public bool IsWhite => GetColor(Piece);
     public static string? TryGetNotation(State before, State after) {
         return FenCreator.TryGetMoveNotation(before, after);
     }
