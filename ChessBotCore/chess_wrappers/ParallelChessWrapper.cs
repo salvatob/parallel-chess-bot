@@ -13,6 +13,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
         var moves = Generator.GetLegalMoves(state);
+        
         Parallel.ForEach( 
             moves,
             po,
@@ -21,9 +22,10 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
                 nextState.ApplyMove(move);
                 long nodexFound = PerftHelper(nextState, depth - 1);
                 
-                lock (_nodesLock) {
-                    _nodesExplored += nodexFound;
-                }
+                Interlocked.Add(ref _nodesExplored, nodexFound);
+                // lock (_nodesLock) {
+                //     _nodesExplored += nodexFound;
+                // }
 
             }
         );
