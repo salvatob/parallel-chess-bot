@@ -575,6 +575,84 @@ public class State {
         };
     }
 
+    public bool IsSquareAttacked(int square, bool byWhite) {
+        Bitboard squareMask = BitBoardHelpers.OneBitMask(square);
+        Bitboard allPieces = GetAllPieces();
+
+        // 1. Knights
+        Bitboard knightAttackers = GetKnightAttacks(square) & (byWhite ? WhiteKnights : BlackKnights);
+        if (!knightAttackers.IsEmpty()) return true;
+
+        // 2. Pawns
+        if (byWhite) {
+            if (!( (squareMask.MovePieces(Direction.SW) & WhitePawns).IsEmpty() && 
+                   (squareMask.MovePieces(Direction.SE) & WhitePawns).IsEmpty() ))
+                return true;
+        } else {
+            if (!( (squareMask.MovePieces(Direction.NW) & BlackPawns).IsEmpty() && 
+                   (squareMask.MovePieces(Direction.NE) & BlackPawns).IsEmpty() ))
+                return true;
+        }
+
+        // 3. King
+        Bitboard kingAttackers = GetKingAttacks(square) & (byWhite ? WhiteKing : BlackKing);
+        if (!kingAttackers.IsEmpty()) return true;
+
+        // 4. Sliding Pieces (Rooks, Bishops, Queens)
+        // Orthogonal (Rook/Queen)
+        Direction[] orthoDirs = [Direction.N, Direction.S, Direction.E, Direction.W];
+        Bitboard orthoSliders = byWhite ? (WhiteRooks | WhiteQueens) : (BlackRooks | BlackQueens);
+        foreach (var dir in orthoDirs) {
+            if (!GetSliderAttack(square, dir, allPieces, orthoSliders).IsEmpty())
+                return true;
+        }
+
+        // Diagonal (Bishop/Queen)
+        Direction[] diagDirs = [Direction.NE, Direction.NW, Direction.SE, Direction.SW];
+        Bitboard diagSliders = byWhite ? (WhiteBishops | WhiteQueens) : (BlackBishops | BlackQueens);
+        foreach (var dir in diagDirs) {
+            if (!GetSliderAttack(square, dir, allPieces, diagSliders).IsEmpty())
+                return true;
+        }
+
+        return false;
+    }
+
+    private static Bitboard GetKnightAttacks(int square) {
+        Bitboard mask = BitBoardHelpers.OneBitMask(square);
+        return BitBoardHelpers.Move(mask, Direction.NNE) |
+               BitBoardHelpers.Move(mask, Direction.NEE) |
+               BitBoardHelpers.Move(mask, Direction.SEE) |
+               BitBoardHelpers.Move(mask, Direction.SSE) |
+               BitBoardHelpers.Move(mask, Direction.NNW) |
+               BitBoardHelpers.Move(mask, Direction.NWW) |
+               BitBoardHelpers.Move(mask, Direction.SWW) |
+               BitBoardHelpers.Move(mask, Direction.SSW);
+    }
+
+    private static Bitboard GetKingAttacks(int square) {
+        Bitboard mask = BitBoardHelpers.OneBitMask(square);
+        return BitBoardHelpers.Move(mask, Direction.N) |
+               BitBoardHelpers.Move(mask, Direction.S) |
+               BitBoardHelpers.Move(mask, Direction.E) |
+               BitBoardHelpers.Move(mask, Direction.W) |
+               BitBoardHelpers.Move(mask, Direction.NE) |
+               BitBoardHelpers.Move(mask, Direction.NW) |
+               BitBoardHelpers.Move(mask, Direction.SE) |
+               BitBoardHelpers.Move(mask, Direction.SW);
+    }
+
+    private static Bitboard GetSliderAttack(int square, Direction dir, Bitboard allPieces, Bitboard attackers) {
+        Bitboard ray = BitBoardHelpers.OneBitMask(square);
+        while (true) {
+            ray = ray.MovePieces(dir);
+            if (ray.IsEmpty()) break;
+            if (!(ray & attackers).IsEmpty()) return ray;
+            if (!(ray & allPieces).IsEmpty()) break; // Blocked by some piece
+        }
+        return Bitboard.Empty;
+    }
+
     public string PrettyPrint() {
         char[,] board = new char[8,8];
 

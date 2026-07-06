@@ -52,7 +52,6 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         if (move.IsCastle) return true;
         
         var undo = state.ApplyMove(move);
-        bool legal = true;
         
         // After ApplyMove, WhiteIsActive has flipped.
         // If white just moved, it's now black's turn. 
@@ -60,16 +59,12 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         bool wasWhiteTurn = !state.WhiteIsActive;
         Bitboard kingBoard = wasWhiteTurn ? state.WhiteKing : state.BlackKing;
         
+        bool legal;
         if (kingBoard.IsEmpty()) {
             legal = false; // Should not happen if king was there before
         } else {
             int kingSquare = kingBoard.TrailingZeroCount();
-            foreach (Move response in GenerateMoves(state)) {
-                if (response.To == kingSquare) {
-                    legal = false;
-                    break;
-                }
-            }
+            legal = !state.IsSquareAttacked(kingSquare, state.WhiteIsActive);
         }
 
         state.UndoMove(move, undo);
