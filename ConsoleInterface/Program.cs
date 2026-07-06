@@ -7,14 +7,9 @@ using ChessBotCore;
 internal class Program {
     public static void Main(string[] args) {
         var chessSingle = new DefaultChessWrapper();
-
-        // foreach (var m in chessSingle.GetMovesFast(State.Initial)) {
-        //     Console.WriteLine(m.TryGetNotation(State.Initial));
-        // }
-        
-        // return;
-        int depth = 6; // I want 119,060,324 nodes without castles
         var chessMulti = new ParallelChessWrapper();
+
+        int depth = 6; // I want 119,060,324 nodes without castles
         Console.WriteLine("single threaded");
         TryPerft(depth, chessSingle);
         
@@ -32,13 +27,12 @@ internal class Program {
     }
 
     static void DividePerft(State s, int depth, IChessWrapper chess) {
-        var g = GeneratorWrapper.Default;
-        // long count = 0;
-
+        var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
+        
         var moveCounts = new Dictionary<string, long>();
         moveCounts["unmarked"] = 0;
         
-        foreach (var m in g.GetLegalMoves(s)) {
+        foreach (var m in moves) {
             var nextState = s.Clone();
             nextState.ApplyMove(m);
             long nodes = chess.Perft(nextState, depth - 1);

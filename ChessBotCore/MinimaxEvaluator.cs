@@ -1,21 +1,17 @@
 namespace ChessBotCore;
 
 public sealed class MinimaxEvaluator {
-    // private static readonly GeneratorWrapper Generator = GeneratorWrapper.Default;
-    private readonly GeneratorWrapper _generator;
+    
     private static int Eval(State s) => Evaluator.Evaluate(s);
     private static bool IsTerminal(State s) => Evaluator.IsTerminal(s);
 
-    public MinimaxEvaluator(GeneratorWrapper moveGenerator) {
-        _generator = moveGenerator;
-    }
     
     public Move ChooseBestMove(State state, int maxDepth) {
         return NegamaxBase(state, maxDepth);
     }
 
     private Move NegamaxBase(State state, int maxDepth) {
-        var moves = _generator.GenerateMoves(state).ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
         moves.Sort();
         
         int bestScore =  int.MinValue;
@@ -44,7 +40,7 @@ public sealed class MinimaxEvaluator {
         int bestScore = int.MinValue;
         
         
-        var moves = _generator.GenerateMoves(state).ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
         moves.Sort();
         
         foreach (var move in moves) {

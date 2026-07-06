@@ -3,14 +3,9 @@ namespace ChessBotCore;
 public sealed class ParallelMinimaxer {
     
 
-    // private static readonly GeneratorWrapper Generator = GeneratorWrapper.Default;
-    private readonly GeneratorWrapper _generator;
     private static int Eval(State s) => Evaluator.Evaluate(s);
     private static bool IsTerminal(State s) => Evaluator.IsTerminal(s);
 
-    public ParallelMinimaxer(GeneratorWrapper moveGenerator) {
-        _generator = moveGenerator;
-    }
     
     public Move ChooseBestMove(State state, int maxDepth) {
         return MinimaxSetup(state, maxDepth);
@@ -19,8 +14,7 @@ public sealed class ParallelMinimaxer {
     private Move MinimaxSetup(State state, int maxDepth) {
         bool isMaxing = state.WhiteIsActive;
         
-        // todo sort the moves somehow 
-        using var moves = _generator.GetLegalMoves(state).ToList().GetEnumerator();
+        using var moves = new GeneratorWrapper(state).GetLegalMoves().ToList().GetEnumerator();
 
         // querying for a move when stalemated is undefined behaviour
         if (!moves.MoveNext()) return default;
@@ -59,8 +53,9 @@ public sealed class ParallelMinimaxer {
         int bestScore = isMaxing ? int.MinValue : int.MaxValue;
         
         // todo sort the moves somehow 
-        using var moves = _generator.GenerateMoves(state).GetEnumerator();
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList().GetEnumerator();
 
+        
         // no moves means stalemate, which is loss for both players
         if (!moves.MoveNext()) return 0;
 

@@ -4,15 +4,14 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
     private long _nodesExplored = 0;
     private object _nodesLock = new();
     
-    public GeneratorWrapper Generator = GeneratorWrapper.Default;
-
 
     public override long Perft(State state, int depth) {
         _nodesExplored = 0;
         if (depth <= 0) return 1;
         
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-        var moves = Generator.GetLegalMoves(state);
+        // var moves = Generator.GetLegalMoves(state);
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
         
         Parallel.ForEach( 
             moves,
@@ -38,8 +37,9 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         if (depth <= 0) return 1;
         
         long nodesExplored = 0;
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
 
-        foreach (var move in Generator.GetLegalMoves(state)) {
+        foreach (var move in moves) {
             var undo = state.ApplyMove(move);
             nodesExplored += PerftHelper(state, depth - 1);
             state.UndoMove(move, undo);
@@ -54,7 +54,8 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         object scoreLock = new object();
         
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-        var moves = Generator.GenerateMoves(state);
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        
         
         Parallel.ForEach( 
             moves,
@@ -82,8 +83,9 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         if (depth <= 0) return Evaluator.Evaluate(state);
         
         long score = 0;
+        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
 
-        foreach (var move in Generator.GenerateMoves(state)) {
+        foreach (var move in moves) {
             var undo = state.ApplyMove(move);
             score += EvalPerftHelper(state, depth - 1);
             state.UndoMove(move, undo);

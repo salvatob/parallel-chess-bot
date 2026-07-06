@@ -6,7 +6,6 @@ namespace Benchmarks;
 [MemoryDiagnoser]
 public class AllocationExperiments {
 
-  private readonly GeneratorWrapper _gen = GeneratorWrapper.Default;
   private State _state;
 
   [ParamsSource(nameof(PositionCases))]
@@ -21,11 +20,12 @@ public class AllocationExperiments {
 
   [Benchmark(Baseline = true)]
   public List<Move> LegalMovesToList() {
-    return _gen.GetLegalMoves(_state).ToList();
+    return new GeneratorWrapper(_state).GetLegalMoves().ToList();
+    
   }
 
   [Benchmark]
   public List<Move> PseudoLegalMovesToList() {
-    return _gen.GenerateMoves(_state).ToList();
+    return new GeneratorWrapper(_state).GetAllMoves().ToList();
   }
 }

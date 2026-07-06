@@ -42,7 +42,9 @@ public class TestAgainstTestDatabase {
         
         
         //act
-        IEnumerable<Move> moves = GeneratorWrapper.Default.GetLegalMoves(start);
+        // IEnumerable<Move> moves = GeneratorWrapper.Default.GetLegalMoves(start);
+        //
+        var moves = new GeneratorWrapper(start).GetLegalMoves().ToList();
         
         var moveFens = moves.Select(m => {
             var nextState = start.Clone();
