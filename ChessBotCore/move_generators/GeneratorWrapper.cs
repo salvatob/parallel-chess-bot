@@ -1,6 +1,6 @@
 namespace ChessBotCore;
 
-public sealed class GeneratorWrapper : IMoveGenerator {
+public sealed class GeneratorWrapper {
 
     // private IMoveGenerator[] _generators;
     private static readonly IMoveGenerator[] Generators = [
@@ -12,51 +12,27 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         BishopMoveGenerator.Instance
     ];
 
-    // public GeneratorWrapper(params IMoveGenerator[] generators) {
-    //     if (generators.Length == 0)
-    //         throw new ArgumentException("At least one generator should be provided");
-    //     _generators = generators;
-    // }
+    // public static GeneratorWrapper Default => new();
 
+    private List<Move> Buffer = new(20);
+    private State _state;
+    
+    
+    public GeneratorWrapper(State state) {
+        _state = state;
+        FillBuffer(state);
+    }
+    
+    public List<Move> GetAllMoves() => Buffer;
+    
+    public IEnumerable<Move> GetLegalMoves() => Buffer.Where(m => CheckMoveLegality(m, _state));
 
-    public static GeneratorWrapper Default => new();
-    
-    // public static GeneratorWrapper Default => new GeneratorWrapper(
-    //     KingMoveGenerator.Instance,
-    //     KnightMoveGenerator.Instance,
-    //     RookMoveGenerator.Instance ,
-    //     PawnMoveGenerator.Instance,
-    //     QueenMoveGenerator.Instance,
-    //     BishopMoveGenerator.Instance
-    // );
-    
-    
-    /// <summary>
-    /// Generates all pseudo-legal moves from a set state struct
-    /// </summary>
-    /// <param name="state">The state from which to generate the moves</param>
-    /// <returns>Lazy IEnumerable of Move structs</returns>
-    public IEnumerable<Move> GenerateMoves(State state) {
+    private void FillBuffer(State state) {
         foreach (IMoveGenerator generator in Generators) {
-            foreach (Move move in generator.GenerateMoves(state)) {
-                yield return move;
-            }
+            generator.GenerateMoves(state, Buffer);
         }
     }
-
     
-    /// <summary>
-    /// Generates all <b>LEGAL</b> moves from a set state struct
-    /// </summary>
-    /// <param name="state">The state from which to generate the moves</param>
-    /// <returns>Lazy IEnumerable of Move structs</returns>
-    public IEnumerable<Move> GetLegalMoves(State state) {
-        foreach (var move in GenerateMoves(state)) {
-            if (CheckMoveLegality(move, state)) {
-                yield return move;
-            }
-        }
-    }
 
     private bool CheckMoveLegality(Move move, State state) {
         // castles are already checked

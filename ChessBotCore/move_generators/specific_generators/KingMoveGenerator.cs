@@ -19,7 +19,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     private KingMoveGenerator(){}
     public static IMoveGenerator Instance => new KingMoveGenerator();
     
-    public override IEnumerable<Move> GenerateMoves(State state) {
+    public override void GenerateMoves(State state, List<Move> buffer) {
         var king = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
         var allyPieces = state.GetActivePieces();
         // var enemyPieces = state.GetInactivePieces();
@@ -39,7 +39,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
                 Bitboard maskBefore = currMoveMask.MovePieces(oppositeDir);
 
                 // according to old and new positions create the new State 
-                yield return CreateMove(maskBefore, currMoveMask, state);
+                buffer.Add(CreateMove(maskBefore, currMoveMask, state));
 
                 movedKing &= ~currMoveMask;
             }

@@ -16,15 +16,15 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     private readonly Direction[] _whiteDiagonals = [Direction.NW, Direction.NE];
     private readonly Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
 
-    public override IEnumerable<Move> GenerateMoves(State state) {
+    public override void GenerateMoves(State state, List<Move> buffer) {
         foreach (Move move in GenerateCaptures(state)) {
             foreach (Move promoted in HandlePromotion(move, state.WhiteIsActive))
-                yield return promoted;
+                buffer.Add(promoted);
         }
 
         foreach (Move move in GenerateNonCaptures(state)) {
             foreach (Move promoted in HandlePromotion(move, state.WhiteIsActive))
-                yield return promoted;
+                buffer.Add(promoted);
         }
     }
 

@@ -19,7 +19,7 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
     private KnightMoveGenerator(){}
     public static IMoveGenerator Instance => new KnightMoveGenerator();
 
-    public override IEnumerable<Move> GenerateMoves(State state) {
+    public override void GenerateMoves(State state, List<Move> buffer) {
         var knights = state.WhiteIsActive ? state.WhiteKnights : state.BlackKnights;
         var allyPieces = state.GetActivePieces();
         
@@ -39,7 +39,7 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
                 Bitboard maskBefore = BitBoardHelpers.Move(currMoveMask, oppositeDir);
                 
                 // according to old and new positions create the new State 
-                yield return CreateMove(maskBefore, currMoveMask, state);                
+                buffer.Add(CreateMove(maskBefore, currMoveMask, state));                
 
                 movedKnights &= ~currMoveMask;
             }

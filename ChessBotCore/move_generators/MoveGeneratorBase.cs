@@ -8,7 +8,7 @@ public abstract class MoveGeneratorBase : IMoveGenerator {
     protected abstract Pieces WhitePiece { get; }
     protected abstract Pieces BlackPiece { get; }
     
-    public abstract IEnumerable<Move> GenerateMoves(State state);
+    public abstract void GenerateMoves(State state, List<Move> buffer);
 
     
     /// <summary>

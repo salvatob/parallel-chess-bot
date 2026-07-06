@@ -9,7 +9,7 @@ public abstract class RayMoveGenerator : MoveGeneratorBase {
     protected abstract Direction[] RayDirections { get; }
 
     
-    public override IEnumerable<Move> GenerateMoves(State state) {
+    public override void GenerateMoves(State state, List<Move> buffer) {
         Bitboard rayPiece = state.GetPieces(state.WhiteIsActive ? WhitePiece : BlackPiece);
         Bitboard allyPieces = state.GetActivePieces();
         Bitboard enemyPieces = state.GetInactivePieces();
@@ -35,7 +35,7 @@ public abstract class RayMoveGenerator : MoveGeneratorBase {
                     Bitboard maskBefore = BitBoardHelpers.Move(currMoveMask, oppositeDir, distance);
                 
                     // according to old and new positions create the new State 
-                    yield return CreateMove(maskBefore, currMoveMask, state);                
+                    buffer.Add(CreateMove(maskBefore, currMoveMask, state));                
 
                     currentMoveCopy &= ~currMoveMask;
                 }
