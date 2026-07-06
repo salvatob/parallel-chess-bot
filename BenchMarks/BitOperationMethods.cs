@@ -3,17 +3,17 @@ using BenchmarkDotNet.Attributes;
 
 namespace Benchmarks;
 
-public sealed class BitOperationMethods {
+public class BitOperationMethods {
 
-    public static List<ulong> RandomData { get; set; }
+    private List<ulong> _randomData = null!;
 
     [GlobalSetup]
-    public static void PopulateData() {
+    public void PopulateData() {
         int size = 1000;
-        RandomData = new List<ulong>(size);
-        var rng = new Random();
+        _randomData = new List<ulong>(size);
+        var rng = new Random(42);
         for (int i = 0; i < size; i++) {
-            RandomData.Add((ulong)rng.Next());
+            _randomData.Add((ulong)rng.Next());
         }
     }
 
@@ -28,22 +28,26 @@ public sealed class BitOperationMethods {
     }
 
     [Benchmark]
-    public void UseRefParameter() {
+    public ulong UseRefParameter() {
         ulong t = 0;
-        for (var i = 0; i < RandomData.Count; i++) {
-            var ul = RandomData[i];
+        for (var i = 0; i < _randomData.Count; i++) {
+            var ul = _randomData[i];
             ChangeExistingUlong(ref ul);
-            t = ul;
+            t += ul;
         }
+
+        return t;
     }
 
     [Benchmark]
-    public void UseNormalParameter() {
+    public ulong UseNormalParameter() {
         ulong t = 0;
 
-        for (var i = 0; i < RandomData.Count; i++) {
-            var ul = RandomData[i];
+        for (var i = 0; i < _randomData.Count; i++) {
+            var ul = _randomData[i];
             t += ReturnNewUlong(ul);
         }
+
+        return t;
     }
 }
