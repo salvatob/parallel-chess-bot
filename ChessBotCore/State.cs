@@ -490,24 +490,25 @@ public class State {
     
     public Bitboard GetInactivePieces() => GetPieces(!WhiteIsActive);
 
+    
     /// <summary>
     /// Determines, which (if any) piece of the current state collides with the piece from the provided mask.
     /// </summary>
     /// <param name="mask">The board to check against. Should be unary bitboard (only 1 bit set).</param>
     /// <returns>Pieces enum entry, if collision has been found, null if no pieces collide</returns>
     public Pieces? DetectPieceCollision(Bitboard mask) {
-        if (!(WhitePawns & mask).IsEmpty()) return Pieces.WhitePawns;
-        if (!(WhiteRooks & mask).IsEmpty()) return Pieces.WhiteRooks;
-        if (!(WhiteKnights & mask).IsEmpty()) return Pieces.WhiteKnights;
-        if (!(WhiteBishops & mask).IsEmpty()) return Pieces.WhiteBishops;
-        if (!(WhiteQueens & mask).IsEmpty()) return Pieces.WhiteQueens;
-        if (!(WhiteKing & mask).IsEmpty()) return Pieces.WhiteKing;
-        if (!(BlackPawns & mask).IsEmpty()) return Pieces.BlackPawns;
-        if (!(BlackRooks & mask).IsEmpty()) return Pieces.BlackRooks;
-        if (!(BlackKnights & mask).IsEmpty()) return Pieces.BlackKnights;
-        if (!(BlackBishops & mask).IsEmpty()) return Pieces.BlackBishops;
-        if (!(BlackQueens & mask).IsEmpty()) return Pieces.BlackQueens;
-        if (!(BlackKing & mask).IsEmpty()) return Pieces.BlackKing;
+        if ((WhitePawns.RawBits & mask.RawBits) != 0) return Pieces.WhitePawns;
+        if ((WhiteRooks.RawBits & mask.RawBits) != 0) return Pieces.WhiteRooks;
+        if ((WhiteKnights.RawBits & mask.RawBits) != 0) return Pieces.WhiteKnights;
+        if ((WhiteBishops.RawBits & mask.RawBits) != 0) return Pieces.WhiteBishops;
+        if ((WhiteQueens.RawBits & mask.RawBits) != 0) return Pieces.WhiteQueens;
+        if ((WhiteKing.RawBits & mask.RawBits) != 0) return Pieces.WhiteKing;
+        if ((BlackPawns.RawBits & mask.RawBits) != 0) return Pieces.BlackPawns;
+        if ((BlackRooks.RawBits & mask.RawBits) != 0) return Pieces.BlackRooks;
+        if ((BlackKnights.RawBits & mask.RawBits) != 0) return Pieces.BlackKnights;
+        if ((BlackBishops.RawBits & mask.RawBits) != 0) return Pieces.BlackBishops;
+        if ((BlackQueens.RawBits & mask.RawBits) != 0) return Pieces.BlackQueens;
+        if ((BlackKing.RawBits & mask.RawBits) != 0) return Pieces.BlackKing;
         return null;
     }
 

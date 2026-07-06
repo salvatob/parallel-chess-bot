@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace ChessBotCore;
 
@@ -75,12 +76,15 @@ internal static class BitBoardHelpers {
     public static bool HasSingleBit(Bitboard x) 
         => x.RawBits != 0 && (x.RawBits & (x.RawBits - 1)) == 0;
 
+
+    private static readonly Bitboard withoutLeftCol = ~ BitMask.Col[0];
+    private static readonly Bitboard withoutRightCol = ~ BitMask.Col[7];
+    private static readonly Bitboard withoutTwoLeftCols = ~ (BitMask.Col[0] | BitMask.Col[1]);
+    private static readonly Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);
+
+    // on a MEGA hot path, needs to be as optimized as possible
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard Move(Bitboard bits, Direction dir) {
-        Bitboard withoutLeftCol = ~ BitMask.Col[0];
-        Bitboard withoutRightCol = ~ BitMask.Col[7];
-        Bitboard withoutTwoLeftCols = ~ (BitMask.Col[0] | BitMask.Col[1]);
-        Bitboard withoutTwoRightCols = ~ (BitMask.Col[6] | BitMask.Col[7]);;
-            
         return dir switch {
             Direction.N => bits << 8,
             Direction.S => bits >> 8,
@@ -100,7 +104,7 @@ internal static class BitBoardHelpers {
             Direction.NWW =>  (bits << 10) & withoutTwoRightCols,
             Direction.SWW =>  (bits >> 6 ) & withoutTwoRightCols,
             Direction.SSW =>  (bits >> 15) & withoutRightCol,
-            
+              
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
