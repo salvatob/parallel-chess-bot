@@ -10,10 +10,9 @@ public abstract class RayMoveGenerator : MoveGeneratorBase {
 
     
     public override IEnumerable<Move> GenerateMoves(State state) {
-        var rayPiece = state.GetPieces(state.WhiteIsActive ? WhitePiece : BlackPiece);
-        var allyPieces = state.GetActivePieces();
-        var enemyPieces = state.GetInactivePieces();
-        var allPieces = state.GetAllPieces();
+        Bitboard rayPiece = state.GetPieces(state.WhiteIsActive ? WhitePiece : BlackPiece);
+        Bitboard allyPieces = state.GetActivePieces();
+        Bitboard enemyPieces = state.GetInactivePieces();
         
         foreach (var dir in RayDirections) {
             Bitboard  moveMask = BitBoardHelpers.Move(rayPiece, dir);
