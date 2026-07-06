@@ -13,14 +13,15 @@ internal class Program {
         // }
         
         // return;
-        int depth = 5;
+        int depth = 6;
         var chessMulti = new ParallelChessWrapper();
         Console.WriteLine("single threaded");
         TryPerft(depth, chessSingle);
+        
         Console.WriteLine("multi threaded");
         TryPerft(depth, chessMulti);
-        // TryPerft(7, chess);
 
+        
         // DividePerft(State.Initial, 3, chessSingle);
 
         // Console.WriteLine("normal");
