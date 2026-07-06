@@ -2,23 +2,34 @@ namespace ChessBotCore;
 
 public sealed class GeneratorWrapper : IMoveGenerator {
 
-    private IMoveGenerator[] _generators;
-
-    public GeneratorWrapper(params IMoveGenerator[] generators) {
-        if (generators.Length == 0)
-            throw new ArgumentException("At least one generator should be provided");
-        _generators = generators;
-    }
-
-    
-    public static GeneratorWrapper Default => new GeneratorWrapper(
+    // private IMoveGenerator[] _generators;
+    private static readonly IMoveGenerator[] Generators = [
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,
-        RookMoveGenerator.Instance ,
+        RookMoveGenerator.Instance,
         PawnMoveGenerator.Instance,
         QueenMoveGenerator.Instance,
         BishopMoveGenerator.Instance
-    );
+    ];
+
+    // public GeneratorWrapper(params IMoveGenerator[] generators) {
+    //     if (generators.Length == 0)
+    //         throw new ArgumentException("At least one generator should be provided");
+    //     _generators = generators;
+    // }
+
+
+    public static GeneratorWrapper Default => new();
+    
+    // public static GeneratorWrapper Default => new GeneratorWrapper(
+    //     KingMoveGenerator.Instance,
+    //     KnightMoveGenerator.Instance,
+    //     RookMoveGenerator.Instance ,
+    //     PawnMoveGenerator.Instance,
+    //     QueenMoveGenerator.Instance,
+    //     BishopMoveGenerator.Instance
+    // );
+    
     
     /// <summary>
     /// Generates all pseudo-legal moves from a set state struct
@@ -26,7 +37,7 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     /// <param name="state">The state from which to generate the moves</param>
     /// <returns>Lazy IEnumerable of Move structs</returns>
     public IEnumerable<Move> GenerateMoves(State state) {
-        foreach (IMoveGenerator generator in _generators) {
+        foreach (IMoveGenerator generator in Generators) {
             foreach (Move move in generator.GenerateMoves(state)) {
                 yield return move;
             }
