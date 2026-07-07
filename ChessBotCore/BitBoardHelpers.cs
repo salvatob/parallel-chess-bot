@@ -154,5 +154,5 @@ public enum Direction {
     NE, NW, SE, SW,
     NNE, NEE, NNW, NWW,
     SSE, SEE, SSW, SWW
-};
+}
 
