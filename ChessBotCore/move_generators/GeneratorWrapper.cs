@@ -2,7 +2,6 @@ namespace ChessBotCore;
 
 public sealed class GeneratorWrapper {
 
-    // private IMoveGenerator[] _generators;
     private static readonly IMoveGenerator[] Generators = [
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,
@@ -12,28 +11,37 @@ public sealed class GeneratorWrapper {
         BishopMoveGenerator.Instance
     ];
 
-    // public static GeneratorWrapper Default => new();
 
-    private List<Move> Buffer = new(20);
+    private List<Move> Buffer = new(40);
+    private readonly Lazy<List<Move>> _filteredBuffer;
+    
     private State _state;
     
     
     public GeneratorWrapper(State state) {
         _state = state;
         FillBuffer(state);
+        _filteredBuffer = new(FilterBuffer);
     }
     
     public List<Move> GetAllMoves() => Buffer;
     
-    public IEnumerable<Move> GetLegalMoves() => Buffer.Where(m => CheckMoveLegality(m, _state));
+    public List<Move> GetLegalMoves() => _filteredBuffer.Value;
 
     private void FillBuffer(State state) {
         foreach (IMoveGenerator generator in Generators) {
             generator.GenerateMoves(state, Buffer);
         }
     }
-    
 
+    private List<Move> FilterBuffer() {
+        List<Move> filtered = new(20);
+        foreach (Move move in Buffer) {
+            if (CheckMoveLegality(move, _state)) filtered.Add(move);
+        }
+        return filtered;
+    }
+    
     private bool CheckMoveLegality(Move move, State state) {
         // castles are already checked
         if (move.IsCastle) return true;

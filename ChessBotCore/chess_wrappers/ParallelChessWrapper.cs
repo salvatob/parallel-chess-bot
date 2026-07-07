@@ -11,7 +11,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
         // var moves = Generator.GetLegalMoves(state);
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
         
         Parallel.ForEach( 
             moves,
@@ -37,7 +37,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         if (depth <= 0) return 1;
         
         long nodesExplored = 0;
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
 
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
@@ -54,7 +54,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         object scoreLock = new object();
         
         var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
         
         
         Parallel.ForEach( 
@@ -83,7 +83,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         if (depth <= 0) return Evaluator.Evaluate(state);
         
         long score = 0;
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
 
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);

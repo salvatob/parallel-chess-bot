@@ -18,14 +18,13 @@ public class AllocationExperiments {
     _state = BenchmarkPositions.GetState(Position);
   }
 
-  [Benchmark(Baseline = true)]
+  [Benchmark]
   public List<Move> LegalMovesToList() {
-    return new GeneratorWrapper(_state).GetLegalMoves().ToList();
-    
+    return new GeneratorWrapper(_state).GetLegalMoves();
   }
 
-  [Benchmark]
+  [Benchmark(Baseline = true)]
   public List<Move> PseudoLegalMovesToList() {
-    return new GeneratorWrapper(_state).GetAllMoves().ToList();
+    return new GeneratorWrapper(_state).GetAllMoves();
   }
 }

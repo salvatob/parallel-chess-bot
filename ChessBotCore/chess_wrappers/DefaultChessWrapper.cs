@@ -14,7 +14,7 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
         if (depth <= 0) return 1;
         
         long nodesExplored = 0;
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
         
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
@@ -30,7 +30,7 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
         
         long score = 0;
 
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList();
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
         
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
