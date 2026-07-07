@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ChessBotCore;
 
 public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
@@ -17,35 +15,29 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     private readonly Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
 
     public override void GenerateMoves(State state, List<Move> buffer) {
-        foreach (Move move in GenerateCaptures(state)) {
-            foreach (Move promoted in HandlePromotion(move, state.WhiteIsActive))
-                buffer.Add(promoted);
-        }
-
-        foreach (Move move in GenerateNonCaptures(state)) {
-            foreach (Move promoted in HandlePromotion(move, state.WhiteIsActive))
-                buffer.Add(promoted);
-        }
+        GenerateCaptures(state, buffer);
+        GenerateNonCaptures(state, buffer);
     }
 
-    private IEnumerable<Move> HandlePromotion(Move move, bool white) {
+    private static void AddMoveHandlingPromotion(Move move, bool white, List<Move> buffer) {
         int to = move.To;
         int toRank = to / 8;
         bool isPromotionRank = toRank == 0 || toRank == 7;
 
         if (!isPromotionRank) {
-            yield return move;
-        } else {
-            Pieces pieceType = white ? Pieces.WhitePawns : Pieces.BlackPawns;
-            MoveFlags baseFlags = move.Flags | MoveFlags.Promotion;
-            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToQueen);
-            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToRook);
-            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToBishop);
-            yield return new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToKnight);
+            buffer.Add(move);
+            return;
         }
+
+        Pieces pieceType = white ? Pieces.WhitePawns : Pieces.BlackPawns;
+        MoveFlags baseFlags = move.Flags | MoveFlags.Promotion;
+        buffer.Add(new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToQueen));
+        buffer.Add(new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToRook));
+        buffer.Add(new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToBishop));
+        buffer.Add(new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToKnight));
     }
 
-    internal IEnumerable<Move> GenerateNonCaptures(State state) {
+    internal void GenerateNonCaptures(State state, List<Move> buffer) {
         bool whitesMove = state.WhiteIsActive;
         Pieces pieceType = whitesMove ? Pieces.WhitePawns : Pieces.BlackPawns;
         
@@ -63,7 +55,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
             
-            yield return new Move(from, to, pieceType, MoveFlags.None);
+            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.None), whitesMove, buffer);
             tempOnce &= ~toMask;
         }
 
@@ -76,12 +68,12 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
             int to = movedTwice.TrailingZeroCount();
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir, 2).TrailingZeroCount();
-            yield return new Move(from, to, pieceType, MoveFlags.DoublePawnPush);
+            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.DoublePawnPush), whitesMove, buffer);
             movedTwice &= ~toMask;
         }
     }
 
-    internal IEnumerable<Move> GenerateCaptures(State state) {
+    internal void GenerateCaptures(State state, List<Move> buffer) {
         Bitboard enemyPieces = state.GetInactivePieces();
         Bitboard pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
         Direction[] directions = state.WhiteIsActive ? _whiteDiagonals : _blackDiagonals;
@@ -97,7 +89,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                 Bitboard toMask = BitBoardHelpers.OneBitMask(to);
                 int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
 
-                yield return new Move(from, to, pieceType, MoveFlags.Capture);
+                AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.Capture), state.WhiteIsActive, buffer);
                 pawnsThatCapturedSomething &= ~toMask;
             }
         }
@@ -113,7 +105,10 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                     int from = pawnsThatCanCaptureEP.TrailingZeroCount();
                     Bitboard fromMask = BitBoardHelpers.OneBitMask(from);
                     int to = BitBoardHelpers.Move(fromMask, dir).TrailingZeroCount();
-                    yield return new Move(from, to, pieceType, MoveFlags.Capture | MoveFlags.EnPassant);
+                    AddMoveHandlingPromotion(
+                        new Move(from, to, pieceType, MoveFlags.Capture | MoveFlags.EnPassant),
+                        state.WhiteIsActive,
+                        buffer);
                     pawnsThatCanCaptureEP &= ~fromMask;
                 }
             }

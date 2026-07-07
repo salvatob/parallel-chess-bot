@@ -95,7 +95,9 @@ public class PawnMovement {
         Bitboard pawns = Bitboard.Parse(inputStr);
         State state = new State { WhitePawns = pawns, WhiteIsActive = true };
 
-        var possibleMoves = ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateNonCaptures(state)
+        List<Move> moveBuffer = [];
+        ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateNonCaptures(state, moveBuffer);
+        var possibleMoves = moveBuffer
             .Select(m => {
                 var s = state.Clone();
                 s.ApplyMove(m);
@@ -156,7 +158,9 @@ public class PawnMovement {
         
         State state = new State { WhitePawns = pawns, BlackPawns = otherPieces ^ pawns, WhiteIsActive = true };
 
-        var pawnDoubleMovesOnly = ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateNonCaptures(state)
+        List<Move> moveBuffer = [];
+        ((PawnMoveGenerator)PawnMoveGenerator.Instance).GenerateNonCaptures(state, moveBuffer);
+        var pawnDoubleMovesOnly = moveBuffer
             .Where(m => m.Flags.HasFlag(MoveFlags.DoublePawnPush))
             .Select(m => {
                 var s = state.Clone();
