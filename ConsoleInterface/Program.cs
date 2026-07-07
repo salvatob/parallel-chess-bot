@@ -9,14 +9,15 @@ internal class Program {
         var chessSingle = new DefaultChessWrapper();
         var chessMulti = new ParallelChessWrapper();
         // State state = State.FromFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"); 
-        // State state = State.FromFen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 "); 
-        State state = State.FromFen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"); 
-        int depth = 6; // I want 119,060,324 nodes without castles
-        // Console.WriteLine("single threaded");
-        // TryPerft(depth, chessSingle);
+        State state = State.FromFen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 "); 
+        // State state = State.FromFen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"); 
         
-        Console.WriteLine("multi threaded");
-        PerftStats(depth, chessMulti, state);
+        int depth = 6; // I want 119,060,324 nodes without castles
+        Console.WriteLine("single threaded");
+        PerftStats(depth, chessSingle);
+        
+        // Console.WriteLine("multi threaded");
+        // PerftStats(depth, chessMulti, state);
 
         
         // DividePerft(State.Initial, 3, chessSingle);
