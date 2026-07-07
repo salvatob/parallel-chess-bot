@@ -94,7 +94,7 @@ public sealed class GeneratorWrapper {
         Direction[] orthoDirs = [Direction.N, Direction.S, Direction.E, Direction.W];
         Bitboard orthoSliders = byWhite ? (state.WhiteRooks | state.WhiteQueens) : (state.BlackRooks | state.BlackQueens);
         foreach (var dir in orthoDirs) {
-            if (!GetSliderAttack(square, dir, allPieces, orthoSliders).IsEmpty())
+            if (IsSliderAttack(square, dir, allPieces, orthoSliders))
                 return true;
         }
 
@@ -102,7 +102,7 @@ public sealed class GeneratorWrapper {
         Direction[] diagDirs = [Direction.NE, Direction.NW, Direction.SE, Direction.SW];
         Bitboard diagSliders = byWhite ? (state.WhiteBishops | state.WhiteQueens) : (state.BlackBishops | state.BlackQueens);
         foreach (var dir in diagDirs) {
-            if (!GetSliderAttack(square, dir, allPieces, diagSliders).IsEmpty())
+            if (IsSliderAttack(square, dir, allPieces, diagSliders))
                 return true;
         }
 
@@ -133,14 +133,14 @@ public sealed class GeneratorWrapper {
                BitBoardHelpers.Move(mask, Direction.SW);
     }
 
-    private static Bitboard GetSliderAttack(int square, Direction dir, Bitboard allPieces, Bitboard attackers) {
+    private static bool IsSliderAttack(int square, Direction dir, Bitboard allPieces, Bitboard attackers) {
         Bitboard ray = BitBoardHelpers.OneBitMask(square);
         while (true) {
             ray = ray.MovePieces(dir);
             if (ray.IsEmpty()) break;
-            if (!(ray & attackers).IsEmpty()) return ray;
+            if (!(ray & attackers).IsEmpty()) return true;
             if (!(ray & allPieces).IsEmpty()) break; // Blocked by some piece
         }
-        return Bitboard.Empty;
+        return false;
     }
 }
