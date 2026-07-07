@@ -24,7 +24,6 @@ public class TestAgainstTestDatabase {
     }
     
     [Theory]
-    // [ClassData(typeof(TestDataClass))]
     [MemberData(nameof(TestCases), DisableDiscoveryEnumeration = true)]
     public void GetAllMoves(TestCases testCase) {
         //arrange
@@ -36,14 +35,10 @@ public class TestAgainstTestDatabase {
 
         IEnumerable<string> expectedEnumerable = 
             from c in testCase.Expected
-            // where IsNotCastle(c)
             select c.Fen;
-            // select DeleteEnpassantFromFen(c.Fen);
         
         
         //act
-        // IEnumerable<Move> moves = GeneratorWrapper.Default.GetLegalMoves(start);
-        //
         var moves = new GeneratorWrapper(start).GetLegalMoves().ToList();
         
         var moveFens = moves.Select(m => {
@@ -100,8 +95,8 @@ public class TestAgainstTestDatabase {
     }
 
     private static IEnumerable<object[]> LoadTestCases() {
-        // string[] files = ["standard", "castling", "famous", "pawns", "promotions", "taxing"];
-        string[] files = ["standard", "famous", "pawns", "promotions", "taxing"]; // TODO removed castling
+        string[] files = ["standard", "castling", "famous", "pawns", "promotions", "taxing"];
+        // string[] files = ["standard", "famous", "pawns", "promotions", "taxing"]; // TODO removed castling
         foreach (var fileName in files) {
             
             var path = AppContext.BaseDirectory + $@"/testcases\{fileName}.json";
@@ -113,9 +108,6 @@ public class TestAgainstTestDatabase {
             RootObject? cases = JsonSerializer.Deserialize<RootObject>(json, options);
 
             foreach (var c in cases.TestCases ) {
-                // TODO remove two test cases, because they require enpassant
-                if (c.Start.Fen == "8/8/4k3/8/2pPp3/8/B7/7K b - d3 0 1") continue;
-                if (c.Start.Fen == "7k/8/8/8/pPp5/8/8/7K b - b3 0 1") continue;
                 c.TestSet = fileName;
                 yield return [c];
             }
