@@ -66,7 +66,7 @@ public sealed class GeneratorWrapper {
         return legal;
     }
 
-    private static bool IsSquareAttacked(int square, bool byWhite, State state) {
+    internal static bool IsSquareAttacked(int square, bool byWhite, State state) {
         Bitboard squareMask = BitBoardHelpers.OneBitMask(square);
         Bitboard allPieces = state.GetAllPieces();
 

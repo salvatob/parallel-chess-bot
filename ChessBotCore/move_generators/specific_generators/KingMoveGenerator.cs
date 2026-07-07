@@ -22,7 +22,6 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     public override void GenerateMoves(State state, List<Move> buffer) {
         var king = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
         var allyPieces = state.GetActivePieces();
-        // var enemyPieces = state.GetInactivePieces();
         foreach (var dir in MoveDirections) {
             var beforeCollision = king.MovePieces(dir);
             var movedKing = beforeCollision & (~allyPieces);
@@ -44,10 +43,59 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
                 movedKing &= ~currMoveMask;
             }
         }
+
+        GenerateCastleMoves(state, buffer);
     }
 
-    //TODO implement castling logic
-    private IEnumerable<Move> GenerateCastleMoves(State state) {
-        return [];
+    private void GenerateCastleMoves(State state, List<Move> buffer) {
+        if (state.WhiteIsActive) {
+            if (CanCastle(state, kingFrom: 3, rookFrom: 0, emptySquares: [2, 1], safeSquares: [3, 2, 1])) {
+                var newMove = new Move(3, 1, Pieces.WhiteKing, MoveFlags.KingCastle);
+                buffer.Add(newMove);
+            }
+
+            if (CanCastle(state, kingFrom: 3, rookFrom: 7, emptySquares: [4, 5, 6], safeSquares: [3, 4, 5])) {
+                var newMove = new Move(3, 5, Pieces.WhiteKing, MoveFlags.QueenCastle);
+                buffer.Add(newMove);
+            }
+        } else {
+            if (CanCastle(state, kingFrom: 59, rookFrom: 56, emptySquares: [58, 57], safeSquares: [59, 58, 57])) {
+                var newMove = new Move(59, 57, Pieces.BlackKing, MoveFlags.KingCastle);
+                buffer.Add(newMove);
+            }
+
+            if (CanCastle(state, kingFrom: 59, rookFrom: 63, emptySquares: [60, 61, 62], safeSquares: [59, 60, 61])) {
+                var newMove = new Move(59, 61, Pieces.BlackKing, MoveFlags.QueenCastle);
+                buffer.Add(newMove);
+            }
+        }
+    }
+
+    private static bool CanCastle(State state, int kingFrom, int rookFrom, int[] emptySquares, int[] safeSquares) {
+        bool kingSide = rookFrom is 0 or 56;
+
+        if (state.WhiteIsActive) {
+            if (kingSide && !state.WhiteCastleKingSide) return false;
+            if (!kingSide && !state.WhiteCastleQueenSide) return false;
+            if ((state.WhiteKing & BitBoardHelpers.OneBitMask(kingFrom)).IsEmpty()) return false;
+            if ((state.WhiteRooks & BitBoardHelpers.OneBitMask(rookFrom)).IsEmpty()) return false;
+        } else {
+            if (kingSide && !state.BlackCastleKingSide) return false;
+            if (!kingSide && !state.BlackCastleQueenSide) return false;
+            if ((state.BlackKing & BitBoardHelpers.OneBitMask(kingFrom)).IsEmpty()) return false;
+            if ((state.BlackRooks & BitBoardHelpers.OneBitMask(rookFrom)).IsEmpty()) return false;
+        }
+
+        Bitboard occupied = state.GetAllPieces();
+        foreach (int square in emptySquares) {
+            if (!(occupied & BitBoardHelpers.OneBitMask(square)).IsEmpty()) return false;
+        }
+
+        bool attackedByWhite = !state.WhiteIsActive;
+        foreach (int square in safeSquares) {
+            if (GeneratorWrapper.IsSquareAttacked(square, attackedByWhite, state)) return false;
+        }
+
+        return true;
     }
 }
