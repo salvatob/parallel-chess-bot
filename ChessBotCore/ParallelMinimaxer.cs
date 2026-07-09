@@ -14,14 +14,15 @@ public sealed class ParallelMinimaxer {
     private Move MinimaxSetup(State state, int maxDepth) {
         bool isMaxing = state.WhiteIsActive;
         
-        using var moves = new GeneratorWrapper(state).GetLegalMoves().ToList().GetEnumerator();
+        using var moves = new GeneratorWrapper(state).GetLegalMoves().GetEnumerator();
 
         // querying for a move when stalemated is undefined behaviour
         if (!moves.MoveNext()) return default;
 
         int bestScore = isMaxing ? int.MinValue : int.MaxValue;
         Move bestMove = default;
-
+        
+        // TODO this code is weird and not even parallel
         do {
             var move = moves.Current;
             var undo = state.ApplyMove(move);
@@ -46,14 +47,14 @@ public sealed class ParallelMinimaxer {
         return bestMove;
     }
 
-    private int Minimax(State state, int depth) {
+    internal int Minimax(State state, int depth) {
         if (depth <= 0 || IsTerminal(state)) return Eval(state);
         
         bool isMaxing = state.WhiteIsActive;
         int bestScore = isMaxing ? int.MinValue : int.MaxValue;
         
         // todo sort the moves somehow 
-        var moves = new GeneratorWrapper(state).GetLegalMoves().ToList().GetEnumerator();
+        var moves = new GeneratorWrapper(state).GetLegalMoves().GetEnumerator();
 
         
         // no moves means stalemate, which is loss for both players
