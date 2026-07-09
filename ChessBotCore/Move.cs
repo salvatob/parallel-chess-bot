@@ -49,4 +49,11 @@ public readonly struct Move : IComparable<Move> {
     public static string? TryGetNotation(State before, State after) {
         return FenCreator.TryGetMoveNotation(before, after);
     }
+
+    private string GetPromotionNotation() => IsPromotion ? (
+    Flags.HasFlag(MoveFlags.PromoteToQueen) ? "q" : Flags.HasFlag(MoveFlags.PromoteToRook) ? "r" : Flags.HasFlag(MoveFlags.PromoteToBishop) ? "b" : "n"
+    ) : "";
+    public override string ToString() => $"{Piece}-{PrintUCI()} {Flags}";
+    // ReSharper disable once InconsistentNaming
+    public string PrintUCI() => $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
 }
