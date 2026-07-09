@@ -42,7 +42,7 @@ public sealed class GeneratorWrapper {
         return filtered;
     }
     
-    private bool CheckMoveLegality(Move move, State state) {
+    public static bool CheckMoveLegality(Move move, State state) {
         // castles are already checked
         if (move.IsCastle) return true;
         
