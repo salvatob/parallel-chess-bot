@@ -220,10 +220,7 @@ public class State {
         Bitboard fromMask = 1UL << from;
         Bitboard toMask = 1UL << to;
 
-        // Pieces? movingPiece = DetectPieceCollision(fromMask);
         Pieces movingPiece = move.Piece;
-
-        // This should not happen for legal moves
         
         Pieces? capturedPiece = move.IsEnPassant 
             ? (WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns)
