@@ -25,7 +25,8 @@ public struct MinimaxEvaluator {
     private SearchStats _lastSearchStats;
     
     public SearchResults ChooseBestMove(State state, int maxDepth) {
-        var bestMove =  NegamaxBase(state, maxDepth);
+        State copy = state.Clone();
+        var bestMove =  NegamaxBase(copy, maxDepth);
         var results = new SearchResults {
             BestMove = bestMove,
             Stats = _lastSearchStats
@@ -35,6 +36,22 @@ public struct MinimaxEvaluator {
         return results;
     }
 
+    // TODO this needs to be much better in time, hopefully the API stays the same tho
+    public Task<SearchResults> PrimitiveIterativeSearch(State state, CancellationToken cancellationToken) {
+        List<SearchResults> results = [];
+
+        int depth = 1;
+        while (true) {
+            if (cancellationToken.IsCancellationRequested) 
+                return Task.FromResult(results.Last());
+            var r = ChooseBestMove(state, depth);
+            Console.WriteLine($"Search of depth {depth} hase yielded move {r.BestMove}");
+            results.Add(r);
+            depth++;
+        }
+    }
+
+    
     private Move NegamaxBase(State state, int maxDepth) {
         
         var moves = new GeneratorWrapper(state).GetLegalMoves();
