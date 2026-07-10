@@ -1,15 +1,23 @@
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using ChessBotCore;
 
 namespace Benchmarks;
 
-public class Search{
+public class SearchConfig : ManualConfig {
+    public SearchConfig() {
+        AddColumn(new SearchCustomMetrics());
+    }
+}
 
-    private ParallelMinimaxer minimaxer = new ParallelMinimaxer();
-    private MinimaxEvaluator negamaxer = new MinimaxEvaluator();
+[Config(typeof(SearchConfig))]
+public class Search {
+
+    private ParallelMinimaxer minimaxer = new();
+    private MinimaxEvaluator negamaxer;
 
 
-    [Params(6)] 
+    [Params(1)] 
     public int Depth;
 
     public IEnumerable<State> states => new List<State> { State.Initial };
