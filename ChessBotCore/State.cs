@@ -239,7 +239,33 @@ public class State {
 
         return undo;
     }
-
+    
+    /// <summary>
+    /// Applies a move that only contains two squares and a promotion. Mostly since the move came from outside this framework.
+    /// For local move usage see the faster <see cref="ApplyMoveWithoutMetadata"/> method.
+    /// </summary>
+    /// <param name="move">The move to be applied</param>
+    /// <exception cref="ArgumentException">Thrown if the move is not a valid move</exception>
+    /// <returns>Metadata to undo the move</returns>
+    public UndoInfo ApplyMoveWithoutMetadata(Move move) {
+        var moves = new GeneratorWrapper(this).GetLegalMoves();
+        
+        // just try to find a move that matches the move passed in 
+        foreach (var m in moves) {
+            if (m.From == move.From &&
+                m.To == move.To &&
+                m.Flags.HasFlag(MoveFlags.PromoteToQueen) == move.Flags.HasFlag(MoveFlags.PromoteToQueen) &&
+                m.Flags.HasFlag(MoveFlags.PromoteToRook) == move.Flags.HasFlag(MoveFlags.PromoteToRook) &&
+                m.Flags.HasFlag(MoveFlags.PromoteToKnight) == move.Flags.HasFlag(MoveFlags.PromoteToKnight) &&
+                m.Flags.HasFlag(MoveFlags.PromoteToBishop) == move.Flags.HasFlag(MoveFlags.PromoteToBishop) 
+                ) {
+                return ApplyMove(m);
+            }
+        }
+        
+        throw new ArgumentException("Invalid move {move} has been passed to ApplyMoveWithoutMetadata");
+    }
+    
     public void UndoMove(Move move, UndoInfo undo) {
         // 1. Reverse Turn
         ReverseNext();
