@@ -1,3 +1,4 @@
+using System.Reflection;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -6,10 +7,21 @@ using ChessBotCore;
 namespace Benchmarks;
 
 public class SearchCustomMetrics : IColumn {
+    private static int EvaluateTestcase(MethodInfo caseMethod, State state, int depth) {
+        var benchmarkCase = new Search {
+            Depth = depth,
+            state = state
+        };
+        
+        return caseMethod.Name switch {
+            nameof(Search.SimpleMinimax) => benchmarkCase.SimpleMinimax(),
+            nameof(Search.SimpleNegamax) => benchmarkCase.SimpleNegamax(),
+            nameof(Search.ABNegamax) => benchmarkCase.ABNegamax(),
+            nameof(Search.SmartABNegamax) => benchmarkCase.SmartABNegamax(),
+            _ => 0
+        };
+    }
     public string GetValue(Summary summary, BenchmarkCase benchmarkCase) {
-        // Console.WriteLine(benchmarkCase.DisplayInfo);
-        // Console.WriteLine(benchmarkCase.Parameters);
-        // Console.WriteLine(benchmarkCase.Descriptor.WorkloadMethod.Name);
         int depth = (int)benchmarkCase.Parameters.Items
             .Single(p => p.Name == nameof(Search.Depth))
             .Value;
@@ -18,19 +30,22 @@ public class SearchCustomMetrics : IColumn {
             .Single(p => p.Name == nameof(Search.state))
             .Value;
         
-        Console.WriteLine(depth);
-        Console.WriteLine(state.PrettyPrint());
-        return "69";
+        var value = EvaluateTestcase(benchmarkCase.Descriptor.WorkloadMethod, state, depth);
+        return value.ToString();
     }
+    
     public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style) {
         return GetValue(summary, benchmarkCase);
     }
+    
     public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) {
         return false;
     }
+    
     public bool IsAvailable(Summary summary) {
         return true;
     }
+    
     public string Id => nameof(SearchCustomMetrics);
     public string ColumnName => "Nodes Searched";
     public bool AlwaysShow => true;
