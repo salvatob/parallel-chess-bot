@@ -11,5 +11,5 @@ public abstract class ChessWrapperBase : IChessWrapper {
 
     public abstract long Perft(State state, int depth) ;
     public abstract long EvalPerft(State state, int depth) ;
-    public abstract Task<Move> GetBestMove(State state, int timeMs);
+    public abstract Task<SearchResults> GetBestMove(State state, int timeMs);
 }

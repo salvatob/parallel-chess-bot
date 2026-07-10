@@ -75,7 +75,7 @@ public sealed class ParallelChessWrapper : ChessWrapperBase {
         return score;   
     }
 
-    public override Task<Move> GetBestMove(State state, int timeMs) {
+    public override Task<SearchResults> GetBestMove(State state, int timeMs) {
         throw new NotImplementedException();
     }
 
