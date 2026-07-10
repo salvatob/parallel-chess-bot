@@ -17,7 +17,7 @@ public class Search {
     private MinimaxEvaluator negamaxer;
 
 
-    [Params(1)] 
+    [Params(6)] 
     public int Depth;
 
     public IEnumerable<State> states => new List<State> { State.Initial };

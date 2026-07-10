@@ -18,7 +18,10 @@ public class SearchCustomMetrics : IColumn {
             nameof(Search.SimpleNegamax) => benchmarkCase.SimpleNegamax(),
             nameof(Search.ABNegamax) => benchmarkCase.ABNegamax(),
             nameof(Search.SmartABNegamax) => benchmarkCase.SmartABNegamax(),
-            _ => 0
+            _ => new Lazy<int>(() => {
+                Console.Error.WriteLine($"Method {caseMethod.Name} not found in benchmark so it's node count is unknown.");
+                return 0;
+            }).Value
         };
     }
     public string GetValue(Summary summary, BenchmarkCase benchmarkCase) {
