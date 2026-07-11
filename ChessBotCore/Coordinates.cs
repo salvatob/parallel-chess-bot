@@ -42,7 +42,7 @@ public readonly struct Coordinates {
     }
 
     public int To1D() {
-        return Row * 8 + Col;
+        return Row * 8 + (7 - Col);
     }
 
     public static int To1D(int i, int j) {
