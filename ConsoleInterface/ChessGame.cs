@@ -14,9 +14,11 @@ public class ChessGame {
         _whitePlayer = whitePlayer;
         _blackPlayer = blackPlayer;
     }
+    
+    private IPlayer ActivePlayer(bool isWhite) => isWhite ? _whitePlayer : _blackPlayer;
 
     public List<Move> Play(int verbosity) {
-        while (true) {
+        while (!_state.IsTerminal()) {
             
         }
         throw new NotImplementedException();

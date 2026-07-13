@@ -145,8 +145,7 @@ public struct MinimaxEvaluator {
         
         bool isMaxing = state.WhiteIsActive;
         
-        if (depth <= 0 || IsTerminal(state)) {
-            
+        if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
             return isMaxing ? score : -score;
         } 

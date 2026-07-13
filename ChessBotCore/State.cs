@@ -147,6 +147,10 @@ public sealed class State {
         FullMoves = 1
     };
 
+    public bool IsTerminal() {
+        throw new NotImplementedException();   
+    }
+    
     public static State FromFen(string fen) => FenParser.ParseFen(fen);
     public string GetFen() => FenCreator.GetFen(this);
     public char[,] EncodeIntoMatrix() => FenCreator.EncodeIntoMatrix(this);
