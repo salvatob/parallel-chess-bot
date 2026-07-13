@@ -20,7 +20,7 @@ public enum Pieces {
     BlackKing 
 }
 
-public class State {
+public sealed class State {
     public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public const char WhiteQueenSymbol = 'Q';
     public const char WhiteKingSymbol = 'K';
