@@ -1,23 +1,68 @@
-﻿
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using ChessBotCore;
+using ConsoleInterface;
 
 
 internal class Program {
-    public static void Main(string[] args) {
-        var chessSingle = new DefaultChessWrapper();
-        var chessMulti = new ParallelChessWrapper();
-        // State state = State.FromFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"); 
-        // State state = State.FromFen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 "); 
-        State state = State.FromFen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"); 
-        int depth = 6; // I want 119,060,324 nodes without castles
-        // Console.WriteLine("single threaded");
-        // TryPerft(depth, chessSingle);
-        
-        Console.WriteLine("multi threaded");
-        PerftStats(depth, chessMulti, state);
+    public static async Task<int> Main(string[] args) {
+        try {
+            await TryUCI();
+            
+        } catch (Exception e) {
+            Console.WriteLine(e);
+        }
+        return 0;
+    }
 
+    public static async Task TryUCI() {
+        State state = State.Initial;
+        var negamaxer = new MinimaxEvaluator();
+
+        while (true) {
+            try {
+
+                CancellationTokenSource cts = new(TimeSpan.FromSeconds(0.6));
+                cts.Token.Register(() =>
+                    Console.WriteLine("Cancellation requested!"));
+                
+                // ReSharper disable once MethodSupportsCancellation
+                var nextMove = Task.Run(() => negamaxer.PrimitiveIterativeSearch(state, cts.Token));
+                    
+                var command = Task.Run(Console.ReadLine);
+                
+                
+                var nextMoveRequested = await Task.WhenAny(nextMove, command);
+
+                if (nextMoveRequested == command) {
+                    if (command.Result != null && command.Result.StartsWith("ok"))
+                        cts.Cancel();
+                        
+                    
+                }
+                // command.WaitAsync()
+                var aiMoveResult = await nextMove;
+                
+                var aiMove = aiMoveResult.BestMove;
+                state.ApplyMove(aiMove);
+                Console.WriteLine("---------after AI----------");
+                Console.WriteLine(state.PrettyPrint());
+                Console.WriteLine("-------------------------------");
+
+                var playerMove = Move.Parse(Console.ReadLine());
+                state.ApplyMoveWithoutMetadata(playerMove);
+                Console.WriteLine("---------after player------");
+                Console.WriteLine(state.PrettyPrint());
+                Console.WriteLine("-------------------------------");
+            }
+            catch (Exception e) {
+                Console.WriteLine(e);
+            }
+
+        }
+        
+    }
+    
+    static void CompareMoveGeneration() {
         
         // DividePerft(State.Initial, 3, chessSingle);
 
@@ -26,8 +71,8 @@ internal class Program {
         // Console.WriteLine("parallel");
         // TryPerft(6, new ParallelChessWrapper().EvalPerft);
 
-    }
-
+    }    
+    
     static void DividePerft(State s, int depth, IChessWrapper chess) {
         var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
         
