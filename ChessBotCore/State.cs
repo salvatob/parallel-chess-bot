@@ -68,7 +68,6 @@ public sealed class State {
         FullMoves = other.FullMoves;
     }
 
-    // [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", false)]
     public State() {
         WhitePawns = 0;
         WhiteRooks = 0;
@@ -117,11 +116,8 @@ public sealed class State {
 
     public int HalfMovesSincePawnMoveOrCapture { get; set; } = 0;
     public int FullMoves { get; set; } = 1;
-
-    public string Fen => FenCreator.GetFen(this);
-
     
-#pragma warning disable CS0612   // “obsolete” warning id
+    
     public static State Initial =>
         new() {
             WhitePawns   = 0b_1111_1111_0000_0000,
@@ -145,15 +141,11 @@ public sealed class State {
             WhiteIsActive = true,
             FullMoves = 1
         };
-#pragma warning restore CS0612
 
-
-#pragma warning disable CS0612   // “obsolete” warning id
     public static State Empty => new() {
         WhiteIsActive = true,
         FullMoves = 1
     };
-#pragma warning restore CS0612
 
     public static State FromFen(string fen) => FenParser.ParseFen(fen);
     public string GetFen() => FenCreator.GetFen(this);
@@ -166,7 +158,6 @@ public sealed class State {
         var clone = (State)MemberwiseClone();
         return clone;
     }
-
     
     /// <summary>
     /// Pushes the state into a next move, so some properties are updated automatically.
@@ -175,13 +166,12 @@ public sealed class State {
     /// Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
     /// <returns>The same instance.</returns>
-    public State Next() {
+    public void Next() {
         WhiteIsActive = !WhiteIsActive;
         // update fullmove clock after blacks turn
         if (WhiteIsActive) FullMoves++;
         HalfMovesSincePawnMoveOrCapture += 1;
         EnPassant = default;
-        return this;
     }
 
     /// <summary>
@@ -189,10 +179,10 @@ public sealed class State {
     /// Should be used after executing a move with a capture, or a pawn advance.
     /// </summary>
     /// <returns></returns>
-    public State HalfClockReset() {
+    private void HalfClockReset() {
         HalfMovesSincePawnMoveOrCapture = 0;
-        return this;
     }
+    
     // TODO could shrink this struct down
     public readonly struct UndoInfo {
         public readonly Pieces? CapturedPiece;
