@@ -1,7 +1,8 @@
 using System.Diagnostics;
 using System.Text;
+using ChessBotCore.Board;
 
-namespace ChessBotCore;
+namespace ChessBotCore.Parser;
 
 internal static class FenCreator {
 

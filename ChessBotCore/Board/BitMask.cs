@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace ChessBotCore;
+namespace ChessBotCore.Board;
 
 public static class BitMask {
     public static Bitboard[] Row { get; private set; }

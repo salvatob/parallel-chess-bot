@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace ChessBotCore;
+namespace ChessBotCore.Board;
 
 
 // thought of fully by me, written partially by chatGPT

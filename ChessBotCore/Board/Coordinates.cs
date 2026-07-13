@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ChessBotCore;
+namespace ChessBotCore.Board;
 
 /// <summary>
 /// Basic implementation of my board coordinates system.

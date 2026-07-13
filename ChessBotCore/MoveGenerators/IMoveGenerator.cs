@@ -1,4 +1,4 @@
-namespace ChessBotCore;
+namespace ChessBotCore.MoveGenerators;
 
 /// <summary>
 /// Provides an abstraction over move generation.

@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 using ChessBotCore;
+using ChessBotCore.ChessWrappers;
+using ChessBotCore.MoveGenerators;
+using ChessBotCore.Search;
 using ConsoleInterface;
 
 

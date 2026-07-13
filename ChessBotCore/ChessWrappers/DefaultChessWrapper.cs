@@ -1,4 +1,7 @@
-namespace ChessBotCore;
+using ChessBotCore.MoveGenerators;
+using ChessBotCore.Search;
+
+namespace ChessBotCore.ChessWrappers;
 
 public sealed class DefaultChessWrapper : ChessWrapperBase {
     

@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Search;
+
+namespace ChessBotCore.ChessWrappers;
 
 public abstract class ChessWrapperBase : IChessWrapper {
     public TextWriter Writer { get; set; }

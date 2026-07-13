@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.MoveGenerators;
+
+namespace ChessBotCore.Search;
 
 public sealed class ParallelMinimaxer {
     

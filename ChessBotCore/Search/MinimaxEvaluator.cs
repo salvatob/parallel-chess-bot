@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
+using ChessBotCore.MoveGenerators;
 
-namespace ChessBotCore;
+namespace ChessBotCore.Search;
 
 public struct SearchStats {
     public ulong NodesSearched;

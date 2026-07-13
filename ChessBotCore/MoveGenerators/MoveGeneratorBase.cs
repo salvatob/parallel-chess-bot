@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Board;
+
+namespace ChessBotCore.MoveGenerators;
 
 /// <summary>
 /// A base of all main move generators. All non-abstract inheritors are expected be sealed and

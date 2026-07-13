@@ -1,6 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using ChessBotCore;
+using ChessBotCore.Search;
 
 namespace Benchmarks;
 

@@ -1,4 +1,7 @@
-namespace ChessBotCore;
+using ChessBotCore.Board;
+using ChessBotCore.MoveGenerators.PieceGenerators;
+
+namespace ChessBotCore.MoveGenerators;
 
 public sealed class GeneratorWrapper {
 

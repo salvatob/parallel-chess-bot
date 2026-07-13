@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Board;
+
+namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
 public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     private static Direction[] KnightDirections = [

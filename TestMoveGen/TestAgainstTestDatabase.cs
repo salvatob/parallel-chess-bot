@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Text.Json;
 using ChessBotCore;
+using ChessBotCore.MoveGenerators;
 using FluentAssertions;
 using Xunit.Abstractions;
 

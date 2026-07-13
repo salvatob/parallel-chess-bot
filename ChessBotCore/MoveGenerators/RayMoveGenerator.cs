@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Board;
+
+namespace ChessBotCore.MoveGenerators;
 
 /// <summary>
 /// Implements most of the logic fom move generation of ray pieces (bishop, rook, queen)

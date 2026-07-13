@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Board;
+
+namespace ChessBotCore.Parser;
 
 internal class FenParser {
     private readonly State _state;

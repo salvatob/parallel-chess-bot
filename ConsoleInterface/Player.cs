@@ -1,4 +1,5 @@
 using ChessBotCore;
+using ChessBotCore.Search;
 
 namespace ConsoleInterface;
 

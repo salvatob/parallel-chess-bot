@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
+using ChessBotCore.Board;
+using ChessBotCore.MoveGenerators;
+using ChessBotCore.Parser;
 
 namespace ChessBotCore;
 

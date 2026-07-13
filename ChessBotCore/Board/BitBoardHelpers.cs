@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace ChessBotCore;
+namespace ChessBotCore.Board;
 
 /// <summary>
 /// Includes several static methods for the <see cref="Bitboard"/> struct.

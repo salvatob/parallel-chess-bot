@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Board;
+
+namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
 public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
 

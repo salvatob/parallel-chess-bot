@@ -1,4 +1,6 @@
-namespace ChessBotCore;
+using ChessBotCore.Search;
+
+namespace ChessBotCore.ChessWrappers;
 
 public interface IChessWrapper {
     public long Perft(State state, int depth);
