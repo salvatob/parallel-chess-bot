@@ -8,10 +8,13 @@ public struct SearchStats {
 
 public struct SearchResults {
     public Move BestMove;
-    public Move PrincipalVariation;
-    public SearchStats Stats;
+    public Move? PrincipalVariation;
+    public SearchStats? Stats;
     
-    public override string ToString() => $"{BestMove}, {Stats.NodesSearched} nodes searched";
+    public override string ToString() {
+        if (Stats is null) return BestMove.ToString();
+        return $"{BestMove}, {Stats?.NodesSearched} nodes searched";
+    }
 }
 
 public struct MinimaxEvaluator {
@@ -19,10 +22,15 @@ public struct MinimaxEvaluator {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Eval(State s) => Evaluator.Evaluate(s);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsTerminal(State s) => Evaluator.IsTerminal(s);
-
     private SearchStats _lastSearchStats;
+    private readonly TimeSpan _initialTimeLimit;
+    private readonly TimeSpan _timeIncrement;
+
+    public MinimaxEvaluator(TimeSpan initialTimeLimit, TimeSpan timeIncrement) {
+        _initialTimeLimit = initialTimeLimit;
+        _timeIncrement = timeIncrement;
+        _lastSearchStats = default;
+    }
     
     public SearchResults ChooseBestMove(State state, int maxDepth) {
         State copy = state.Clone();
@@ -39,7 +47,8 @@ public struct MinimaxEvaluator {
     // TODO this needs to be much better in time, hopefully the API stays the same tho
     public SearchResults PrimitiveIterativeSearch(State state, CancellationToken cancellationToken) {
         List<SearchResults> results = [];
-
+        TimeSpan timeForThisMove = _initialTimeLimit / 20 + _timeIncrement / 2;
+        
         int depth = 1;
         while (true) {
             if (cancellationToken.IsCancellationRequested) 
@@ -53,7 +62,6 @@ public struct MinimaxEvaluator {
 
     
     private Move NegamaxBase(State state, int maxDepth) {
-        
         var moves = new GeneratorWrapper(state).GetLegalMoves();
         moves.Sort();
         
@@ -75,7 +83,7 @@ public struct MinimaxEvaluator {
     }
 
     internal int Negamax(State state, int depth) {
-        if (depth <= 0 || IsTerminal(state)) {
+        if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
             return state.WhiteIsActive ? score : -score;
         } 
@@ -98,11 +106,11 @@ public struct MinimaxEvaluator {
         return bestScore;
     }
     
-    // TODO be careful with the a-b values inialization thay will overflow
+    // be careful with the a-b values inialization thay will overflow
     internal int ABNegamax(State state, int depth, int alpha, int beta) {
         bool isMaxing = state.WhiteIsActive;
         
-        if (depth <= 0 || IsTerminal(state)) {
+        if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
             return isMaxing ? score : -score;
         } 
@@ -128,9 +136,13 @@ public struct MinimaxEvaluator {
         return bestScore;
     }
 
-    // TODO be careful with the a-b values initialization, they will overflow
+    // be careful with the a-b values initialization, they will overflow
     internal int SmartABNegamax(State state, int depth, int alpha, int beta) {
         Interlocked.Increment(ref _lastSearchStats.NodesSearched);
+        if (_lastSearchStats.NodesSearched % 100000 == 0) {
+            // TODO check calcellation token
+        }
+        
         bool isMaxing = state.WhiteIsActive;
         
         if (depth <= 0 || IsTerminal(state)) {
