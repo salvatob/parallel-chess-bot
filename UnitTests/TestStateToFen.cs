@@ -26,8 +26,7 @@ public class TestStateToFen {
         // arrange
         var expected = stateData.Fen;
         // act
-        var actual = FenCreator.GetFen(stateData.State);
-
+        var actual = stateData.State.GetFen();
         // assert
         Assert.Equal(expected, actual);
     }

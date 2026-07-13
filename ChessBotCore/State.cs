@@ -149,10 +149,7 @@ public sealed class State {
 
     public static State FromFen(string fen) => FenParser.ParseFen(fen);
     public string GetFen() => FenCreator.GetFen(this);
-
-    public static bool DetectActiveColor(string fen) {
-        return FenParser.DetectActiveColor(fen);
-    }
+    public char[,] EncodeIntoMatrix() => FenCreator.EncodeIntoMatrix(this);
     
     public State Clone() {
         var clone = (State)MemberwiseClone();
