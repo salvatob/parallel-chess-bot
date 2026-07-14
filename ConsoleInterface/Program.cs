@@ -8,16 +8,38 @@ using ConsoleInterface;
 
 
 internal class Program {
-    public static async Task<int> Main(string[] args) {
-        try {
-            await TryUCI();
-            
-        } catch (Exception e) {
-            Console.WriteLine(e);
-        }
-        return 0;
+    public static async Task Main(string[] args) {
+
+        await OneMove();
+        
     }
 
+    public static async Task OneMove() {
+        State state = State.Initial;
+        var ai = new EnginePlayer();
+        
+        Timers timers = new();
+        var nextMove = ai.StartSearch(state, timers);
+                
+        nextMove.Register(() =>
+            Console.WriteLine("Cancellation requested!"));
+
+        var command = Task.Run(Console.ReadLine);
+                
+        var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
+        
+     
+        if (nextMoveRequested == command) {
+            if (command.Result != null && command.Result.StartsWith("ok"))
+                nextMove.Cancel();
+        }
+        
+        var aiMoveResult = await nextMove.Result;
+
+        Console.WriteLine(aiMoveResult.BestMove);
+        
+    }
+    
     public static async Task TryUCI() {
         State state = State.Initial;
         var negamaxer = new EnginePlayer();
