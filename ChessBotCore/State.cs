@@ -149,8 +149,20 @@ public sealed class State {
         FullMoves = 1
     };
 
+    /// <summary>
+    /// Determines, if either player has won, or if the game is a draw.
+    /// Stalemates (no possible move for active player) are not accounted by this method.
+    /// </summary>
+    /// <returns>If the game can continue.</returns>
     public bool IsTerminal() {
-        throw new NotImplementedException();   
+        if (GetAllPieces().PopCount() <= 2) return true; // insufficient material
+        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights & BlackKnights).IsEmpty()) 
+            return true; // cannot mate with only a knight
+        
+        var inactiveKing = !WhiteIsActive ? WhiteKing : BlackKing;
+        
+        // TODO might need some testing
+        return GeneratorWrapper.IsSquareAttacked(inactiveKing.TrailingZeroCount(), WhiteIsActive, this);
     }
     
     public static State FromFen(string fen) => FenParser.ParseFen(fen);
