@@ -2,7 +2,7 @@ using ChessBotCore.Search;
 
 namespace ChessBotCore.Players;
 
-public class EnginePlayer {
+public class EnginePlayer : IPlayer {
     private readonly MinimaxEvaluator _negamaxer = new();
     
     public SearchHandle StartSearch(State state, Timers timers) {
@@ -13,5 +13,8 @@ public class EnginePlayer {
 
         return new SearchHandle(cts, task);
     }
-    
+
+    public SearchHandle GetBestMove(State state, Timers timers) {
+        throw new NotImplementedException();
+    }
 }
