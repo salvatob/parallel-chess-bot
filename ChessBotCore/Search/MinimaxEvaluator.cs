@@ -1,7 +1,10 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using ChessBotCore.MoveGenerators;
 
 namespace ChessBotCore.Search;
+
+
 
 public struct SearchStats {
     public ulong NodesSearched;
@@ -18,15 +21,18 @@ public struct SearchResults {
     }
 }
 
-public struct MinimaxEvaluator {
-    
+/// <summary>
+/// A type encapsulating a Negamax-based State Space Search of the best move. It is not thread-safe.
+/// </summary>
+public class MinimaxEvaluator {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Eval(State s) => Evaluator.Evaluate(s);
     
     private SearchStats _lastSearchStats;
     private readonly TimeSpan _initialTimeLimit;
     private readonly TimeSpan _timeIncrement;
-
+    private CancellationToken _currentCancellationToken;
+    
     public MinimaxEvaluator(TimeSpan initialTimeLimit, TimeSpan timeIncrement) {
         _initialTimeLimit = initialTimeLimit;
         _timeIncrement = timeIncrement;
@@ -45,11 +51,23 @@ public struct MinimaxEvaluator {
         return results;
     }
 
+    private record SearchContext {
+        public CancellationToken CancellationToken { get; init; }
+        public Stopwatch Stopwatch { get; } = new ();
+        public TimeSpan TimeLeft { get; init; }
+    }
+    
     // TODO this needs to be much better in time, hopefully the API stays the same tho
-    public SearchResults PrimitiveIterativeSearch(State state, CancellationToken cancellationToken) {
+    public SearchResults PrimitiveIterativeSearch(State state, CancellationToken cancellationToken, TimeSpan timeLeft) {
         List<SearchResults> results = [];
         TimeSpan timeForThisMove = _initialTimeLimit / 20 + _timeIncrement / 2;
+
+        var context = new SearchContext() {
+            CancellationToken = cancellationToken
+        };
+
         
+        context.Stopwatch.Start();
         int depth = 1;
         while (true) {
             if (cancellationToken.IsCancellationRequested) 
@@ -107,7 +125,7 @@ public struct MinimaxEvaluator {
         return bestScore;
     }
     
-    // be careful with the a-b values inialization thay will overflow
+    // be careful with the a-b values initialization that will overflow
     internal int ABNegamax(State state, int depth, int alpha, int beta) {
         bool isMaxing = state.WhiteIsActive;
         
@@ -141,7 +159,10 @@ public struct MinimaxEvaluator {
     internal int SmartABNegamax(State state, int depth, int alpha, int beta) {
         Interlocked.Increment(ref _lastSearchStats.NodesSearched);
         if (_lastSearchStats.NodesSearched % 100000 == 0) {
-            // TODO check calcellation token
+            // TODO check cancellation token
+            if (_currentCancellationToken.IsCancellationRequested) {
+                return int.MaxValue-1;
+            }
         }
         
         bool isMaxing = state.WhiteIsActive;

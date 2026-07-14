@@ -17,7 +17,7 @@ public class ChessGame {
     
     private IPlayer ActivePlayer(bool isWhite) => isWhite ? _whitePlayer : _blackPlayer;
 
-    public List<Move> Play(int verbosity) {
+    public async Task<List<Move>> Play(int verbosity) {
         while (!_state.IsTerminal()) {
             
         }

@@ -19,31 +19,25 @@ internal class Program {
 
     public static async Task TryUCI() {
         State state = State.Initial;
-        var negamaxer = new MinimaxEvaluator();
-
+        var negamaxer = new EnginePlayer();
         while (true) {
             try {
-
-                CancellationTokenSource cts = new(TimeSpan.FromSeconds(0.6));
-                cts.Token.Register(() =>
-                    Console.WriteLine("Cancellation requested!"));
+                var nextMove = negamaxer.StartSearch(state, TimeSpan.FromSeconds(6));
                 
-                // ReSharper disable once MethodSupportsCancellation
-                var nextMove = Task.Run(() => negamaxer.PrimitiveIterativeSearch(state, cts.Token));
-                    
+                nextMove.Register(() =>
+                    Console.WriteLine("Cancellation requested!"));
+
                 var command = Task.Run(Console.ReadLine);
                 
-                
-                var nextMoveRequested = await Task.WhenAny(nextMove, command);
+                var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
 
                 if (nextMoveRequested == command) {
                     if (command.Result != null && command.Result.StartsWith("ok"))
-                        cts.Cancel();
-                        
-                    
+                        nextMove.Cancel();
                 }
                 // command.WaitAsync()
-                var aiMoveResult = await nextMove;
+                var aiMoveResult = await nextMove.Result;
+                
                 
                 var aiMove = aiMoveResult.BestMove;
                 state.ApplyMove(aiMove);

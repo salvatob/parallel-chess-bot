@@ -10,7 +10,7 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
     
     
     public DefaultChessWrapper() {
-        Minimaxer = new MinimaxEvaluator();
+        // Minimaxer = new MinimaxEvaluator();
     }
     
     public override long Perft(State state, int depth) {
