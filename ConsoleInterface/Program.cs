@@ -2,6 +2,7 @@
 using ChessBotCore;
 using ChessBotCore.ChessWrappers;
 using ChessBotCore.MoveGenerators;
+using ChessBotCore.Players;
 using ChessBotCore.Search;
 using ConsoleInterface;
 

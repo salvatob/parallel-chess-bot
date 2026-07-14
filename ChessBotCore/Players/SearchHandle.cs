@@ -1,5 +1,10 @@
-namespace ChessBotCore.Search;
+using ChessBotCore.Search;
 
+namespace ChessBotCore.Players;
+
+/// <summary>
+/// A handle returned by any <see cref="IPlayer"/>, providing the caller an option to stop the search at any moment. 
+/// </summary>
 public class SearchHandle : IDisposable {
     private readonly CancellationTokenSource _cts;
     public Task<SearchResults> Result { get; }
