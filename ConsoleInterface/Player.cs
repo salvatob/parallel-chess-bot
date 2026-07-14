@@ -4,7 +4,7 @@ using ChessBotCore.Search;
 namespace ConsoleInterface;
 
 public class ConsolePlayer : IPlayer {
-    public Task<SearchResults> GetBestMove(State state, TimeSpan timeLeft, CancellationToken cancellationToken) {
+    public SearchHandle GetBestMove(State state, Timers timers) {
         throw new NotImplementedException();
     }
     

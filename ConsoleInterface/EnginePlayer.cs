@@ -5,7 +5,7 @@ namespace ConsoleInterface;
 
 
 public interface IPlayer {
-    public Task<SearchResults> GetBestMove(State state, TimeSpan timeLeft, CancellationToken cancellationToken);
+    public SearchHandle GetBestMove(State state, Timers timers);
 }
 
 
