@@ -14,7 +14,9 @@ public static class Evaluator {
         // and avoids some overflowing further
         if (s.WhiteKing.IsEmpty()) return short.MinValue;
         if (s.BlackKing.IsEmpty()) return short.MaxValue;
-
+        
+        if (s.HalfMovesSincePawnMoveOrCapture>= 50) return 0;
+        
         int val = 0;
         val += EvalPawns(s);
         val += EvalRooks(s);
