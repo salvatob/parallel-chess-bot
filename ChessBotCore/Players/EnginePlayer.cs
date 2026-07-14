@@ -6,7 +6,7 @@ public class EnginePlayer : IPlayer {
     private readonly MinimaxEvaluator _negamaxer = new();
     
     public SearchHandle StartSearch(State state, Timers timers) {
-        var cts = new CancellationTokenSource(2000);
+        var cts = new CancellationTokenSource();
 
         var task = Task.Run(() =>
             _negamaxer.PrimitiveIterativeSearch(state, timers,cts.Token));
