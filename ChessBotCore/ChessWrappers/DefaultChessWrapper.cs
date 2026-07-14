@@ -44,7 +44,11 @@ public sealed class DefaultChessWrapper : ChessWrapperBase {
         return score;
     }
 
-    public override Task<SearchResults> GetBestMove(State state, int timeLeftMs) {
-        return Task.FromResult(Minimaxer.ChooseBestMove(state, _maxDepth));
+    public override Task<SearchResults> GetBestMove(State state, int timeMs) {
+        throw new NotImplementedException();
     }
+
+    // public override Task<SearchResults> GetBestMove(State state, int timeLeftMs) {
+    //     return Task.FromResult(Minimaxer.ChooseBestMove(state, _maxDepth));
+    // }
 }

@@ -23,7 +23,8 @@ internal class Program {
         var negamaxer = new EnginePlayer();
         while (true) {
             try {
-                var nextMove = negamaxer.StartSearch(state, TimeSpan.FromSeconds(6));
+                Timers timers = new();
+                var nextMove = negamaxer.StartSearch(state, timers);
                 
                 nextMove.Register(() =>
                     Console.WriteLine("Cancellation requested!"));

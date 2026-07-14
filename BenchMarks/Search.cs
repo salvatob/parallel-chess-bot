@@ -25,7 +25,7 @@ public class Search {
     
     [ParamsSource(nameof(states))]
     public State state;
-    
+    private MinimaxEvaluator.SearchContext _context;
     
     // private var parameters = (State.Initial, depth);
     
@@ -46,6 +46,6 @@ public class Search {
     
     [Benchmark]
     public int SmartABNegamax() {
-        return negamaxer.SmartABNegamax(state, Depth, int.MinValue+2, int.MaxValue-2);
+        return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue+2, int.MaxValue-2);
     }
 }
