@@ -5,7 +5,7 @@ namespace ChessBotCore.Players;
 public class EnginePlayer : IPlayer {
     private readonly MinimaxEvaluator _negamaxer = new();
     
-    public SearchHandle StartSearch(State state, Timers timers) {
+    public SearchHandle GetBestMove(State state, Timers timers) {
         var cts = new CancellationTokenSource();
 
         var task = Task.Run(() =>
@@ -14,7 +14,4 @@ public class EnginePlayer : IPlayer {
         return new SearchHandle(cts, task);
     }
 
-    public SearchHandle GetBestMove(State state, Timers timers) {
-        throw new NotImplementedException();
-    }
 }
