@@ -9,7 +9,7 @@ public class SearchHandle : IDisposable {
     private readonly CancellationTokenSource _cts;
     public Task<SearchResults> Result { get; }
 
-    internal SearchHandle(CancellationTokenSource cts, Task<SearchResults> result) {
+    public SearchHandle(CancellationTokenSource cts, Task<SearchResults> result) {
         _cts = cts;
         Result = result;
     }
