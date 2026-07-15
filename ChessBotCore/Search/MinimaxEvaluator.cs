@@ -80,7 +80,7 @@ public class MinimaxEvaluator {
             CancellationToken = cancellationToken
         };
         context.Stopwatch.Start();
-        
+        // TODO fix the time managing so it works
         List<SearchResults> results = [] ;
         TimeSpan plannedTimeForSearch = timers.ActiveTime(state.WhiteIsActive)/ 20 + timers.Increment / 2;
 

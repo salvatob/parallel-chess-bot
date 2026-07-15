@@ -40,15 +40,7 @@ public class ChessGame {
             
             var moveHandle = player.GetBestMove(_state, _timers);
            
-            // var cts = new CancellationTokenSource();
-            // Task.Run(async () => {
-            //     await Task.Delay(TimeSpan.FromSeconds(10));
-            //     Console.WriteLine("Time limit reached");
-            //     moveHandle.Cancel();
-            // }, cts.Token);
-            //
-            // moveHandle.Register(cts.Cancel);
-            
+            // TODO handle timers, add some stopwatches etc.
             
             var searchResult = await moveHandle.Result;
 
