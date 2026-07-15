@@ -53,7 +53,11 @@ internal class Program {
         var negamaxer = new EnginePlayer();
         while (true) {
             try {
-                Timers timers = new();
+                Timers timers = new() {
+                    BaseWhiteTime = TimeSpan.FromMinutes(5),
+                    BaseBlackTime = TimeSpan.FromMinutes(5),
+                    Increment = TimeSpan.FromSeconds(2)
+                };
                 var nextMove = negamaxer.GetBestMove(state, timers);
                 
                 nextMove.Register(() =>

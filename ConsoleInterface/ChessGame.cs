@@ -10,7 +10,11 @@ public class ChessGame {
     private readonly IPlayer _blackPlayer;
     private readonly IPlayer _whitePlayer;
     private readonly State _state = State.Initial;
-    private readonly Timers _timers = new();
+    private readonly Timers _timers = new() {
+        BaseWhiteTime = TimeSpan.FromMinutes(5),
+        BaseBlackTime = TimeSpan.FromMinutes(5),
+        Increment = TimeSpan.FromSeconds(2)
+    };
 
     public ChessGame(IPlayer whitePlayer, IPlayer blackPlayer) {
         _whitePlayer = whitePlayer;
