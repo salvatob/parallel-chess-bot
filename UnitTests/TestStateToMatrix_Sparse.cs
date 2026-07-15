@@ -67,7 +67,7 @@ public class TestStateToMatrix_Sparse {
             expected[r * 8 + c] = val;
         }
 
-        char[,] actual = FenCreator.EncodeIntoMatrix(data.State);
+        char[,] actual = data.State.EncodeIntoMatrix();
         var flat = actual.Flatten();
 
         //assert

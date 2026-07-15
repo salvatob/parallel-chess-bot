@@ -1,4 +1,8 @@
 using System;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using ChessBotCore.Board;
+using ChessBotCore.Parser;
 
 namespace ChessBotCore;
 
@@ -28,9 +32,14 @@ public readonly struct Move : IComparable<Move> {
     static bool GetColor(Pieces p) {
         return (byte)p > 6;
     }
-    
+
+
+    public Move(int from, int to, MoveFlags flags = MoveFlags.None) {
+        _data = (uint)(from | (to << 6)) | ((uint)flags << 16);
+    }
+
     public Move(int from, int to, Pieces piece, MoveFlags flags = MoveFlags.None) {
-        _data = (uint)((uint)(from | (to << 6) | ((byte)piece << 12)) | ((uint)flags << 16));
+        _data = (uint)(from | (to << 6) | ((byte)piece << 12)) | ((uint)flags << 16);
     }
 
     public int From => (int)(_data & 0x3F);
@@ -48,5 +57,37 @@ public readonly struct Move : IComparable<Move> {
     public bool IsWhite => GetColor(Piece);
     public static string? TryGetNotation(State before, State after) {
         return FenCreator.TryGetMoveNotation(before, after);
+    }
+
+    private string GetPromotionNotation() => IsPromotion ? (
+    Flags.HasFlag(MoveFlags.PromoteToQueen) ? "q" : Flags.HasFlag(MoveFlags.PromoteToRook) ? "r" : Flags.HasFlag(MoveFlags.PromoteToBishop) ? "b" : "n"
+    ) : "";
+    public override string ToString() => $"{Piece}-{PrintUCI()} {Flags}";
+    // ReSharper disable once InconsistentNaming
+    public string PrintUCI() => $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
+
+    public static Move Parse(string move) {
+        string moveRegex = "([a-h][1-8])([a-h][1-8])([qrbn]?)";
+        var match = Regex.Match(move, moveRegex);
+        
+        if (move.Length is not (4 or 5) || !match.Success) 
+            throw new ArgumentException($"Invalid move notation: <{move}>");
+        
+        var fromS = match.Groups[1].Value;
+        var toS = match.Groups[2].Value;
+        var promotionS = match.Groups[3].Value;
+
+        var from = Coordinates.FromString(fromS).To1D();
+        var to = Coordinates.FromString(toS).To1D();
+        var promotionFlag = promotionS switch {
+            "" => MoveFlags.None,
+            "q" => MoveFlags.PromoteToQueen,
+            "r" => MoveFlags.PromoteToRook,
+            "n" => MoveFlags.PromoteToKnight,
+            "b" => MoveFlags.PromoteToBishop,
+            _ => throw new UnreachableException($"Invalid promotion notation: <{promotionS}>")
+        };
+
+        return new Move(from, to, promotionFlag);
     }
 }

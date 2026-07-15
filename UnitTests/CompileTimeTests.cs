@@ -1,5 +1,6 @@
 using System.Reflection;
 using ChessBotCore;
+using ChessBotCore.MoveGenerators.PieceGenerators;
 
 namespace TestProject1;
 

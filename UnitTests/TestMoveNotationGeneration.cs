@@ -1,4 +1,5 @@
 using ChessBotCore;
+using ChessBotCore.Board;
 using Xunit.Abstractions;
 
 namespace TestProject1;

@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
+using ChessBotCore.Board;
+using ChessBotCore.MoveGenerators;
+using ChessBotCore.Parser;
 
 namespace ChessBotCore;
 
@@ -20,7 +22,7 @@ public enum Pieces {
     BlackKing 
 }
 
-public class State {
+public sealed class State {
     public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public const char WhiteQueenSymbol = 'Q';
     public const char WhiteKingSymbol = 'K';
@@ -68,7 +70,6 @@ public class State {
         FullMoves = other.FullMoves;
     }
 
-    // [Obsolete($"{nameof(State)}.{nameof(Empty)} should be used instead of the constructor", false)]
     public State() {
         WhitePawns = 0;
         WhiteRooks = 0;
@@ -117,11 +118,8 @@ public class State {
 
     public int HalfMovesSincePawnMoveOrCapture { get; set; } = 0;
     public int FullMoves { get; set; } = 1;
-
-    public string Fen => FenCreator.GetFen(this);
-
     
-#pragma warning disable CS0612   // “obsolete” warning id
+    
     public static State Initial =>
         new() {
             WhitePawns   = 0b_1111_1111_0000_0000,
@@ -145,28 +143,36 @@ public class State {
             WhiteIsActive = true,
             FullMoves = 1
         };
-#pragma warning restore CS0612
 
-
-#pragma warning disable CS0612   // “obsolete” warning id
     public static State Empty => new() {
         WhiteIsActive = true,
         FullMoves = 1
     };
-#pragma warning restore CS0612
 
+    /// <summary>
+    /// Determines, if either player has won, or if the game is a draw.
+    /// Stalemates (no possible move for active player) are not accounted by this method.
+    /// </summary>
+    /// <returns>If the game can continue.</returns>
+    public bool IsTerminal() {
+        if (GetAllPieces().PopCount() <= 2) return true; // insufficient material
+        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights & BlackKnights).IsEmpty()) 
+            return true; // cannot mate with only a knight
+        
+        var inactiveKing = !WhiteIsActive ? WhiteKing : BlackKing;
+        
+        // TODO might need some testing
+        return GeneratorWrapper.IsSquareAttacked(inactiveKing.TrailingZeroCount(), WhiteIsActive, this);
+    }
+    
     public static State FromFen(string fen) => FenParser.ParseFen(fen);
     public string GetFen() => FenCreator.GetFen(this);
-
-    public static bool DetectActiveColor(string fen) {
-        return FenParser.DetectActiveColor(fen);
-    }
+    public char[,] EncodeIntoMatrix() => FenCreator.EncodeIntoMatrix(this);
     
     public State Clone() {
         var clone = (State)MemberwiseClone();
         return clone;
     }
-
     
     /// <summary>
     /// Pushes the state into a next move, so some properties are updated automatically.
@@ -175,13 +181,12 @@ public class State {
     /// Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
     /// <returns>The same instance.</returns>
-    public State Next() {
+    public void Next() {
         WhiteIsActive = !WhiteIsActive;
         // update fullmove clock after blacks turn
         if (WhiteIsActive) FullMoves++;
         HalfMovesSincePawnMoveOrCapture += 1;
         EnPassant = default;
-        return this;
     }
 
     /// <summary>
@@ -189,10 +194,10 @@ public class State {
     /// Should be used after executing a move with a capture, or a pawn advance.
     /// </summary>
     /// <returns></returns>
-    public State HalfClockReset() {
+    private void HalfClockReset() {
         HalfMovesSincePawnMoveOrCapture = 0;
-        return this;
     }
+    
     // TODO could shrink this struct down
     public readonly struct UndoInfo {
         public readonly Pieces? CapturedPiece;
@@ -220,10 +225,7 @@ public class State {
         Bitboard fromMask = 1UL << from;
         Bitboard toMask = 1UL << to;
 
-        // Pieces? movingPiece = DetectPieceCollision(fromMask);
         Pieces movingPiece = move.Piece;
-
-        // This should not happen for legal moves
         
         Pieces? capturedPiece = move.IsEnPassant 
             ? (WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns)
@@ -242,7 +244,33 @@ public class State {
 
         return undo;
     }
-
+    
+    /// <summary>
+    /// Applies a move that only contains two squares and a promotion. Mostly since the move came from outside this framework.
+    /// For local move usage see the faster <see cref="ApplyMoveWithoutMetadata"/> method.
+    /// </summary>
+    /// <param name="move">The move to be applied</param>
+    /// <exception cref="ArgumentException">Thrown if the move is not a valid move</exception>
+    /// <returns>Metadata to undo the move</returns>
+    public UndoInfo ApplyMoveWithoutMetadata(Move move) {
+        var moves = new GeneratorWrapper(this).GetLegalMoves();
+        
+        // just try to find a move that matches the move passed in 
+        foreach (var m in moves) {
+            if (m.From == move.From &&
+                m.To == move.To &&
+                m.Flags.HasFlag(MoveFlags.PromoteToQueen) == move.Flags.HasFlag(MoveFlags.PromoteToQueen) &&
+                m.Flags.HasFlag(MoveFlags.PromoteToRook) == move.Flags.HasFlag(MoveFlags.PromoteToRook) &&
+                m.Flags.HasFlag(MoveFlags.PromoteToKnight) == move.Flags.HasFlag(MoveFlags.PromoteToKnight) &&
+                m.Flags.HasFlag(MoveFlags.PromoteToBishop) == move.Flags.HasFlag(MoveFlags.PromoteToBishop) 
+                ) {
+                return ApplyMove(m);
+            }
+        }
+        
+        throw new ArgumentException("Invalid move {move} has been passed to ApplyMoveWithoutMetadata");
+    }
+    
     public void UndoMove(Move move, UndoInfo undo) {
         // 1. Reverse Turn
         ReverseNext();

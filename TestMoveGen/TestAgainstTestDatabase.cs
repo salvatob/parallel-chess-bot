@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Text.Json;
 using ChessBotCore;
+using ChessBotCore.MoveGenerators;
 using FluentAssertions;
 using Xunit.Abstractions;
 
@@ -31,7 +32,7 @@ public class TestAgainstTestDatabase {
         // if (testCase.Start.Fen != "8/8/8/p7/PR1Ppk1p/6pP/6P1/2K5 b - d3 0 1") return;
         
         _out.WriteLine($"TestCase fen : {testCase.Start.Fen}");
-        var start = FenParser.ParseFen(testCase.Start.Fen);
+        var start = State.FromFen(testCase.Start.Fen);
 
         IEnumerable<string> expectedEnumerable = 
             from c in testCase.Expected
@@ -44,7 +45,7 @@ public class TestAgainstTestDatabase {
         var moveFens = moves.Select(m => {
             var nextState = start.Clone();
             nextState.ApplyMove(m);
-            return FenCreator.GetFen(nextState);
+            return nextState.GetFen();
         });
         
         var expected = new HashSet<string>(expectedEnumerable);

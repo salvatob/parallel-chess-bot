@@ -20,8 +20,8 @@ public class FenToFen {
         //arrange
 
         //act
-        State parsedState = FenParser.ParseFen(initialFen);
-        string returnedFen = FenCreator.GetFen(parsedState);
+        State parsedState = State.FromFen(initialFen);
+        string returnedFen = parsedState.GetFen();
 
         //assert
         Assert.Equal(initialFen, returnedFen);

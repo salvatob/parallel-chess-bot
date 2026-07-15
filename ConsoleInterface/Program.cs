@@ -1,23 +1,97 @@
-﻿
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using ChessBotCore;
+using ChessBotCore.ChessWrappers;
+using ChessBotCore.MoveGenerators;
+using ChessBotCore.Players;
+using ChessBotCore.Search;
+using ConsoleInterface;
 
 
 internal class Program {
-    public static void Main(string[] args) {
-        var chessSingle = new DefaultChessWrapper();
-        var chessMulti = new ParallelChessWrapper();
-        // State state = State.FromFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"); 
-        // State state = State.FromFen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 "); 
-        State state = State.FromFen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"); 
-        int depth = 6; // I want 119,060,324 nodes without castles
-        // Console.WriteLine("single threaded");
-        // TryPerft(depth, chessSingle);
+    public static async Task Main(string[] args) {
         
-        Console.WriteLine("multi threaded");
-        PerftStats(depth, chessMulti, state);
+        // await 
+        // await OneMove();
+        await PlayGame();
+    }
 
+    public static async Task<ChessGame.GameResult> PlayGame() {
+        var whitePlayer = new ConsolePlayer();
+        var blackPlayer = new EnginePlayer();
+        var game = new ChessGame(whitePlayer, blackPlayer);
+        return await game.Play(0);
+    }
+    
+    public static async Task OneMove() {
+        State state = State.Initial;
+        var ai = new EnginePlayer();
+        
+        Timers timers = new();
+        var nextMove = ai.GetBestMove(state, timers);
+                
+        nextMove.Register(() =>
+            Console.WriteLine("Cancellation requested!"));
+
+        var command = Task.Run(Console.ReadLine);
+                
+        var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
+        
+     
+        if (nextMoveRequested == command) {
+            if (command.Result != null && command.Result.StartsWith("ok"))
+                nextMove.Cancel();
+        }
+        
+        var aiMoveResult = await nextMove.Result;
+
+        Console.WriteLine(aiMoveResult.BestMove);
+        
+    }
+    
+    public static async Task TryUCI() {
+        State state = State.Initial;
+        var negamaxer = new EnginePlayer();
+        while (true) {
+            try {
+                Timers timers = new();
+                var nextMove = negamaxer.GetBestMove(state, timers);
+                
+                nextMove.Register(() =>
+                    Console.WriteLine("Cancellation requested!"));
+
+                var command = Task.Run(Console.ReadLine);
+                
+                var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
+
+                if (nextMoveRequested == command) {
+                    if (command.Result != null && command.Result.StartsWith("ok"))
+                        nextMove.Cancel();
+                }
+                // command.WaitAsync()
+                var aiMoveResult = await nextMove.Result;
+                
+                
+                var aiMove = aiMoveResult.BestMove;
+                state.ApplyMove(aiMove);
+                Console.WriteLine("---------after AI----------");
+                Console.WriteLine(state.PrettyPrint());
+                Console.WriteLine("-------------------------------");
+
+                var playerMove = Move.Parse(Console.ReadLine());
+                state.ApplyMoveWithoutMetadata(playerMove);
+                Console.WriteLine("---------after player------");
+                Console.WriteLine(state.PrettyPrint());
+                Console.WriteLine("-------------------------------");
+            }
+            catch (Exception e) {
+                Console.WriteLine(e);
+            }
+
+        }
+        
+    }
+    
+    static void CompareMoveGeneration() {
         
         // DividePerft(State.Initial, 3, chessSingle);
 
@@ -26,8 +100,8 @@ internal class Program {
         // Console.WriteLine("parallel");
         // TryPerft(6, new ParallelChessWrapper().EvalPerft);
 
-    }
-
+    }    
+    
     static void DividePerft(State s, int depth, IChessWrapper chess) {
         var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
         

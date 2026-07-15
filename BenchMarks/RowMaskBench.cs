@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using ChessBotCore;
+using ChessBotCore.Board;
 
 namespace Benchmarks;
 
