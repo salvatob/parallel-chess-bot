@@ -9,17 +9,25 @@ using ConsoleInterface;
 
 internal class Program {
     public static async Task Main(string[] args) {
-
-        await OneMove();
         
+        // await 
+        // await OneMove();
+        await PlayGame();
     }
 
+    public static async Task<ChessGame.GameResult> PlayGame() {
+        var whitePlayer = new ConsolePlayer();
+        var blackPlayer = new EnginePlayer();
+        var game = new ChessGame(whitePlayer, blackPlayer);
+        return await game.Play(0);
+    }
+    
     public static async Task OneMove() {
         State state = State.Initial;
         var ai = new EnginePlayer();
         
         Timers timers = new();
-        var nextMove = ai.StartSearch(state, timers);
+        var nextMove = ai.GetBestMove(state, timers);
                 
         nextMove.Register(() =>
             Console.WriteLine("Cancellation requested!"));
@@ -46,7 +54,7 @@ internal class Program {
         while (true) {
             try {
                 Timers timers = new();
-                var nextMove = negamaxer.StartSearch(state, timers);
+                var nextMove = negamaxer.GetBestMove(state, timers);
                 
                 nextMove.Register(() =>
                     Console.WriteLine("Cancellation requested!"));
