@@ -7,13 +7,16 @@ namespace ConsoleInterface;
 
 public class ConsolePlayer : IPlayer {
     public SearchHandle GetBestMove(State state, Timers timers) {
-        
-        
         var cts = new CancellationTokenSource();
     
         // Start the input task on a background thread
         var command = Task.Run(() => GetCommand(state, timers));
     
+        Console.WriteLine("This is the current game state:");
+        Console.WriteLine(state.PrettyPrint());
+        Console.WriteLine("Enter a move in the Long algebraic format 'a2a4' or 'e6e8q':");
+        
+        
         // Use WaitAsync to link the task to the CancellationToken
         // This returns a new task that completes when 'command' finishes 
         // OR when 'cts.Token' is cancelled.
