@@ -3,6 +3,13 @@ using ChessBotCore.Players;
 namespace ChessBotCore;
 
 public interface IPlayer : IDisposable {
+    /// <summary>
+    /// Runs a task that returns a chess move from the current position.
+    /// </summary>
+    /// <param name="state">The state from which the player should move.</param>
+    /// <param name="timers">Information about time both players have to play.</param>
+    /// <throws> <see cref="MoveException"/> if there is a problem with the move retrieval.</throws>
+    /// <returns>A nonblocking move Result Handle.</returns>
     public SearchHandle GetBestMove(State state, Timers timers);
 }
 
