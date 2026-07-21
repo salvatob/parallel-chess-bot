@@ -2,7 +2,7 @@ using ChessBotCore.Players;
 
 namespace ChessBotCore;
 
-public interface IPlayer {
+public interface IPlayer : IDisposable {
     public SearchHandle GetBestMove(State state, Timers timers);
 }
 

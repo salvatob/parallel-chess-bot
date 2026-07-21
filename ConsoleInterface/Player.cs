@@ -41,4 +41,6 @@ public class ConsolePlayer : IPlayer {
             return false;
         }
     }
+    
+    public void Dispose() {} // its totally okay that its empty for now
 }

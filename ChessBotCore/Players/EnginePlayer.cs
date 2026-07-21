@@ -13,5 +13,6 @@ public class EnginePlayer : IPlayer {
 
         return new SearchHandle(cts, task);
     }
-
+    
+    public void Dispose() {} // its totally okay that its empty for now
 }
