@@ -38,7 +38,7 @@ public class ChessGame {
             Console.WriteLine($"Player {player.GetType().Name} turn");
             Console.WriteLine(_state.PrettyPrint());
             
-            var moveHandle = player.GetBestMove(_state, _timers);
+            var moveHandle = player.ChooseMoveAsync(_state, _timers);
            
             // TODO handle timers, add some stopwatches etc.
             

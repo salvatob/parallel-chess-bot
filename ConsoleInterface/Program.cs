@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using ChessBotCore;
 using ChessBotCore.ChessWrappers;
+using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
 using ChessBotCore.Players;
 using ChessBotCore.Search;
-using ConsoleInterface;
 
 
 internal class Program {
@@ -15,7 +15,7 @@ internal class Program {
         await PlayGame();
     }
 
-    public static async Task<ChessGame.GameResult> PlayGame() {
+    public static async Task<GameResult> PlayGame() {
         var whitePlayer = new ConsolePlayer();
         var blackPlayer = new EnginePlayer();
         var game = new ChessGame(whitePlayer, blackPlayer);
@@ -27,7 +27,7 @@ internal class Program {
         var ai = new EnginePlayer();
         
         Timers timers = new();
-        var nextMove = ai.GetBestMove(state, timers);
+        var nextMove = ai.ChooseMoveAsync(state, timers);
                 
         nextMove.Register(() =>
             Console.WriteLine("Cancellation requested!"));
@@ -58,7 +58,7 @@ internal class Program {
                     BaseBlackTime = TimeSpan.FromMinutes(5),
                     Increment = TimeSpan.FromSeconds(2)
                 };
-                var nextMove = negamaxer.GetBestMove(state, timers);
+                var nextMove = negamaxer.ChooseMoveAsync(state, timers);
                 
                 nextMove.Register(() =>
                     Console.WriteLine("Cancellation requested!"));

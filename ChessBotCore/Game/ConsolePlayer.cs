@@ -4,8 +4,7 @@ using ChessBotCore.Search;
 namespace ChessBotCore.Game;
 
 public class ConsolePlayer : IPlayer {
-    public SearchHandle GetBestMove(State state, Timers timers) {
-        
+    public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         
         var cts = new CancellationTokenSource();
     
@@ -40,5 +39,28 @@ public class ConsolePlayer : IPlayer {
         }
     }
     
-    public void Dispose() {} // its totally okay that its empty for now
+    public ValueTask DisposeAsync() {
+        return  ValueTask.CompletedTask;
+    }
+
+    public Task OnGameStartAsync(bool yourColor, State state) {
+        Console.WriteLine($"You are {(yourColor ? "white" : "black")}");
+        return Task.CompletedTask;
+    }
+    
+    public Task OnGameGameEndAsync(bool yourColor, GameResult result) {
+        if (result.Outcome == GameOutcome.Draw) {
+            Console.WriteLine("Game was a draw");
+            return Task.CompletedTask;
+        }
+        bool weWon = yourColor ^ (result.Outcome == GameOutcome.WhiteWin);
+        
+        var res = weWon switch {
+            true => "You won!!!",
+            false => "You lost!!!"
+        };
+
+        Console.WriteLine(res);
+        return Task.CompletedTask;
+    }
 }
