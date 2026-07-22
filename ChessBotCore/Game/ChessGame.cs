@@ -1,8 +1,13 @@
 using ChessBotCore.Players;
 
 namespace ChessBotCore.Game;
+public enum GameOutcome {
+    WhiteWin,
+    BlackWin,
+    Draw
+}
 
-
+public record GameResult(GameOutcome Outcome, List<Move> Moves);
 
 public class ChessGame {
     
@@ -24,15 +29,7 @@ public class ChessGame {
         return isWhite ? _whitePlayer : _blackPlayer;
     }
 
-    public record class GameResult(GameResult.GameOutcome Outcome, List<Move> Moves) {
-        public enum GameOutcome {
-            WhiteWin,
-            BlackWin,
-            Draw
-        }
-           
-        
-    }
+
     
     public async Task<GameResult> Play(int verbosity) {
         List<Move> moveList = new();
@@ -58,6 +55,6 @@ public class ChessGame {
             _state.ApplyMove(move);
         }
 
-        return new (GameResult.GameOutcome.Draw ,moveList);
+        return new (GameOutcome.Draw ,moveList);
     }
 }
