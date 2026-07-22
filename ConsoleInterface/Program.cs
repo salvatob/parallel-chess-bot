@@ -4,8 +4,8 @@ using ChessBotCore.ChessWrappers;
 using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
 using ChessBotCore.Players;
-using ChessBotCore.Search;
 
+namespace ConsoleInterface;
 
 internal class Program {
     public static async Task Main(string[] args) {
@@ -150,4 +150,3 @@ internal class Program {
         Console.WriteLine($"{mem/1000_000} MB of memory has been allocated during");
     }
 }
-
