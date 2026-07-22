@@ -1,9 +1,7 @@
-using ChessBotCore;
-using ChessBotCore.MoveGenerators;
 using ChessBotCore.Players;
 using ChessBotCore.Search;
 
-namespace ConsoleInterface;
+namespace ChessBotCore.Game;
 
 public class ConsolePlayer : IPlayer {
     public SearchHandle GetBestMove(State state, Timers timers) {

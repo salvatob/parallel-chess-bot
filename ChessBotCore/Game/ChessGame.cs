@@ -1,7 +1,6 @@
-using ChessBotCore;
 using ChessBotCore.Players;
 
-namespace ConsoleInterface;
+namespace ChessBotCore.Game;
 
 
 
