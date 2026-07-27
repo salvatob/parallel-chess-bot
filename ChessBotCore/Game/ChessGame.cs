@@ -25,6 +25,11 @@ public class ChessGame : IDisposable {
         _blackPlayer = blackPlayer;
     }
 
+    public ChessGame(IPlayer whitePlayer, IPlayer blackPlayer, Timers timers, State state) : this(whitePlayer, blackPlayer) {
+        _state = state;
+        _timers = timers;
+    }
+    
     private IPlayer ActivePlayer(bool isWhite) {
         return isWhite ? _whitePlayer : _blackPlayer;
     }
