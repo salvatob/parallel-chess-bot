@@ -3,7 +3,7 @@ using ChessBotCore.Players;
 
 namespace ChessBotCore;
 
-public interface IPlayer : IAsyncDisposable {
+public interface IPlayer : IDisposable {
     /// <summary>
     /// Runs a task that returns a chess move from the current position.
     /// </summary>

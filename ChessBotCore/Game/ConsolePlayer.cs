@@ -39,9 +39,7 @@ public class ConsolePlayer : IPlayer {
         }
     }
     
-    public ValueTask DisposeAsync() {
-        return  ValueTask.CompletedTask;
-    }
+    public void Dispose() { } // its totally okay this is empty
 
     public Task OnGameStartAsync(bool yourColor, State state) {
         Console.WriteLine($"You are {(yourColor ? "white" : "black")}");

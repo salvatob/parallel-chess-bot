@@ -22,9 +22,8 @@ public class EnginePlayer : IPlayer {
         return Task.CompletedTask;
     }
     
-    public ValueTask DisposeAsync() {
+    public void Dispose() {
         // its totally okay that its empty for now
         // in future, this could save the results into some kind of log file so I can inspect the games.
-        return ValueTask.CompletedTask;
     }
 }
