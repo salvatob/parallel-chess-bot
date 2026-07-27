@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
 using ChessBotCore.Players;
 

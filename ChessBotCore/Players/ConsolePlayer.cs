@@ -1,7 +1,7 @@
-using ChessBotCore.Players;
+using ChessBotCore.Game;
 using ChessBotCore.Search;
 
-namespace ChessBotCore.Game;
+namespace ChessBotCore.Players;
 
 public class ConsolePlayer : IPlayer {
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {

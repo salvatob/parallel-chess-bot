@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ChessBotCore.Players;
+namespace ChessBotCore.Game;
 
 public class Timers {
     private TimeSpan _baseWhiteTime = TimeSpan.FromMinutes(5);
