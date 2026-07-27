@@ -16,12 +16,22 @@ public class EnginePlayer : IPlayer {
     }
 
     public Task OnGameStartAsync(bool yourColor, State state) {
+        // This could probably be pretty nice later, we could fire up some lookup tables,
+        // or do similar work before the game starts
         return Task.CompletedTask;
     }
     public Task OnGameGameEndAsync(bool yourColor, GameResult result) {
         return Task.CompletedTask;
     }
-    
+
+    public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
+        return OnErrorNotifyAsync(error.Message, gameEnd);
+    }
+    public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd) {
+        // I don't see anything an engine should do on error. Possibly log it if I decide to add that
+        return Task.CompletedTask;
+    }
+
     public void Dispose() {
         // its totally okay that its empty for now
         // in future, this could save the results into some kind of log file so I can inspect the games.

@@ -61,4 +61,14 @@ public class ConsolePlayer : IPlayer {
         Console.WriteLine(res);
         return Task.CompletedTask;
     }
+
+    public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
+        return OnErrorNotifyAsync(error.Message, gameEnd);
+    }
+    public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd) {
+        Console.WriteLine("An error has occured:");
+        Console.WriteLine(errorMessage);
+        Console.WriteLine($"Game {(gameEnd ? "cannot" : "can")} continue.");
+        return Task.CompletedTask;
+    }
 }
