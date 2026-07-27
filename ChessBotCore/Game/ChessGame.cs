@@ -9,7 +9,7 @@ public enum GameOutcome {
 
 public record GameResult(GameOutcome Outcome, List<Move> Moves);
 
-public class ChessGame {
+public class ChessGame : IDisposable {
     
     private readonly IPlayer _blackPlayer;
     private readonly IPlayer _whitePlayer;
@@ -56,5 +56,10 @@ public class ChessGame {
         }
 
         return new (GameOutcome.Draw ,moveList);
+    }
+
+    public void Dispose() {
+        _blackPlayer.Dispose();
+        _whitePlayer.Dispose();
     }
 }
