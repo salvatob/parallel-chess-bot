@@ -30,6 +30,22 @@ public interface IPlayer : IDisposable {
     /// <param name="result"></param>
     /// <returns></returns>
     public Task OnGameGameEndAsync(bool yourColor, GameResult result);
+    
+    /// <summary>
+    /// Notify the player that an error has occured in the lifetime of the player, or the game. 
+    /// </summary>
+    /// <param name="error">The specific error that occured.</param>
+    /// <param name="gameEnd">True, it the error was so critical, that the game cannot continue.</param>
+    /// <returns></returns>
+    public Task OnErrorNotifyAsync(Exception error, bool gameEnd);
+
+    /// <summary>
+    /// Notify the player that an error has occured in the lifetime of the player, or the game. 
+    /// </summary>
+    /// <param name="errorMessage">The error message that occured.</param>
+    /// <param name="gameEnd">True, it the error was so critical, that the game cannot continue.</param>
+    /// <returns></returns>
+    public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd);
 }
 
 
