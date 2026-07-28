@@ -81,8 +81,8 @@ internal class Program {
                 Console.WriteLine(state.PrettyPrint());
                 Console.WriteLine("-------------------------------");
 
-                var playerMove = Move.Parse(Console.ReadLine());
-                state.ApplyMoveWithoutMetadata(playerMove);
+                var playerMove = MoveDTO.Parse(Console.ReadLine());
+                state.ApplyMove(playerMove);
                 Console.WriteLine("---------after player------");
                 Console.WriteLine(state.PrettyPrint());
                 Console.WriteLine("-------------------------------");

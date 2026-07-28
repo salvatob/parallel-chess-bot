@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ChessBotCore.Board;
+using ChessBotCore.MoveGenerators;
 using ChessBotCore.Parser;
 
 namespace ChessBotCore;
@@ -66,7 +67,33 @@ public readonly struct Move : IComparable<Move> {
     // ReSharper disable once InconsistentNaming
     public string PrintUCI() => $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
 
-    public static Move Parse(string move) {
+    public static Move FindFullMove(MoveDTO moveDto, State state) {
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
+        
+        // just try to find a move that matches the move passed in 
+        foreach (var m in moves) {
+            if (m.From == moveDto.From &&
+                m.To == moveDto.To &&
+                moveDto.Promotion switch {
+                    'q' => m.Flags.HasFlag(MoveFlags.PromoteToQueen),
+                    'r' => m.Flags.HasFlag(MoveFlags.PromoteToRook),
+                    'k' => m.Flags.HasFlag(MoveFlags.PromoteToKnight),
+                    'b' => m.Flags.HasFlag(MoveFlags.PromoteToBishop),
+                    _ => true
+                }
+               ) {
+                return m;
+            }
+        }
+        
+        throw new ArgumentException($"Invalid move <{moveDto}> has been passed to {nameof(FindFullMove)}().");
+        return new Move();
+    }
+}
+
+// ReSharper disable once InconsistentNaming
+public record MoveDTO(int From, int To, char Promotion) {
+    public static MoveDTO Parse(string move) {
         string moveRegex = "([a-h][1-8])([a-h][1-8])([qrbn]?)";
         var match = Regex.Match(move, moveRegex);
         
@@ -75,19 +102,11 @@ public readonly struct Move : IComparable<Move> {
         
         var fromS = match.Groups[1].Value;
         var toS = match.Groups[2].Value;
-        var promotionS = match.Groups[3].Value;
+        var promotionS = match.Groups[3].Value[0];
 
         var from = Coordinates.FromString(fromS).To1D();
         var to = Coordinates.FromString(toS).To1D();
-        var promotionFlag = promotionS switch {
-            "" => MoveFlags.None,
-            "q" => MoveFlags.PromoteToQueen,
-            "r" => MoveFlags.PromoteToRook,
-            "n" => MoveFlags.PromoteToKnight,
-            "b" => MoveFlags.PromoteToBishop,
-            _ => throw new UnreachableException($"Invalid promotion notation: <{promotionS}>")
-        };
-
-        return new Move(from, to, promotionFlag);
+        
+        return new MoveDTO(from, to, promotionS);
     }
 }

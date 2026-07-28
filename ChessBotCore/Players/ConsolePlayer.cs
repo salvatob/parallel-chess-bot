@@ -23,16 +23,19 @@ public class ConsolePlayer : IPlayer {
     private SearchResults GetCommand(State state, Timers timers) {
         var command = Console.ReadLine();
         if (command is null) throw new InvalidOperationException($"No command for the {nameof(ConsolePlayer)}.");
-        var move = Move.Parse(command);
+        
+        var moveDto = MoveDTO.Parse(command);
+        var move = Move.FindFullMove(moveDto, state);
+        
         return new SearchResults {
             BestMove = move
         };
     }
     
-    private bool ValidateMove(State state, Move move) {
+    private bool ValidateMove(State state, MoveDTO move) {
         var copy = state.Clone();
         try {
-            copy.ApplyMoveWithoutMetadata(move);
+            copy.ApplyMove(move);
             return true;
         } catch (ArgumentException) {
             return false;
