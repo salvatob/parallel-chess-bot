@@ -43,7 +43,7 @@ public class MinimaxEvaluator {
             BestMove = bestMove,
             Stats = searchContext.Stats
         };
-         // !Important! resetting the stats
+        
         return results;
     }
 
@@ -59,7 +59,7 @@ public class MinimaxEvaluator {
         public SearchStats Stats { get; private set; } = new();
 
         // TODO think of a way to keep it thread safe
-        public int Alpha { get; set; } = int.MinValue+1; // to prevent negation overflow
+        public int Alpha { get; set; } = int.MinValue + 1; // to prevent negation overflow
         public int Beta { get; set; } = int.MaxValue;
 
         public void IncrementNodeCount() {

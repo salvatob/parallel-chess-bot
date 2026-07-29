@@ -23,7 +23,6 @@ public class SearchHandle : IDisposable {
     }
     
     public void Dispose() {
-        // GC.SuppressFinalize(this);
         _cts.Dispose();
     }
     
