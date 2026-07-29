@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace ChessBotCore.Game;
 
 public class Timers {
-    private TimeSpan _baseWhiteTime = TimeSpan.FromMinutes(5);
-    private TimeSpan _baseBlackTime = TimeSpan.FromMinutes(5);
+    private readonly TimeSpan _baseWhiteTime = TimeSpan.FromMinutes(5);
+    private readonly TimeSpan _baseBlackTime = TimeSpan.FromMinutes(5);
 
     public required TimeSpan BaseWhiteTime {
         get => _baseWhiteTime;
@@ -22,14 +22,21 @@ public class Timers {
         }
     }
 
-    public TimeSpan WhiteTime { get; set; } = TimeSpan.FromMinutes(5);
-    public TimeSpan BlackTime { get; set; } = TimeSpan.FromMinutes(5);
-    public required TimeSpan Increment { get; init; } = TimeSpan.FromSeconds(2);
+    public TimeSpan WhiteTime { get; set; }
+    public TimeSpan BlackTime { get; set; }
+    public required TimeSpan Increment { get; init; }
 
     [SetsRequiredMembers]
-    public Timers() {
-    }
+    public Timers() {}
 
+    public static Timers Default => new Timers() {
+        BaseWhiteTime = TimeSpan.FromMinutes(5),
+        BaseBlackTime = TimeSpan.FromMinutes(5),
+        Increment = TimeSpan.FromSeconds(2)
+    };
     
     public TimeSpan ActiveTime(bool color) => color ? WhiteTime : BlackTime;
+    public long WhiteTimeMs => (long)WhiteTime.TotalMilliseconds;
+    public long BlackTimeMs => (long)BlackTime.TotalMilliseconds;
+    public long IncrementMs => (long)Increment.TotalMilliseconds;
 }
