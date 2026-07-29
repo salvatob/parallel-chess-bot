@@ -97,7 +97,6 @@ public class TestAgainstTestDatabase {
 
     private static IEnumerable<object[]> LoadTestCases() {
         string[] files = ["standard", "castling", "famous", "pawns", "promotions", "taxing"];
-        // string[] files = ["standard", "famous", "pawns", "promotions", "taxing"]; // TODO removed castling
         foreach (var fileName in files) {
             
             var path = AppContext.BaseDirectory + $@"/testcases\{fileName}.json";
