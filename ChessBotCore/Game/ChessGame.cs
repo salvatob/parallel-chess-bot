@@ -38,6 +38,10 @@ public class ChessGame : IDisposable {
     
     public async Task<GameResult> Play(int verbosity=0) {
         List<Move> moveList = new();
+        var wps = _whitePlayer.OnGameStartAsync(true, _state, _timers);
+        var bps = _blackPlayer.OnGameStartAsync(false, _state, _timers);
+        Task.WaitAll(wps, bps);
+
         while (!_state.IsTerminal()) {
             var player = ActivePlayer(_state.WhiteIsActive);
             Console.WriteLine($"Player {player.GetType().Name} turn");
@@ -59,8 +63,13 @@ public class ChessGame : IDisposable {
             moveList.Add(move);
             _state.ApplyMove(move);
         }
-
-        return new (GameOutcome.Draw ,moveList);
+        
+        var gameResult = new GameResult(GameOutcome.Draw ,moveList);
+        var wpe = _whitePlayer.OnGameGameEndAsync(true, gameResult);
+        var bpe = _blackPlayer.OnGameGameEndAsync(false, gameResult);
+        Task.WaitAll(wpe, bpe);
+        
+        return gameResult;
     }
 
     public void Dispose() {
