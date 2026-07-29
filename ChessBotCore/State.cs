@@ -6,6 +6,7 @@ using ChessBotCore.Parser;
 
 namespace ChessBotCore;
 
+
 /// <summary>
 /// Represents the different types and colors of chess pieces.
 /// </summary>
