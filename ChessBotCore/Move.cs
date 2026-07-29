@@ -92,7 +92,7 @@ public readonly struct Move : IComparable<Move> {
 }
 
 // ReSharper disable once InconsistentNaming
-public record MoveDTO(int From, int To, char Promotion) {
+public record MoveDTO(int From, int To, char? Promotion) {
     public static MoveDTO Parse(string move) {
         string moveRegex = "([a-h][1-8])([a-h][1-8])([qrbn]?)";
         var match = Regex.Match(move, moveRegex);
