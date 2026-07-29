@@ -7,7 +7,9 @@ public class ConsolePlayer : IPlayer {
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         
         var cts = new CancellationTokenSource();
-    
+
+        Console.WriteLine($"You are {(state.WhiteIsActive ? "white" : "black")}");
+        Console.WriteLine($"You have {timers.ActiveTime(state.WhiteIsActive)} time");
         // Start the input task on a background thread
         var command = Task.Run(() => GetCommand(state, timers));
     
@@ -17,7 +19,6 @@ public class ConsolePlayer : IPlayer {
         Task<SearchResults> cancellableTask = command.WaitAsync(cts.Token);
                 
         return new SearchHandle(cts, cancellableTask);
-        
     }
 
     private SearchResults GetCommand(State state, Timers timers) {
