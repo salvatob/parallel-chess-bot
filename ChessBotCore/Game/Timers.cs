@@ -52,20 +52,11 @@ public class Timers {
     /// <param name="white">True means the player is white.</param>
     /// <returns>If the new value is negative, ie the player has lost on time.</returns>
     public bool UpdateTimer(TimeSpan elapsedTime, bool white) {
-
-        if (white) {
-            _whiteTime = _whiteTime - elapsedTime + Increment; 
-        }
-        else {
-            _blackTime = _blackTime - elapsedTime + Increment;
-        }
-
+        ref TimeSpan activeTime = ref ActiveTime(white);
+        activeTime -= elapsedTime;
+        if (activeTime < TimeSpan.Zero) return false;
+        activeTime += Increment;
         return true;
-        // ref TimeSpan activeTime = ref ActiveTime(white);
-        // activeTime -= elapsedTime;
-        // if (activeTime < TimeSpan.Zero) return false;
-        // activeTime += Increment;
-        // return true;
     }
     
     /// <summary>
