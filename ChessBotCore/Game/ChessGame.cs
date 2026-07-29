@@ -44,6 +44,8 @@ public class ChessGame : IDisposable {
 
         while (!_state.IsTerminal()) {
             var player = ActivePlayer(_state.WhiteIsActive);
+            Console.WriteLine($"Player {player.GetType().Name} turn");
+            Console.WriteLine(_state.PrettyPrint());
             
             var moveHandle = player.ChooseMoveAsync(_state, _timers);
            
@@ -53,6 +55,10 @@ public class ChessGame : IDisposable {
 
 
             var move = searchResult.BestMove;
+            
+            Console.WriteLine($"Player {player.GetType().Name} made move {move.PrintUCI()}");
+            Console.WriteLine();
+            Console.WriteLine();
             
             moveList.Add(move);
             _state.ApplyMove(move);
