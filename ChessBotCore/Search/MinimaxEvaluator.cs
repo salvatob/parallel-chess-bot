@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
@@ -13,9 +14,14 @@ public class SearchStats {
 }
 
 public struct SearchResults {
-    public Move BestMove;
+    public required Move BestMove;
     public Move? PrincipalVariation;
     public SearchStats? Stats;
+
+    [SetsRequiredMembers]
+    public SearchResults(Move bestMove) {
+        BestMove = bestMove;
+    }
     
     public override string ToString() {
         if (Stats is null) return BestMove.ToString();
