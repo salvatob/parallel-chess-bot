@@ -102,7 +102,8 @@ public record MoveDTO(int From, int To, char? Promotion) {
         
         var fromS = match.Groups[1].Value;
         var toS = match.Groups[2].Value;
-        var promotionS = match.Groups[3].Value[0];
+        
+        char? promotionS = match.Groups[3].Length > 0 ? match.Groups[3].Value[0] : null;
 
         var from = Coordinates.FromString(fromS).To1D();
         var to = Coordinates.FromString(toS).To1D();
