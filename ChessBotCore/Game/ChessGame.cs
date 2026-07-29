@@ -36,7 +36,7 @@ public class ChessGame : IDisposable {
 
 
     
-    public async Task<GameResult> Play(int verbosity) {
+    public async Task<GameResult> Play(int verbosity=0) {
         List<Move> moveList = new();
         while (!_state.IsTerminal()) {
             var player = ActivePlayer(_state.WhiteIsActive);
