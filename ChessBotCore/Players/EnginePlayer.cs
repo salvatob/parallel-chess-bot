@@ -15,7 +15,7 @@ public class EnginePlayer : IPlayer {
         return new SearchHandle(cts, task);
     }
 
-    public Task OnGameStartAsync(bool yourColor, State state) {
+    public Task OnGameStartAsync(bool yourColor, State state, Timers timers) {
         // This could probably be pretty nice later, we could fire up some lookup tables,
         // or do similar work before the game starts
         return Task.CompletedTask;
