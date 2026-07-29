@@ -3,7 +3,7 @@ using ChessBotCore.Board;
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
 public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
-    private static Direction[] MoveDirections = [
+    private static readonly Direction[] MoveDirections = [
         Direction.N,
         Direction.S,
         Direction.E,
@@ -13,30 +13,30 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
         Direction.SE,
         Direction.SW
     ];
-    
+
+
+    private KingMoveGenerator() { }
+
     protected override Pieces WhitePiece => Pieces.WhiteKing;
     protected override Pieces BlackPiece => Pieces.BlackKing;
-
-
-    private KingMoveGenerator(){}
     public static IMoveGenerator Instance => new KingMoveGenerator();
-    
+
     public override void GenerateMoves(State state, List<Move> buffer) {
         var king = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
         var allyPieces = state.GetActivePieces();
         foreach (var dir in MoveDirections) {
             var beforeCollision = king.MovePieces(dir);
-            var movedKing = beforeCollision & (~allyPieces);
+            var movedKing = beforeCollision & ~allyPieces;
 
-            
+
             Direction oppositeDir = BitBoardHelpers.OppositeDir(dir);
             // foreach moved king
             while (movedKing.RawBits != 0) {
                 // select one new king position
                 int currMoved = movedKing.TrailingZeroCount();
-                
+
                 Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
-                
+
                 Bitboard maskBefore = currMoveMask.MovePieces(oppositeDir);
 
                 // according to old and new positions create the new State 
@@ -81,7 +81,8 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
             if (!kingSide && !state.WhiteCastleQueenSide) return false;
             if ((state.WhiteKing & BitBoardHelpers.OneBitMask(kingFrom)).IsEmpty()) return false;
             if ((state.WhiteRooks & BitBoardHelpers.OneBitMask(rookFrom)).IsEmpty()) return false;
-        } else {
+        }
+        else {
             if (kingSide && !state.BlackCastleKingSide) return false;
             if (!kingSide && !state.BlackCastleQueenSide) return false;
             if ((state.BlackKing & BitBoardHelpers.OneBitMask(kingFrom)).IsEmpty()) return false;

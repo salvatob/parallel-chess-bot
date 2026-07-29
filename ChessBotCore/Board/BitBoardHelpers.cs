@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 namespace ChessBotCore.Board;
 
 /// <summary>
-/// Includes several static methods for the <see cref="Bitboard"/> struct.
-/// All methods outside ChessBotCore assembly should be exposed through the that structure.
+///     Includes several static methods for the <see cref="Bitboard" /> struct.
+///     All methods outside ChessBotCore assembly should be exposed through the that structure.
 /// </summary>
 internal static class BitBoardHelpers {
     
@@ -13,24 +13,24 @@ internal static class BitBoardHelpers {
     public static Bitboard OneBitMask(int index) {
         return 1UL << index;
     }
-    
+
     public static Bitboard OneBitMask(Coordinates coords) {
         return 1UL << coords.To1D();
     }
 
     /// <summary>
-    /// Print Bitboard in a board representation. Used mainly for debugging.
+    ///     Print Bitboard in a board representation. Used mainly for debugging.
     /// </summary>
     /// <param name="mask">The Bitboard to print</param>
     /// <param name="splitRows">If true, each row has a space in the middle</param>
     /// <returns>The string representation</returns>
-    public static string PrintUlong(Bitboard mask, bool splitRows=false) {
+    public static string PrintUlong(Bitboard mask, bool splitRows = false) {
         long bitsAsLong = (long)mask.RawBits;
-        string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
+        string whole = Convert.ToString(bitsAsLong, 2).PadLeft(64, '0');
         string[] parts = new string[8];
         for (int i = 0; i < 8; i++) {
-            string row = whole[(i*8)..((i+1)*8)];
-            if (splitRows) 
+            string row = whole[(i * 8)..((i + 1) * 8)];
+            if (splitRows)
                 row = row.Insert(4, " ");
             parts[i] = row;
         }
@@ -39,8 +39,8 @@ internal static class BitBoardHelpers {
     }
 
     /// <summary>
-    /// Parses a string representation of a bitboard. All characters apart from {'0', '1'} are ignored.
-    /// Must contain exactly 64 of these binary digits.
+    ///     Parses a string representation of a bitboard. All characters apart from {'0', '1'} are ignored.
+    ///     Must contain exactly 64 of these binary digits.
     /// </summary>
     /// <param name="bitBoard">The string of the bitboard</param>
     /// <returns>A Ulong representation of the parsed bitboard.</returns>
@@ -50,15 +50,14 @@ internal static class BitBoardHelpers {
         var chars = bitBoard.Where(c => c is '0' or '1').ToArray();
         if (chars.Length != 64)
             throw new ArgumentException($"The {nameof(bitBoard)} string needs to contain exactly 64 binary digits");
-        for (int i = 0; i < 64; i++) {
-            if (chars[63-i] == '1')
+        for (int i = 0; i < 64; i++)
+            if (chars[63 - i] == '1')
                 board |= OneBitMask(i);
-        }
 
         return board;
     }
-    
-    
+
+
     /// <summary>
     ///     For a Bitboard 64-bit mask with only one bit true, this method returns its coordinates.
     /// </summary>
@@ -71,7 +70,7 @@ internal static class BitBoardHelpers {
     }
 
     /// <summary>
-    /// Determines, if the Bitboard has exactly one bit set to true.
+    ///     Determines, if the Bitboard has exactly one bit set to true.
     /// </summary>
     /// <param name="x">The Bitboard to determine</param>
     /// <returns>True, if it has one bit</returns>
@@ -93,21 +92,21 @@ internal static class BitBoardHelpers {
             Direction.S => bits >> 8,
             Direction.E => (bits >> 1) & withoutLeftCol,
             Direction.W => (bits << 1) & withoutRightCol,
-            
+
             Direction.NE => (bits << 7) & withoutLeftCol,
             Direction.NW => (bits << 9) & withoutRightCol,
             Direction.SE => (bits >> 9) & withoutLeftCol,
             Direction.SW => (bits >> 7) & withoutRightCol,
-            
-            Direction.NNE =>  (bits << 15) & withoutLeftCol,
-            Direction.NEE =>  (bits <<  6) & withoutTwoLeftCols,
-            Direction.SEE =>  (bits >> 10) & withoutTwoLeftCols,
-            Direction.SSE =>  (bits >> 17) & withoutLeftCol,
-            Direction.NNW =>  (bits << 17) & withoutRightCol,
-            Direction.NWW =>  (bits << 10) & withoutTwoRightCols,
-            Direction.SWW =>  (bits >> 6 ) & withoutTwoRightCols,
-            Direction.SSW =>  (bits >> 15) & withoutRightCol,
-              
+
+            Direction.NNE => (bits << 15) & withoutLeftCol,
+            Direction.NEE => (bits << 6) & withoutTwoLeftCols,
+            Direction.SEE => (bits >> 10) & withoutTwoLeftCols,
+            Direction.SSE => (bits >> 17) & withoutLeftCol,
+            Direction.NNW => (bits << 17) & withoutRightCol,
+            Direction.NWW => (bits << 10) & withoutTwoRightCols,
+            Direction.SWW => (bits >> 6) & withoutTwoRightCols,
+            Direction.SSW => (bits >> 15) & withoutRightCol,
+
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
@@ -116,13 +115,12 @@ internal static class BitBoardHelpers {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(distance, 0);
         Bitboard buffer = bits;
         for (int i = 0; i < distance; i++) {
-            // buffer = BitBoardHelpers.Move(buffer, dir);
             buffer = buffer.MovePieces(dir);
         }
 
         return buffer;
     }
-    
+
     public static Direction OppositeDir(Direction dir) {
         return dir switch {
             Direction.N => Direction.S,
@@ -133,7 +131,7 @@ internal static class BitBoardHelpers {
             Direction.NW => Direction.SE,
             Direction.SE => Direction.NW,
             Direction.SW => Direction.NE,
-            
+
             Direction.SSW => Direction.NNE,
             Direction.SWW => Direction.NEE,
             Direction.NWW => Direction.SEE,
@@ -147,12 +145,9 @@ internal static class BitBoardHelpers {
     }
 }
 
-
-
 public enum Direction {
     N, S, W, E,
     NE, NW, SE, SW,
     NNE, NEE, NNW, NWW,
     SSE, SEE, SSW, SWW
 }
-

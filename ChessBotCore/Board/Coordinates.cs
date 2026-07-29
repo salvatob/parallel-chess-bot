@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace ChessBotCore.Board;
 
 /// <summary>
-/// Basic implementation of my board coordinates system.
-/// a1 (bottom left) cell is at [0,0].
-/// b1 (right of it) cell is at [0,1].
+///     Basic implementation of my board coordinates system.
+///     a1 (bottom left) cell is at [0,0].
+///     b1 (right of it) cell is at [0,1].
 /// </summary>
 public readonly struct Coordinates {
     public required int Row { get; init; }
@@ -17,7 +17,7 @@ public readonly struct Coordinates {
         Row = row;
         Col = col;
     }
-    
+
     public override string ToString() {
         Debug.Assert(Row is >= 0 and < 8, $"{nameof(Coordinates)}.{nameof(Row)} is outside bounds [0-7]");
         Debug.Assert(Col is >= 0 and < 8, $"{nameof(Coordinates)}.{nameof(Col)} is outside bounds [0-7]");
@@ -27,7 +27,7 @@ public readonly struct Coordinates {
 
     public static Coordinates FromString(string square) {
         if (square.Length != 2) throw new Exception("square notation not parsed: str.length != 2");
-        char c1 = char.ToLower(square[0]);
+        var c1 = char.ToLower(square[0]);
         char c2 = square[1];
         if (!char.IsLetter(c1) || c2 > 'h')
             throw new ArgumentException("square notation not parsed: " +
@@ -52,9 +52,9 @@ public readonly struct Coordinates {
     public static Coordinates FromMask(Bitboard mask) {
         return From1D(mask.TrailingZeroCount());
     }
-    
+
     public static Coordinates From1D(int coordinate) {
-        return new() {
+        return new Coordinates {
             Row = coordinate / 8,
             Col = 7 - coordinate % 8
         };

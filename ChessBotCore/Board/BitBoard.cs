@@ -1,11 +1,10 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace ChessBotCore.Board;
 
-
-// thought of fully by me, written partially by chatGPT
 [DebuggerDisplay("{DebugPrint(),nq}")]
 // [DebuggerDisplay("{PrettyPrint(),nq}")]
 public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboard, Bitboard, Bitboard> {
@@ -31,12 +30,12 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard FromCoords(Coordinates coords) {
-        ulong bits = 1UL << (7 - coords.Col + 8* coords.Row);
+        ulong bits = 1UL << (7 - coords.Col + 8 * coords.Row);
         return new Bitboard(bits);
     }
 
-    public static Bitboard Empty => new Bitboard();
-    
+    public static Bitboard Empty => new();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard operator |(Bitboard a, Bitboard b)
         => new Bitboard(a._bits | b._bits);
@@ -47,11 +46,11 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard operator &(Bitboard a, Bitboard b)
-        => new Bitboard(a._bits & b._bits);
+        => new(a._bits & b._bits);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard operator ~(Bitboard b)
-        => new Bitboard(~b._bits);
+        => new(~b._bits);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard operator <<(Bitboard b, int dist)
@@ -82,31 +81,30 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
         => _bits.GetHashCode();
     
     public string PrettyPrint() {
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         sb.AppendLine();
         sb.AppendLine("  a b c d e f g h");
-        for (int rank = 7; rank >= 0; rank--)
-        {
+        for (int rank = 7; rank >= 0; rank--) {
             sb.Append(rank + 1).Append(' ');
-            for (int file = 7; file >=0; file--)
-            {
+            for (int file = 7; file >= 0; file--) {
                 int sq = rank * 8 + file;
-                bool set = ((_bits >> sq) & 1UL) != 0;
+                bool set = ((RawBits >> sq) & 1UL) != 0;
                 sb.Append(set ? '■' : '-').Append(' ');
-                // sb.Append(set ? '■' : '·').Append(' ');
             }
+            
             sb.AppendLine();
         }
+
         return sb.ToString();
     }
-    
-    public  string Print(bool splitRows=false) {
-        long bitsAsLong = (long)RawBits;
-        string whole = Convert.ToString(bitsAsLong,2).PadLeft(64, '0');
-        string[] parts = new string[8];
-        for (int i = 0; i < 8; i++) {
-            string row = whole[(i*8)..((i+1)*8)];
-            if (splitRows) 
+
+    public string Print(bool splitRows = false) {
+        var bitsAsLong = (long)RawBits;
+        var whole = Convert.ToString(bitsAsLong, 2).PadLeft(64, '0');
+        var parts = new string[8];
+        for (var i = 0; i < 8; i++) {
+            var row = whole[(i * 8)..((i + 1) * 8)];
+            if (splitRows)
                 row = row.Insert(4, " ");
             parts[i] = row;
         }
@@ -114,9 +112,10 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
         return string.Join(Environment.NewLine, parts);
     }
 
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Bitboard MovePieces(Direction dir) => BitBoardHelpers.Move(this, dir);
+    
     public static Bitboard Parse(string bitboard) => BitBoardHelpers.ParseBoard(bitboard);
 
     public string DebugPrint() {
@@ -125,14 +124,14 @@ public readonly struct Bitboard : IEquatable<Bitboard>, IBitwiseOperators<Bitboa
             var coords = Coordinates.From1D(TrailingZeroCount());
             return $"one bit on {coords.ToString()}.";
         }
-        
+
         if (PopCount() == 63) {
             var negative = ~this;
             var coords = Coordinates.From1D(negative.TrailingZeroCount());
             return $"Negative mask of {coords.ToString()}.";
         }
         
-        return "0x"+_bits.ToString("X");
+        return "0x" + _bits.ToString("X");
     }
 
     public override string ToString() {

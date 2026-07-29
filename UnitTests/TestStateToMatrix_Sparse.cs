@@ -7,8 +7,9 @@ namespace TestProject1;
 /// </summary>
 public class TestStateToMatrix_Sparse {
     private static string WhiteQueenA1FenPrefix = "8/8/8/8/8/8/8/Q7";
+
     // private static State WhiteQueenA1State = State.Empty with { WhiteQueens = 0b1000_0000 };
-    private static Dictionary<(int row, int col), char> AllBoardWhiteQueens = [];
+    private static readonly Dictionary<(int row, int col), char> AllBoardWhiteQueens = [];
 
     static TestStateToMatrix_Sparse() {
         for (int i = 0; i < 8; i++) {
@@ -18,21 +19,11 @@ public class TestStateToMatrix_Sparse {
         }
     }
 
-    
-    public class StateToMatrixDataType {
-        public string? Name { get; init; }
-        public required State State { get; init; }
-        public required Dictionary<(int row, int col), char> MatrixCreatorDict { get; init; }
-        public override string ToString() {
-            return Name ?? "xddx";
-        }
-    }
-    
     public static IEnumerable<object[]> StateToMatrix_Data => new[] {
         new StateToMatrixDataType {
             Name = "WhiteQueenA1",
             State = new State(State.Empty) { WhiteQueens = 0b1000_0000 },
-            MatrixCreatorDict = new() {[(0,0)] = 'Q'}
+            MatrixCreatorDict = new Dictionary<(int row, int col), char> { [(0, 0)] = 'Q' }
         },
 
         new StateToMatrixDataType {
@@ -52,9 +43,9 @@ public class TestStateToMatrix_Sparse {
                 [(4, 4)] = 'r'
             }
         }
-    }.Select(i=> new object[] {i});
-    
-    
+    }.Select(i => new object[] { i });
+
+
     [Theory]
     [MemberData(nameof(StateToMatrix_Data))]
     public void StateToMatrix_SparseBoard(StateToMatrixDataType data) {
@@ -72,5 +63,16 @@ public class TestStateToMatrix_Sparse {
 
         //assert
         Assert.Equal(expected, flat);
+    }
+
+
+    public class StateToMatrixDataType {
+        public string? Name { get; init; }
+        public required State State { get; init; }
+        public required Dictionary<(int row, int col), char> MatrixCreatorDict { get; init; }
+
+        public override string ToString() {
+            return Name ?? "xddx";
+        }
     }
 }

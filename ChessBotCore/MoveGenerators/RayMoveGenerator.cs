@@ -3,14 +3,12 @@ using ChessBotCore.Board;
 namespace ChessBotCore.MoveGenerators;
 
 /// <summary>
-/// Implements most of the logic fom move generation of ray pieces (bishop, rook, queen)
+///     Implements most of the logic fom move generation of ray pieces (bishop, rook, queen)
 /// </summary>
 public abstract class RayMoveGenerator : MoveGeneratorBase {
-
-    
     protected abstract Direction[] RayDirections { get; }
 
-    
+
     public override void GenerateMoves(State state, List<Move> buffer) {
         Bitboard rayPiece = state.GetPieces(state.WhiteIsActive ? WhitePiece : BlackPiece);
         Bitboard allyPieces = state.GetActivePieces();
@@ -24,31 +22,28 @@ public abstract class RayMoveGenerator : MoveGeneratorBase {
             // send all pieces as rays as far as possible
             while (!moveMask.IsEmpty()) {
                 distance++;
-                
+
                 // delete collisions with enemy pieces
-                var withoutCollisions = moveMask & ( ~allyPieces);
+                var withoutCollisions = moveMask & (~allyPieces);
                 var currentMoveCopy = withoutCollisions;
                 // split each moved piece into its own move
                 while (!currentMoveCopy.IsEmpty()) {
                     var currMoved = currentMoveCopy.TrailingZeroCount();
-                    
+
                     Bitboard currMoveMask = BitBoardHelpers.OneBitMask(currMoved);
-                
+
                     Bitboard maskBefore = BitBoardHelpers.Move(currMoveMask, oppositeDir, distance);
-                
+
                     // according to old and new positions create the new State 
-                    buffer.Add(CreateMove(maskBefore, currMoveMask, state));                
+                    buffer.Add(CreateMove(maskBefore, currMoveMask, state));
 
                     currentMoveCopy &= ~currMoveMask;
                 }
 
                 // collisions with enemy pieces are legal, however the ray should there, so I delete such pieces
-                var withoutCaptures = withoutCollisions & (~enemyPieces);
+                var withoutCaptures = withoutCollisions & ~enemyPieces;
                 moveMask = BitBoardHelpers.Move(withoutCaptures, dir);
             }
-            
         }
-
     }
-
 }

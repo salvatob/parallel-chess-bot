@@ -1,4 +1,3 @@
-using ChessBotCore;
 using ChessBotCore.Board;
 using FluentAssertions;
 using Xunit.Abstractions;
@@ -234,10 +233,9 @@ public class MovingPieces {
             0000 0010
             0000 0010
             """
-        ], 
-
+        ]
     };
-    
+
     [Theory]
     [MemberData(nameof(MovePieces_Data))]
     public void MovePiecesInBitboard(Direction dir, string before, string after) {
@@ -250,12 +248,12 @@ public class MovingPieces {
 
         var movedBoard = beforeBoard.MovePieces(dir);
         //assert
-        
+
         _testOutputHelper.WriteLine("expected");
         _testOutputHelper.WriteLine(expected.PrettyPrint());
         _testOutputHelper.WriteLine("movedBoard");
         _testOutputHelper.WriteLine(movedBoard.PrettyPrint());
-        
+
         movedBoard.Should().BeEquivalentTo(expected);
     }
 }

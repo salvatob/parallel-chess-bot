@@ -4,7 +4,6 @@ using BenchmarkDotNet.Attributes;
 namespace Benchmarks;
 
 public class BitOperationMethods {
-
     private List<ulong> _randomData = null!;
 
     [GlobalSetup]
@@ -21,8 +20,8 @@ public class BitOperationMethods {
     public static ulong ReturnNewUlong(ulong bits) {
         return bits << 9;
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]    
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ChangeExistingUlong(ref ulong bits) {
         bits <<= 9;
     }

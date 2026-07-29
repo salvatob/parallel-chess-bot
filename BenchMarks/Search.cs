@@ -13,27 +13,26 @@ public class SearchConfig : ManualConfig {
 
 [Config(typeof(SearchConfig))]
 public class Search {
+    private readonly ParallelMinimaxer minimaxer = new();
+    private MinimaxEvaluator.SearchContext _context;
 
-    private ParallelMinimaxer minimaxer = new();
+
+    [Params(6)] public int Depth;
+
     private MinimaxEvaluator negamaxer;
 
-
-    [Params(6)] 
-    public int Depth;
-
-    public IEnumerable<State> states => new List<State> { State.Initial };
-    
     [ParamsSource(nameof(states))]
     public State state;
-    private MinimaxEvaluator.SearchContext _context;
-    
+
+    public IEnumerable<State> states => new List<State> { State.Initial };
+
     // private var parameters = (State.Initial, depth);
-    
+
     [Benchmark(Baseline = true)]
     public int SimpleMinimax() {
         return minimaxer.Minimax(state, Depth);
     }
-    
+
     [Benchmark]
     public int SimpleNegamax() {
         return negamaxer.Negamax(state, Depth);
@@ -41,11 +40,11 @@ public class Search {
 
     [Benchmark]
     public int ABNegamax() {
-        return negamaxer.ABNegamax(state, Depth, int.MinValue+2, int.MaxValue-2);
+        return negamaxer.ABNegamax(state, Depth, int.MinValue + 1, int.MaxValue);
     }
-    
+
     [Benchmark]
     public int SmartABNegamax() {
-        return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue+2, int.MaxValue-2);
+        return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue + 1, int.MaxValue);
     }
 }

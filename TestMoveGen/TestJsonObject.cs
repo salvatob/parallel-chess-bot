@@ -1,4 +1,5 @@
 namespace TestMoveGen;
+
 public class RootObject {
     public string Description { get; set; }
     public TestCases[] TestCases { get; set; }
@@ -14,8 +15,8 @@ public class TestCases {
 
 public class Start {
     public string Description { get; set; }
+
     public string Fen { get; set; }
-    // public override string ToString() => Description;
 }
 
 public class Expected {

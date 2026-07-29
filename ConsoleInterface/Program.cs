@@ -9,7 +9,6 @@ namespace ConsoleInterface;
 
 internal class Program {
     public static async Task Main(string[] args) {
-        
         // await 
         // await OneMove();
         await PlayGame();
@@ -23,37 +22,35 @@ internal class Program {
         var game = new ChessGame(whitePlayer, blackPlayer);
         return await game.Play(1);
     }
-    
+
     public static async Task OneMove() {
-        State state = State.Initial;
+        var state = State.Initial;
         var ai = new EnginePlayer();
-        
+
         Timers timers = new();
         var nextMove = ai.ChooseMoveAsync(state, timers);
-                
+
         nextMove.Register(() =>
             Console.WriteLine("Cancellation requested!"));
 
         var command = Task.Run(Console.ReadLine);
-                
+
         var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
-        
-     
-        if (nextMoveRequested == command) {
+
+
+        if (nextMoveRequested == command)
             if (command.Result != null && command.Result.StartsWith("ok"))
                 nextMove.Cancel();
-        }
-        
+
         var aiMoveResult = await nextMove.Result;
 
         Console.WriteLine(aiMoveResult.BestMove);
-        
     }
-    
+
     public static async Task TryUCI() {
-        State state = State.Initial;
+        var state = State.Initial;
         var negamaxer = new EnginePlayer();
-        while (true) {
+        while (true)
             try {
                 Timers timers = new() {
                     BaseWhiteTime = TimeSpan.FromMinutes(5),
@@ -61,22 +58,22 @@ internal class Program {
                     Increment = TimeSpan.FromSeconds(2)
                 };
                 var nextMove = negamaxer.ChooseMoveAsync(state, timers);
-                
+
                 nextMove.Register(() =>
                     Console.WriteLine("Cancellation requested!"));
 
                 var command = Task.Run(Console.ReadLine);
-                
+
                 var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
 
-                if (nextMoveRequested == command) {
+                if (nextMoveRequested == command)
                     if (command.Result != null && command.Result.StartsWith("ok"))
                         nextMove.Cancel();
-                }
+
                 // command.WaitAsync()
                 var aiMoveResult = await nextMove.Result;
-                
-                
+
+
                 var aiMove = aiMoveResult.BestMove;
                 state.ApplyMove(aiMove);
                 Console.WriteLine("---------after AI----------");
@@ -92,46 +89,39 @@ internal class Program {
             catch (Exception e) {
                 Console.WriteLine(e);
             }
-
-        }
-        
     }
-    
-    static void CompareMoveGeneration() {
-        
+
+    private static void CompareMoveGeneration() {
         // DividePerft(State.Initial, 3, chessSingle);
 
         // Console.WriteLine("normal");
         // TryPerft(6, new DefaultChessWrapper().EvalPerft);
         // Console.WriteLine("parallel");
         // TryPerft(6, new ParallelChessWrapper().EvalPerft);
+    }
 
-    }    
-    
-    static void DividePerft(State s, int depth, IChessWrapper chess) {
+    private static void DividePerft(State s, int depth, IChessWrapper chess) {
         var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
-        
+
         var moveCounts = new Dictionary<string, long>();
         moveCounts["unmarked"] = 0;
-        
+
         foreach (var m in moves) {
             var nextState = s.Clone();
             nextState.ApplyMove(m);
-            long nodes = chess.Perft(nextState, depth - 1);
+            var nodes = chess.Perft(nextState, depth - 1);
             var key = Move.TryGetNotation(s, nextState);
             if (key is null) moveCounts["unmarked"] += nodes;
             else moveCounts[key] = nodes;
         }
 
-        
-        foreach (var m in moveCounts.Keys.Order()) {
-            Console.WriteLine($"{m}: {moveCounts[m]}");
-        }
+
+        foreach (var m in moveCounts.Keys.Order()) Console.WriteLine($"{m}: {moveCounts[m]}");
 
         Console.WriteLine($"Nodes searched: {moveCounts.Values.Sum()}");
     }
-    
-    static void PerftStats(int depth, IChessWrapper chess, State? state=null) {
+
+    private static void PerftStats(int depth, IChessWrapper chess, State? state = null) {
         state ??= State.Initial;
         GC.Collect();
         GC.WaitForPendingFinalizers();

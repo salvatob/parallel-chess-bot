@@ -3,36 +3,36 @@ using ChessBotCore.Board;
 namespace ChessBotCore.Search;
 
 public static class Evaluator {
-
     public static bool IsTerminal(State state) {
         return state.WhiteKing.IsEmpty() ||
                state.BlackKing.IsEmpty();
     }
+
     public static int Evaluate(State s) {
         // short circuit whole evaluation, because no king means loss
         // returns short, because it is enough to always be larger than normal value,
         // and avoids some overflowing further
         if (s.WhiteKing.IsEmpty()) return short.MinValue;
         if (s.BlackKing.IsEmpty()) return short.MaxValue;
-        
-        if (s.HalfMovesSincePawnMoveOrCapture>= 50) return 0;
-        
+
+        if (s.HalfMovesSincePawnMoveOrCapture >= 50) return 0;
+
         int val = 0;
         val += EvalPawns(s);
         val += EvalRooks(s);
         val += EvalQueens(s);
         val += EvalKnights(s);
         val += EvalBishops(s);
-        
+
         return val;
     }
 
-    
+
     private static int EvalPawns(State s) {
         int val = 0;
         const int valPerPawn = 40;
         const int valPerRow = 10;
-        
+
         for (int i = 0; i < 8; i++) {
             int rowCount = (s.WhitePawns & BitMask.Row[i]).PopCount();
             val += rowCount * (valPerRow * i + valPerPawn);
@@ -69,7 +69,7 @@ public static class Evaluator {
         val -= s.BlackRooks.PopCount() * valPerRook;
         return val;
     }
-    
+
     private static int EvalQueens(State s) {
         const int valPerQueen = 900;
         int val = 0;

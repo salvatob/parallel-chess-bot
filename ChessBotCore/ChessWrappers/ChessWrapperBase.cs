@@ -9,9 +9,9 @@ public abstract class ChessWrapperBase : IChessWrapper {
         Writer = writer;
     }
 
-    public ChessWrapperBase() : this(Console.Out) {}
+    public ChessWrapperBase() : this(Console.Out) { }
 
-    public abstract long Perft(State state, int depth) ;
-    public abstract long EvalPerft(State state, int depth) ;
+    public abstract long Perft(State state, int depth);
+    public abstract long EvalPerft(State state, int depth);
     public abstract Task<SearchResults> GetBestMove(State state, int timeMs);
 }

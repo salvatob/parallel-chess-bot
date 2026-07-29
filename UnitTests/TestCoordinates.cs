@@ -1,4 +1,3 @@
-using ChessBotCore;
 using ChessBotCore.Board;
 
 namespace TestProject1;
@@ -45,6 +44,5 @@ public class TestCoordinates {
         var actual = Coordinates.FromMask(mask);
         //assert
         Assert.Equal(expected, actual);
-        
     }
 }

@@ -3,15 +3,20 @@ using ChessBotCore.Search;
 namespace ChessBotCore.Players;
 
 /// <summary>
-/// A handle returned by any <see cref="IPlayer"/>, providing the caller an option to stop the search at any moment. 
+///     A handle returned by any <see cref="IPlayer" />, providing the caller an option to stop the search at any moment.
 /// </summary>
 public class SearchHandle : IDisposable {
     private readonly CancellationTokenSource _cts;
-    public Task<SearchResults> Result { get; }
 
     public SearchHandle(CancellationTokenSource cts, Task<SearchResults> result) {
         _cts = cts;
         Result = result;
+    }
+
+    public Task<SearchResults> Result { get; }
+
+    public void Dispose() {
+        _cts.Dispose();
     }
 
     public void Cancel() {
@@ -21,9 +26,4 @@ public class SearchHandle : IDisposable {
     public void Register(Action callback) {
         _cts.Token.Register(callback);
     }
-    
-    public void Dispose() {
-        _cts.Dispose();
-    }
-    
 }

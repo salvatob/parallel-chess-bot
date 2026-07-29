@@ -8,22 +8,26 @@ public class RandomPlayer : IPlayer {
     // ReSharper disable once InconsistentNaming
     private static readonly Random _random = new();
     public void Dispose() { }
+
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         List<Move> moves = new GeneratorWrapper(state).GetLegalMoves();
         Move move = moves[_random.Next(moves.Count)];
 
         return new SearchHandle(new CancellationTokenSource(), Task.FromResult(new SearchResults(move)));
     }
-    
+
     public Task OnGameStartAsync(bool yourColor, State state, Timers timers) {
         return Task.CompletedTask;
     }
+
     public Task OnGameGameEndAsync(bool yourColor, GameResult result) {
         return Task.CompletedTask;
     }
+
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
         return Task.CompletedTask;
     }
+
     public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd) {
         return Task.CompletedTask;
     }

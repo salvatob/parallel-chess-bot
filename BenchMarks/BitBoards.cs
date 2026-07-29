@@ -10,24 +10,23 @@ public class BitBoards {
     private static readonly Bitboard mask2 = Bitboard.FromCoords("a1");
     private static readonly Bitboard mask3 = Bitboard.FromCoords("d4");
     private static readonly Bitboard mask4 = Bitboard.FromCoords("e5");
-    
+
     private static readonly State state1 = State.Initial;
     private static readonly State state2 = FenParser.ParseFen("8/8/4k3/8/2pPp3/8/B7/7K b - d3 0 1");
     private static readonly State state3 = FenParser.ParseFen("7k/8/8/8/pPp5/8/8/7K b - b3 0 1");
 
 
-    
     private static readonly Bitboard[] Masks = [
         mask1,
         mask2,
         mask3,
-        mask4,
+        mask4
     ];
 
     private static readonly State[] States = [
         state1,
         state2,
-        state3,
+        state3
     ];
 
     private static readonly (Bitboard Mask, State State)[] Cases = (
@@ -35,8 +34,8 @@ public class BitBoards {
         from mask in Masks
         select (mask, state)
     ).ToArray();
-    
-    
+
+
     [Benchmark(Baseline = true)]
     public Pieces? RawBytes() {
         Pieces? result = null;
@@ -56,7 +55,7 @@ public class BitBoards {
 
         return result;
     }
-    
+
     public Pieces? RawBytesImpl(Bitboard mask, State state) {
         if ((state.WhitePawns.RawBits & mask.RawBits) != 0) return Pieces.WhitePawns;
         if ((state.WhiteRooks.RawBits & mask.RawBits) != 0) return Pieces.WhiteRooks;

@@ -5,12 +5,12 @@ namespace ChessBotCore.Players;
 
 public class EnginePlayer : IPlayer {
     private readonly MinimaxEvaluator _negamaxer = new();
-    
+
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         var cts = new CancellationTokenSource();
 
         var task = Task.Run(() =>
-            _negamaxer.PrimitiveIterativeSearch(state, timers,cts.Token));
+            _negamaxer.PrimitiveIterativeSearch(state, timers, cts.Token));
 
         return new SearchHandle(cts, task);
     }
@@ -20,6 +20,7 @@ public class EnginePlayer : IPlayer {
         // or do similar work before the game starts
         return Task.CompletedTask;
     }
+
     public Task OnGameGameEndAsync(bool yourColor, GameResult result) {
         return Task.CompletedTask;
     }
@@ -27,6 +28,7 @@ public class EnginePlayer : IPlayer {
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
         return OnErrorNotifyAsync(error.Message, gameEnd);
     }
+
     public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd) {
         // I don't see anything an engine should do on error. Possibly log it if I decide to add that
         return Task.CompletedTask;

@@ -3,7 +3,7 @@ using ChessBotCore.Board;
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
 public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
-    private static Direction[] KnightDirections = [
+    private static readonly Direction[] KnightDirections = [
         Direction.NNE,
         Direction.NEE,
         Direction.SEE,
@@ -13,22 +13,22 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
         Direction.SWW,
         Direction.SSW
     ];
-    
+
+
+    private KnightMoveGenerator() { }
+
     protected override Pieces WhitePiece => Pieces.WhiteKnights;
     protected override Pieces BlackPiece => Pieces.BlackKnights;
-
-    
-    private KnightMoveGenerator(){}
     public static IMoveGenerator Instance => new KnightMoveGenerator();
 
     public override void GenerateMoves(State state, List<Move> buffer) {
         var knights = state.WhiteIsActive ? state.WhiteKnights : state.BlackKnights;
         var allyPieces = state.GetActivePieces();
-        
+
         foreach (var dir in KnightDirections) {
             var beforeCollision = BitBoardHelpers.Move(knights, dir);
-            var movedKnights = beforeCollision & (~allyPieces);
-         
+            var movedKnights = beforeCollision & ~allyPieces;
+
 
             Direction oppositeDir = BitBoardHelpers.OppositeDir(dir);
             // foreach moved knight
@@ -41,7 +41,7 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
                 Bitboard maskBefore = BitBoardHelpers.Move(currMoveMask, oppositeDir);
                 
                 // according to old and new positions create the new State 
-                buffer.Add(CreateMove(maskBefore, currMoveMask, state));                
+                buffer.Add(CreateMove(maskBefore, currMoveMask, state));
 
                 movedKnights &= ~currMoveMask;
             }

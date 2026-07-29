@@ -6,26 +6,25 @@ namespace Benchmarks;
 
 [MemoryDiagnoser]
 public class AllocationExperiments {
+    private State _state;
 
-  private State _state;
+    [ParamsSource(nameof(PositionCases))]
+    public string Position { get; set; } = BenchmarkPositions.InitialPosition;
 
-  [ParamsSource(nameof(PositionCases))]
-  public string Position { get; set; } = BenchmarkPositions.InitialPosition;
+    public static IEnumerable<string> PositionCases => BenchmarkPositions.PositionCases;
 
-  public static IEnumerable<string> PositionCases => BenchmarkPositions.PositionCases;
+    [GlobalSetup]
+    public void Setup() {
+        _state = BenchmarkPositions.GetState(Position);
+    }
 
-  [GlobalSetup]
-  public void Setup() {
-    _state = BenchmarkPositions.GetState(Position);
-  }
+    [Benchmark]
+    public List<Move> LegalMovesToList() {
+        return new GeneratorWrapper(_state).GetLegalMoves();
+    }
 
-  [Benchmark]
-  public List<Move> LegalMovesToList() {
-    return new GeneratorWrapper(_state).GetLegalMoves();
-  }
-
-  [Benchmark(Baseline = true)]
-  public List<Move> PseudoLegalMovesToList() {
-    return new GeneratorWrapper(_state).GetAllMoves();
-  }
+    [Benchmark(Baseline = true)]
+    public List<Move> PseudoLegalMovesToList() {
+        return new GeneratorWrapper(_state).GetAllMoves();
+    }
 }

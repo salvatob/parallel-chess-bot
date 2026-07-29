@@ -5,23 +5,22 @@ using ChessBotCore.Board;
 namespace ChessBotCore.Parser;
 
 internal static class FenCreator {
-
     public static string? TryGetMoveNotation(State before, State after) {
-        
-        Bitboard piecesBefore = before.GetActivePieces();
-        Bitboard piecesAfter = after.GetInactivePieces();
+        var piecesBefore = before.GetActivePieces();
+        var piecesAfter = after.GetInactivePieces();
 
-        var moveBeforeMask = piecesBefore & (~ piecesAfter);
-        var moveAfterMask = (~piecesBefore) & piecesAfter;
+        var moveBeforeMask = piecesBefore & ~ piecesAfter;
+        var moveAfterMask = ~piecesBefore & piecesAfter;
         if (moveBeforeMask.IsEmpty() || moveAfterMask.IsEmpty()) return null;
-        
-        
+
+
         var moveBefore = Coordinates.FromMask(moveBeforeMask);
         var moveAfter = Coordinates.FromMask(moveAfterMask);
+        // ReSharper disable RedundantToStringCallForValueType
         return moveBefore.ToString() + moveAfter.ToString();
+        // ReSharper restore RedundantToStringCallForValueType
+    }
 
-    } 
-    
     public static string GetFen(State state) {
         string pieces = EncodePieces(state);
         char activeColor = state.WhiteIsActive ? 'w' : 'b';
@@ -30,7 +29,7 @@ internal static class FenCreator {
         string halfClock = state.HalfMovesSincePawnMoveOrCapture.ToString();
         string fullClock = state.FullMoves.ToString();
 
-        return string.Join(" ", [pieces, activeColor, castles, enpassant, halfClock, fullClock]);
+        return string.Join(" ", pieces, activeColor, castles, enpassant, halfClock, fullClock);
     }
 
     private static string EncodePieces(State state) {
@@ -76,17 +75,16 @@ internal static class FenCreator {
 
 
     private static void EncodePiecesIntoMatrix(Bitboard pieces, char pieceSymbol, char[,] board) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++)
-                if (IsPieceOnCoordinates(i, j, pieces)) {
-                    if (board[i, j] != default)
-                        throw new InvalidOperationException(
-                            "A state has two pieces at the same place." +
-                            $" {pieceSymbol} and {board[i, j]} are both on [{new Coordinates(i,j)}]"
-                        );
-                    board[i, j] = pieceSymbol;
-                }
-        }
+        for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (IsPieceOnCoordinates(i, j, pieces)) {
+                if (board[i, j] != default)
+                    throw new InvalidOperationException(
+                        "A state has two pieces at the same place." +
+                        $" {pieceSymbol} and {board[i, j]} are both on [{new Coordinates(i, j)}]"
+                    );
+                board[i, j] = pieceSymbol;
+            }
     }
 
     public static StringBuilder EncodeMatrixIntoString(char[,] board) {
@@ -98,11 +96,14 @@ internal static class FenCreator {
             int emptyCells = 0;
             for (int j = 0; j < 8; j++) {
                 char cell = board[7 - i, j];
-                if (cell == default) { // cell is empty
-                    if (j == 7) { // end of row
+                if (cell == default) {
+                    // cell is empty
+                    if (j == 7) {
+                        // end of row
                         sb.Append(emptyCells + 1);
                         continue;
                     }
+
                     emptyCells++;
                     continue;
                 }

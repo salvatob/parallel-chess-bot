@@ -1,5 +1,3 @@
-using System;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ChessBotCore.Board;
 using ChessBotCore.MoveGenerators;
@@ -24,8 +22,6 @@ public enum MoveFlags : ushort {
     None = 0
 }
 
-
-
 public readonly struct Move : IComparable<Move> {
     // first 6 bits is from, next 6 is to, next 4 is Pieces, another 16 are flags
     private readonly uint _data;
@@ -47,7 +43,8 @@ public readonly struct Move : IComparable<Move> {
     public int To => (int)((_data >> 6) & 0x3F);
     public MoveFlags Flags => (MoveFlags)(_data >> 16);
 
-    public int CompareTo(Move other) => other._data.CompareTo(_data); // Descending for high-priority moves first
+    // Descending for high-priority moves first
+    public int CompareTo(Move other) => other._data.CompareTo(_data);
 
     public bool IsCapture => Flags.HasFlag(MoveFlags.Capture);
     public bool IsPromotion => Flags.HasFlag(MoveFlags.Promotion);
@@ -56,22 +53,35 @@ public readonly struct Move : IComparable<Move> {
     public bool IsCheck => Flags.HasFlag(MoveFlags.IsCheck);
     public Pieces Piece => (Pieces)((_data >> 12) & 0b1111); // take only 4 bits ideally
     public bool IsWhite => GetColor(Piece);
+
     public static string? TryGetNotation(State before, State after) {
         return FenCreator.TryGetMoveNotation(before, after);
     }
 
-    private string GetPromotionNotation() => IsPromotion ? (
-    Flags.HasFlag(MoveFlags.PromoteToQueen) ? "q" : Flags.HasFlag(MoveFlags.PromoteToRook) ? "r" : Flags.HasFlag(MoveFlags.PromoteToBishop) ? "b" : "n"
-    ) : "";
-    public override string ToString() => $"{Piece}-{PrintUCI()} {Flags}";
+    private string GetPromotionNotation() {
+        return IsPromotion
+            ? (
+                Flags.HasFlag(MoveFlags.PromoteToQueen) ? "q" :
+                Flags.HasFlag(MoveFlags.PromoteToRook) ? "r" :
+                Flags.HasFlag(MoveFlags.PromoteToBishop) ? "b" : "n"
+            )
+            : "";
+    }
+
+    public override string ToString() {
+        return $"{Piece}-{PrintUCI()} {Flags}";
+    }
+
     // ReSharper disable once InconsistentNaming
-    public string PrintUCI() => $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
+    public string PrintUCI() {
+        return $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
+    }
 
     public static Move FindFullMove(MoveDTO moveDto, State state) {
         var moves = new GeneratorWrapper(state).GetLegalMoves();
-        
+
         // just try to find a move that matches the move passed in 
-        foreach (var m in moves) {
+        foreach (var m in moves)
             if (m.From == moveDto.From &&
                 m.To == moveDto.To &&
                 moveDto.Promotion switch {
@@ -81,13 +91,10 @@ public readonly struct Move : IComparable<Move> {
                     'b' => m.Flags.HasFlag(MoveFlags.PromoteToBishop),
                     _ => true
                 }
-               ) {
+               )
                 return m;
-            }
-        }
-        
+
         throw new ArgumentException($"Invalid move <{moveDto}> has been passed to {nameof(FindFullMove)}().");
-        return new Move();
     }
 }
 
@@ -96,18 +103,18 @@ public record MoveDTO(int From, int To, char? Promotion) {
     public static MoveDTO Parse(string move) {
         string moveRegex = "([a-h][1-8])([a-h][1-8])([qrbn]?)";
         var match = Regex.Match(move, moveRegex);
-        
-        if (move.Length is not (4 or 5) || !match.Success) 
+
+        if (move.Length is not (4 or 5) || !match.Success)
             throw new ArgumentException($"Invalid move notation: <{move}>");
-        
+
         var fromS = match.Groups[1].Value;
         var toS = match.Groups[2].Value;
-        
+
         char? promotionS = match.Groups[3].Length > 0 ? match.Groups[3].Value[0] : null;
 
         var from = Coordinates.FromString(fromS).To1D();
         var to = Coordinates.FromString(toS).To1D();
-        
+
         return new MoveDTO(from, to, promotionS);
     }
 }

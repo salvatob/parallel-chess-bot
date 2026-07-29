@@ -4,10 +4,11 @@ namespace ChessBotCore.Parser;
 
 internal class FenParser {
     private readonly State _state;
+
     private FenParser() {
         _state = State.Empty;
     }
-    
+
     public static State ParseFen(string fen) {
         var parser = new FenParser();
         return parser.Parse(fen);
@@ -122,7 +123,7 @@ internal class FenParser {
             throw new ArgumentException($"The {nameof(fen)} argument has incorrect" +
                                         $" number of parts. Should have 6");
         string activeColor = tokens[1];
-        
+
         return ParseActiveColor(activeColor);
     }
 }

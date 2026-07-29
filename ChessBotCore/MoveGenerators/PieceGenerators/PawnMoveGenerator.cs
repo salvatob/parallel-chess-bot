@@ -3,18 +3,18 @@ using ChessBotCore.Board;
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
 public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
-    
-    private PawnMoveGenerator(){}
+    private readonly Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
+    private readonly Direction _blackForward = Direction.S;
+
+    private readonly Direction[] _whiteDiagonals = [Direction.NW, Direction.NE];
+
+    private readonly Direction _whiteForward = Direction.N;
+
+    private PawnMoveGenerator() { }
     public static IMoveGenerator Instance => new PawnMoveGenerator();
 
     protected override Pieces WhitePiece => Pieces.WhitePawns;
     protected override Pieces BlackPiece => Pieces.BlackPawns;
-
-    private readonly Direction _whiteForward = Direction.N;
-    private readonly Direction _blackForward = Direction.S;
-
-    private readonly Direction[] _whiteDiagonals = [Direction.NW, Direction.NE];
-    private readonly Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
 
     public override void GenerateMoves(State state, List<Move> buffer) {
         GenerateCaptures(state, buffer);
@@ -24,7 +24,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     private static void AddMoveHandlingPromotion(Move move, bool white, List<Move> buffer) {
         int to = move.To;
         int toRank = to / 8;
-        bool isPromotionRank = toRank == 0 || toRank == 7;
+        bool isPromotionRank = toRank is 0 or 7;
 
         if (!isPromotionRank) {
             buffer.Add(move);
@@ -65,7 +65,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         Bitboard startingPawns = currentPawns & (whitesMove ? BitMask.Row[1] : BitMask.Row[6]);
         Bitboard movedTwice = BitBoardHelpers.Move(startingPawns, dirForward, 1) & emptySpace;
         movedTwice = BitBoardHelpers.Move(movedTwice, dirForward, 1) & emptySpace;
-        
+
         while (!movedTwice.IsEmpty()) {
             int to = movedTwice.TrailingZeroCount();
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
@@ -80,8 +80,8 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
         Bitboard pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
         Direction[] directions = state.WhiteIsActive ? _whiteDiagonals : _blackDiagonals;
         Pieces pieceType = state.WhiteIsActive ? Pieces.WhitePawns : Pieces.BlackPawns;
-        
-        
+
+
         foreach (Direction dir in directions) {
             var pawnsThatCapturedSomething = pawns.MovePieces(dir) & enemyPieces;
             var oppositeDir = BitBoardHelpers.OppositeDir(dir);
@@ -95,7 +95,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
                 pawnsThatCapturedSomething &= ~toMask;
             }
         }
-        
+
         // En passant
         if (state.EnPassantAvailable) {
             Bitboard epMask = state.EnPassant;

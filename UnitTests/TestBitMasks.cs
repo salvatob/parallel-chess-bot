@@ -1,4 +1,3 @@
-using ChessBotCore;
 using ChessBotCore.Board;
 
 namespace TestProject1;
@@ -32,10 +31,11 @@ public class TestBitMasks {
         //act
         var mask = BitMask.Col[5];
         var maskString = mask.Print();
-        
+
         //assert
         Assert.Equal(expected, maskString);
     }
+
     [Fact]
     public void PrintColMask_7() {
         //arrange
@@ -52,7 +52,7 @@ public class TestBitMasks {
         //act
         var mask = BitMask.Col[7];
         var maskString = mask.Print();
-        
+
         //assert
         Assert.Equal(expected, maskString);
     }
@@ -73,7 +73,7 @@ public class TestBitMasks {
         //act
         var mask = BitMask.Col[0];
         var maskString = mask.Print();
-        
+
         //assert
         Assert.Equal(expected, maskString);
     }
@@ -94,7 +94,7 @@ public class TestBitMasks {
         //act
         var mask = BitMask.Row[0];
         var maskString = mask.Print();
-        
+
         //assert
         Assert.Equal(expected, maskString);
     }
@@ -115,7 +115,7 @@ public class TestBitMasks {
         //act
         var mask = BitMask.Row[7];
         var maskString = mask.Print();
-        
+
         //assert
         Assert.Equal(expected, maskString);
     }

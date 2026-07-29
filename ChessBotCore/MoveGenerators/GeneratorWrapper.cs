@@ -4,7 +4,6 @@ using ChessBotCore.MoveGenerators.PieceGenerators;
 namespace ChessBotCore.MoveGenerators;
 
 public sealed class GeneratorWrapper {
-
     private static readonly IMoveGenerator[] Generators = [
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,
@@ -14,49 +13,51 @@ public sealed class GeneratorWrapper {
         BishopMoveGenerator.Instance
     ];
 
-
-    private List<Move> Buffer = new(40);
     private readonly Lazy<List<Move>> _filteredBuffer;
-    
-    private State _state;
-    
-    
+
+    private readonly State _state;
+
+
+    private readonly List<Move> _buffer = new(40);
+
+
     public GeneratorWrapper(State state) {
         _state = state;
         FillBuffer(state);
-        _filteredBuffer = new(FilterBuffer);
+        _filteredBuffer = new Lazy<List<Move>>(FilterBuffer);
     }
     
-    public List<Move> GetAllMoves() => Buffer;
+    public List<Move> GetAllMoves() => _buffer;
     
     public List<Move> GetLegalMoves() => _filteredBuffer.Value;
 
     private void FillBuffer(State state) {
-        foreach (IMoveGenerator generator in Generators) {
-            generator.GenerateMoves(state, Buffer);
+        foreach (var generator in Generators) {
+            generator.GenerateMoves(state, _buffer);
         }
     }
 
     private List<Move> FilterBuffer() {
         List<Move> filtered = new(20);
-        foreach (Move move in Buffer) {
-            if (CheckMoveLegality(move, _state)) filtered.Add(move);
+        foreach (var move in _buffer) {
+            if (CheckMoveLegality(move, _state))
+                filtered.Add(move);
         }
         return filtered;
     }
-    
+
     public static bool CheckMoveLegality(Move move, State state) {
         // castles are already checked
         if (move.IsCastle) return true;
-        
+
         var undo = state.ApplyMove(move);
-        
+
         // After ApplyMove, WhiteIsActive has flipped.
         // If white just moved, it's now black's turn. 
         // We need to check if white's king is under attack.
         bool wasWhiteTurn = !state.WhiteIsActive;
         Bitboard kingBoard = wasWhiteTurn ? state.WhiteKing : state.BlackKing;
-        
+
         bool legal;
         if (kingBoard.IsEmpty()) {
             legal = false; // Should not happen if king was there before
@@ -103,7 +104,7 @@ public sealed class GeneratorWrapper {
 
         // Diagonal (Bishop/Queen)
         Direction[] diagDirs = [Direction.NE, Direction.NW, Direction.SE, Direction.SW];
-        Bitboard diagSliders = byWhite ? (state.WhiteBishops | state.WhiteQueens) : (state.BlackBishops | state.BlackQueens);
+        Bitboard diagSliders = byWhite ? state.WhiteBishops | state.WhiteQueens : state.BlackBishops | state.BlackQueens;
         foreach (var dir in diagDirs) {
             if (!GetSliderAttack(square, dir, allPieces, diagSliders).IsEmpty())
                 return true;
@@ -144,8 +145,9 @@ public sealed class GeneratorWrapper {
             if (!(ray & attackers).IsEmpty()) return ray;
             if (!(ray & allPieces).IsEmpty()) break; // Blocked by some piece
         }
+
         return Bitboard.Empty;
     }
-    
+
     // TODO move Perft function here
 }

@@ -13,13 +13,13 @@ public enum Pieces {
     WhiteBishops,
     WhiteQueens,
     WhiteKing,
-    
+
     BlackPawns,
     BlackRooks,
     BlackKnights,
     BlackBishops,
     BlackQueens,
-    BlackKing 
+    BlackKing
 }
 
 public sealed class State {
@@ -42,34 +42,6 @@ public sealed class State {
         CopyFrom(other);
     }
 
-    public void CopyFrom(State other) {
-        WhitePawns = other.WhitePawns;
-        WhiteRooks = other.WhiteRooks;
-        WhiteKnights = other.WhiteKnights;
-        WhiteBishops = other.WhiteBishops;
-        WhiteQueens = other.WhiteQueens;
-        WhiteKing = other.WhiteKing;
-
-        BlackPawns = other.BlackPawns;
-        BlackRooks = other.BlackRooks;
-        BlackKnights = other.BlackKnights;
-        BlackBishops = other.BlackBishops;
-        BlackQueens = other.BlackQueens;
-        BlackKing = other.BlackKing;
-
-        WhiteIsActive = other.WhiteIsActive;
-
-        WhiteCastleKingSide = other.WhiteCastleKingSide;
-        WhiteCastleQueenSide = other.WhiteCastleQueenSide;
-        BlackCastleKingSide = other.BlackCastleKingSide;
-        BlackCastleQueenSide = other.BlackCastleQueenSide;
-
-        EnPassant = other.EnPassant;
-
-        HalfMovesSincePawnMoveOrCapture = other.HalfMovesSincePawnMoveOrCapture;
-        FullMoves = other.FullMoves;
-    }
-
     public State() {
         WhitePawns = 0;
         WhiteRooks = 0;
@@ -77,14 +49,14 @@ public sealed class State {
         WhiteBishops = 0;
         WhiteQueens = 0;
         WhiteKing = 0;
-        
+
         BlackPawns = 0;
         BlackRooks = 0;
         BlackKnights = 0;
         BlackBishops = 0;
         BlackQueens = 0;
         BlackKing = 0;
-        
+
         WhiteIsActive = true;
         WhiteCastleKingSide = false;
         WhiteCastleQueenSide = false;
@@ -118,8 +90,8 @@ public sealed class State {
 
     public int HalfMovesSincePawnMoveOrCapture { get; set; } = 0;
     public int FullMoves { get; set; } = 1;
-    
-    
+
+
     public static State Initial =>
         new() {
             WhitePawns   = 0b_1111_1111_0000_0000,
@@ -149,18 +121,48 @@ public sealed class State {
         FullMoves = 1
     };
 
+    public bool EnPassantAvailable => EnPassant.RawBits != 0;
+
+    public void CopyFrom(State other) {
+        WhitePawns = other.WhitePawns;
+        WhiteRooks = other.WhiteRooks;
+        WhiteKnights = other.WhiteKnights;
+        WhiteBishops = other.WhiteBishops;
+        WhiteQueens = other.WhiteQueens;
+        WhiteKing = other.WhiteKing;
+
+        BlackPawns = other.BlackPawns;
+        BlackRooks = other.BlackRooks;
+        BlackKnights = other.BlackKnights;
+        BlackBishops = other.BlackBishops;
+        BlackQueens = other.BlackQueens;
+        BlackKing = other.BlackKing;
+
+        WhiteIsActive = other.WhiteIsActive;
+
+        WhiteCastleKingSide = other.WhiteCastleKingSide;
+        WhiteCastleQueenSide = other.WhiteCastleQueenSide;
+        BlackCastleKingSide = other.BlackCastleKingSide;
+        BlackCastleQueenSide = other.BlackCastleQueenSide;
+
+        EnPassant = other.EnPassant;
+
+        HalfMovesSincePawnMoveOrCapture = other.HalfMovesSincePawnMoveOrCapture;
+        FullMoves = other.FullMoves;
+    }
+
     /// <summary>
-    /// Determines, if either player has won, or if the game is a draw.
-    /// Stalemates (no possible move for active player) are not accounted by this method.
+    ///     Determines, if either player has won, or if the game is a draw.
+    ///     Stalemates (no possible move for active player) are not accounted by this method.
     /// </summary>
     /// <returns>If the game can continue.</returns>
     public bool IsTerminal() {
         if (GetAllPieces().PopCount() <= 2) return true; // insufficient material
-        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights & BlackKnights).IsEmpty()) 
+        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights & BlackKnights).IsEmpty())
             return true; // cannot mate with only a knight
-        
+
         var inactiveKing = !WhiteIsActive ? WhiteKing : BlackKing;
-        
+
         // TODO might need some testing
         return GeneratorWrapper.IsSquareAttacked(inactiveKing.TrailingZeroCount(), WhiteIsActive, this);
     }
@@ -173,12 +175,13 @@ public sealed class State {
         var clone = (State)MemberwiseClone();
         return clone;
     }
-    
+
     /// <summary>
-    /// Pushes the state into a next move, so some properties are updated automatically.
-    /// <see cref="WhiteIsActive"/>, <see cref="EnPassant"/>, <see cref="FullMoves"/> clock and HalfMoves clock, are updated automatically.
-    /// Pieces are left untouched, user should change them on their own.
-    /// Specific properties such as castling and enpassant are also left to the user to handle.
+    ///     Pushes the state into a next move, so some properties are updated automatically.
+    ///     <see cref="WhiteIsActive" />, <see cref="EnPassant" />, <see cref="FullMoves" /> clock and HalfMoves clock, are
+    ///     updated automatically.
+    ///     Pieces are left untouched, user should change them on their own.
+    ///     Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
     /// <returns>The same instance.</returns>
     public void Next() {
@@ -190,33 +193,12 @@ public sealed class State {
     }
 
     /// <summary>
-    /// Resets the half-move counter.
-    /// Should be used after executing a move with a capture, or a pawn advance.
+    ///     Resets the half-move counter.
+    ///     Should be used after executing a move with a capture, or a pawn advance.
     /// </summary>
     /// <returns></returns>
     private void HalfClockReset() {
         HalfMovesSincePawnMoveOrCapture = 0;
-    }
-    
-    // TODO could shrink this struct down
-    public readonly struct UndoInfo {
-        public readonly Pieces? CapturedPiece;
-        public readonly Bitboard EnPassant;
-        public readonly bool WhiteCastleKingSide;
-        public readonly bool WhiteCastleQueenSide;
-        public readonly bool BlackCastleKingSide;
-        public readonly bool BlackCastleQueenSide;
-        public readonly int HalfMovesSincePawnMoveOrCapture;
-
-        public UndoInfo(State state, Pieces? capturedPiece) {
-            CapturedPiece = capturedPiece;
-            EnPassant = state.EnPassant;
-            WhiteCastleKingSide = state.WhiteCastleKingSide;
-            WhiteCastleQueenSide = state.WhiteCastleQueenSide;
-            BlackCastleKingSide = state.BlackCastleKingSide;
-            BlackCastleQueenSide = state.BlackCastleQueenSide;
-            HalfMovesSincePawnMoveOrCapture = state.HalfMovesSincePawnMoveOrCapture;
-        }
     }
 
     public UndoInfo ApplyMove(Move move) {
@@ -226,12 +208,12 @@ public sealed class State {
         Bitboard toMask = 1UL << to;
 
         Pieces movingPiece = move.Piece;
-        
-        Pieces? capturedPiece = move.IsEnPassant 
-            ? (WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns)
+
+        Pieces? capturedPiece = move.IsEnPassant
+            ? WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns
             : DetectPieceCollision(toMask);
 
-        UndoInfo undo = new UndoInfo(this, capturedPiece);
+        var undo = new UndoInfo(this, capturedPiece);
 
         // Handle regular move or capture
         ExecuteMove(movingPiece, fromMask, toMask, move);
@@ -244,10 +226,11 @@ public sealed class State {
 
         return undo;
     }
-    
+
     /// <summary>
-    /// Applies a move that only contains two squares and a promotion. Mostly since the move came from outside this framework.
-    /// For local move usage see the faster <see cref="ApplyMove(ChessBotCore.MoveDTO)"/> method.
+    ///     Applies a move that only contains two squares and a promotion. Mostly since the move came from outside this
+    ///     framework.
+    ///     For local move usage see the faster <see cref="ApplyMove(ChessBotCore.MoveDTO)" /> method.
     /// </summary>
     /// <param name="moveDto">The move to be applied</param>
     /// <exception cref="ArgumentException">Thrown if the move is not a valid move</exception>
@@ -256,7 +239,7 @@ public sealed class State {
         var move = Move.FindFullMove(moveDto, this);
         return ApplyMove(move);
     }
-    
+
     public void UndoMove(Move move, UndoInfo undo) {
         // 1. Reverse Turn
         ReverseNext();
@@ -285,8 +268,8 @@ public sealed class State {
         // 3. Restore Captured Piece
         if (move.IsCapture && undo.CapturedPiece.HasValue) {
             if (move.IsEnPassant) {
-                Bitboard capturedPawnMask = WhiteIsActive 
-                    ? toMask.MovePieces(Direction.S) 
+                Bitboard capturedPawnMask = WhiteIsActive
+                    ? toMask.MovePieces(Direction.S)
                     : toMask.MovePieces(Direction.N);
                 Set(undo.CapturedPiece.Value, GetPieces(undo.CapturedPiece.Value) | capturedPawnMask);
             } else {
@@ -359,12 +342,12 @@ public sealed class State {
             // Note: WhiteIsActive is now the side that just moved if called before Next(), 
             // but in my new ApplyMove order, Next() is called before UpdateMetadata but AFTER ExecuteMove.
             // Wait, I should check the order in ApplyMove.
-            
+
             // If ApplyMove calls ExecuteMove BEFORE Next(), then WhiteIsActive is the mover.
-            Bitboard capturedPawnMask = WhiteIsActive 
-                ? toMask.MovePieces(Direction.S) 
+            Bitboard capturedPawnMask = WhiteIsActive
+                ? toMask.MovePieces(Direction.S)
                 : toMask.MovePieces(Direction.N);
-            
+
             Pieces capturedPiece = WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns;
             Set(capturedPiece, GetPieces(capturedPiece) & ~capturedPawnMask);
         } else {
@@ -419,13 +402,14 @@ public sealed class State {
     }
 
     private void UpdateMetadata(Pieces piece, Move move) {
-        bool whiteMoved = piece is Pieces.WhitePawns or Pieces.WhiteRooks or Pieces.WhiteKnights or Pieces.WhiteBishops or Pieces.WhiteQueens or Pieces.WhiteKing;
-        
+        bool whiteMoved = piece is Pieces.WhitePawns or Pieces.WhiteRooks or Pieces.WhiteKnights or Pieces.WhiteBishops
+            or Pieces.WhiteQueens or Pieces.WhiteKing;
+
         // 1. En Passant Square
         if (move.Flags.HasFlag(MoveFlags.DoublePawnPush)) {
-            EnPassant = whiteMoved 
-                ? (1UL << (move.From + 8)) 
-                : (1UL << (move.From - 8));
+            EnPassant = whiteMoved
+                ? 1UL << (move.From + 8)
+                : 1UL << (move.From - 8);
         }
 
         // 2. Castling Rights
@@ -459,8 +443,6 @@ public sealed class State {
         if (from == 56 || to == 56) BlackCastleKingSide = false;
         if (from == 63 || to == 63) BlackCastleQueenSide = false;
     }
-    
-    public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
     public Coordinates? GetEnPassantCoordinates() {
         return EnPassantAvailable
@@ -469,7 +451,7 @@ public sealed class State {
     }
 
     /// <summary>
-    /// Return Bitboard of all pieces of certain color.
+    ///     Return Bitboard of all pieces of certain color.
     /// </summary>
     /// <param name="white">If true, returns white pieces, else black pieces.</param>
     /// <returns>The combination bitmap of the pieces.</returns>
@@ -482,7 +464,7 @@ public sealed class State {
                 WhiteKing |
                 WhitePawns |
                 WhiteRooks,
-            false => 
+            false =>
                 BlackBishops |
                 BlackKnights |
                 BlackQueens |
@@ -491,9 +473,9 @@ public sealed class State {
                 BlackRooks
         };
     }
-    
+
     /// <summary>
-    /// Returns mask of all occupied positions. All zeros are empty positions
+    ///     Returns mask of all occupied positions. All zeros are empty positions
     /// </summary>
     /// <returns>Bitmask of all squares occupied by any piece.</returns>
     public Bitboard GetAllPieces() {
@@ -504,9 +486,9 @@ public sealed class State {
     
     public Bitboard GetInactivePieces() => GetPieces(!WhiteIsActive);
 
-    
+
     /// <summary>
-    /// Determines, which (if any) piece of the current state collides with the piece from the provided mask.
+    ///     Determines, which (if any) piece of the current state collides with the piece from the provided mask.
     /// </summary>
     /// <param name="mask">The board to check against. Should be unary bitboard (only 1 bit set).</param>
     /// <returns>Pieces enum entry, if collision has been found, null if no pieces collide</returns>
@@ -528,8 +510,7 @@ public sealed class State {
 
 
     public State Set(Pieces changedPieces, Bitboard newPieces) {
-        switch (changedPieces)
-        {
+        switch (changedPieces) {
             case Pieces.WhitePawns:
                 WhitePawns = newPieces;
                 return this;
@@ -570,8 +551,8 @@ public sealed class State {
                 throw new ArgumentOutOfRangeException(nameof(changedPieces), changedPieces, null);
         }
     }
-    
-    
+
+
     public Bitboard GetPieces(Pieces pieces) {
         return pieces switch {
             Pieces.WhitePawns => this.WhitePawns,
@@ -601,8 +582,7 @@ public sealed class State {
         // Helper to place a piece from bitboard
         void PlacePieces(Bitboard bitboard, char symbol) {
             ulong bits = bitboard.RawBits;
-            while (bits != 0)
-            {
+            while (bits != 0) {
                 int square = BitOperations.TrailingZeroCount(bits);
                 bits &= bits - 1; // clear LS1B
 
@@ -620,7 +600,7 @@ public sealed class State {
         PlacePieces(WhiteBishops, 'B');
         PlacePieces(WhiteRooks,   'R');
         PlacePieces(WhiteQueens,  'Q');
-        PlacePieces(WhiteKing,   'K');
+        PlacePieces(WhiteKing,    'K');
 
         // Black pieces
         PlacePieces(BlackPawns,   'p');
@@ -628,23 +608,42 @@ public sealed class State {
         PlacePieces(BlackBishops, 'b');
         PlacePieces(BlackRooks,   'r');
         PlacePieces(BlackQueens,  'q');
-        PlacePieces(BlackKing,   'k');
+        PlacePieces(BlackKing,    'k');
 
         // Print board
         var sb = new StringBuilder();
         sb.AppendLine();
         for (int r = 0; r < 8; r++) {
             sb.Append($"{8 - r}  "); // rank label
-            
+
             for (int f = 0; f < 8; f++)
                 sb.Append(board[r, 7-f] + " ");
             sb.AppendLine();
-            
         }
 
         // File labels
         sb.AppendLine("   a b c d e f g h");
         return sb.ToString();
     }
-    
+
+    // TODO could shrink this struct down
+    public readonly struct UndoInfo {
+        public readonly Pieces? CapturedPiece;
+        public readonly Bitboard EnPassant;
+        public readonly bool WhiteCastleKingSide;
+        public readonly bool WhiteCastleQueenSide;
+        public readonly bool BlackCastleKingSide;
+        public readonly bool BlackCastleQueenSide;
+        public readonly int HalfMovesSincePawnMoveOrCapture;
+
+        public UndoInfo(State state, Pieces? capturedPiece) {
+            CapturedPiece = capturedPiece;
+            EnPassant = state.EnPassant;
+            WhiteCastleKingSide = state.WhiteCastleKingSide;
+            WhiteCastleQueenSide = state.WhiteCastleQueenSide;
+            BlackCastleKingSide = state.BlackCastleKingSide;
+            BlackCastleQueenSide = state.BlackCastleQueenSide;
+            HalfMovesSincePawnMoveOrCapture = state.HalfMovesSincePawnMoveOrCapture;
+        }
+    }
 }
