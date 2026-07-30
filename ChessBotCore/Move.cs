@@ -78,7 +78,7 @@ public readonly struct Move : IComparable<Move>, IEquatable<Move> {
     }
 
     public override string ToString() {
-        return $"{Piece}-{GetLAN()} {Flags}";
+        return $"{Piece}-{PrintLAN()} {Flags}";
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public readonly struct Move : IComparable<Move>, IEquatable<Move> {
     /// </summary>
     /// <returns>The move as a string.</returns>
     // ReSharper disable once InconsistentNaming
-    public string GetLAN() {
+    public string PrintLAN() {
         return $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
     }
 
