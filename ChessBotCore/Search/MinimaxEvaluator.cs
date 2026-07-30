@@ -33,7 +33,7 @@ public class MinimaxEvaluator {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Eval(State s) => Evaluator.Evaluate(s);
     
-    private SearchResults ChooseBestMove(State state, int maxDepth, SearchContext searchContext) {
+    public SearchResults ChooseBestMove(State state, int maxDepth, SearchContext searchContext) {
         State copy = state.Clone();
         var bestMove = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
         var results = new SearchResults {
@@ -183,7 +183,7 @@ public class MinimaxEvaluator {
     ///     Everything relevant to all threads working on the current search.
     ///     Currently isn't thread safe.
     /// </summary>
-    internal class SearchContext {
+    public class SearchContext {
         public CancellationToken CancellationToken { get; init; }
 
         public bool StopRequested { get; private set; }

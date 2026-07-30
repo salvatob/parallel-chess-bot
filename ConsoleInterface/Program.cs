@@ -4,6 +4,7 @@ using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
 using ChessBotCore.Performance;
 using ChessBotCore.Players;
+using ChessBotCore.Search;
 
 namespace ConsoleInterface;
 
@@ -11,7 +12,13 @@ internal class Program {
     public static async Task Main(string[] args) {
         // await 
         // await OneMove();
-        await PlayGame();
+        // await PlayGame();
+
+        var n = new MinimaxEvaluator();
+        var m = n.ChooseBestMove(State.Initial, 6, new MinimaxEvaluator.SearchContext());
+        Console.WriteLine(m.BestMove.PrintLAN());
+        // var r = Performance.ParallelPerft(State.Initial, 6);
+        // Console.WriteLine(r);
     }
 
     public static async Task<GameResult> PlayGame() {
@@ -101,22 +108,10 @@ internal class Program {
     }
 
     private static void DividePerft(State s, int depth) {
-        var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
-
-        var moveCounts = new Dictionary<string, long>();
-        moveCounts["unmarked"] = 0;
-
-        foreach (var m in moves) {
-            var nextState = s.Clone();
-            nextState.ApplyMove(m);
-            var nodes = Performance.Perft(nextState, depth - 1);
-            var key = Move.TryGetNotation(s, nextState);
-            if (key is null) moveCounts["unmarked"] += nodes;
-            else moveCounts[key] = nodes;
-        }
-
-
-        foreach (var m in moveCounts.Keys.Order()) Console.WriteLine($"{m}: {moveCounts[m]}");
+        var moveCounts = Performance.DividePerft(s, depth);
+        
+        foreach (var m in moveCounts.Keys.Order())
+            Console.WriteLine($"{m.PrintLAN()}: {moveCounts[m]}");
 
         Console.WriteLine($"Nodes searched: {moveCounts.Values.Sum()}");
     }
