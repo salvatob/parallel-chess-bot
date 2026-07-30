@@ -86,7 +86,7 @@ public sealed class State {
     public bool BlackCastleKingSide { get; set; }
     public bool BlackCastleQueenSide { get; set; }
 
-    public Bitboard EnPassant { get; set; } = 0;
+    public Bitboard EnPassant { get; set; } = 0UL;
 
     public int HalfMovesSincePawnMoveOrCapture { get; set; } = 0;
     public int FullMoves { get; set; } = 1;
