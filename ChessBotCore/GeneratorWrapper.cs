@@ -1,7 +1,8 @@
 using ChessBotCore.Board;
+using ChessBotCore.MoveGenerators;
 using ChessBotCore.MoveGenerators.PieceGenerators;
 
-namespace ChessBotCore.MoveGenerators;
+namespace ChessBotCore;
 
 public sealed class GeneratorWrapper {
     private static readonly IMoveGenerator[] Generators = [
