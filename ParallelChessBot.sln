@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Be
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMoveGen", "TestMoveGen\TestMoveGen.csproj", "{5BC0180D-F3A6-4816-9932-B5500071FEEB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacroBenchmarks", "MacroBenchmarks\MacroBenchmarks.csproj", "{B45BD57B-292C-4538-B480-DC76663CDA74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{5BC0180D-F3A6-4816-9932-B5500071FEEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BC0180D-F3A6-4816-9932-B5500071FEEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BC0180D-F3A6-4816-9932-B5500071FEEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B45BD57B-292C-4538-B480-DC76663CDA74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B45BD57B-292C-4538-B480-DC76663CDA74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B45BD57B-292C-4538-B480-DC76663CDA74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B45BD57B-292C-4538-B480-DC76663CDA74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
