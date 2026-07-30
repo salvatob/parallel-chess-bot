@@ -22,7 +22,7 @@ public enum MoveFlags : ushort {
     None = 0
 }
 
-public readonly struct Move : IComparable<Move> {
+public readonly struct Move : IComparable<Move>, IEquatable<Move> {
     // first 6 bits is from, next 6 is to, next 4 is Pieces, another 16 are flags
     private readonly uint _data;
 
@@ -68,12 +68,25 @@ public readonly struct Move : IComparable<Move> {
             : "";
     }
 
-    public override string ToString() {
-        return $"{Piece}-{PrintUCI()} {Flags}";
+    /// <summary>
+    /// Compares the two moves full data, including metadata, like if it is capture, or what promotion it is.
+    /// </summary>
+    /// <param name="other">The move to compare against.</param>
+    /// <returns>If they are equal.</returns>
+    public bool Equals(Move other) {
+        return _data == other._data;
     }
 
+    public override string ToString() {
+        return $"{Piece}-{GetLAN()} {Flags}";
+    }
+
+    /// <summary>
+    /// Prints the Move in Long Algebraic Notation.
+    /// </summary>
+    /// <returns>The move as a string.</returns>
     // ReSharper disable once InconsistentNaming
-    public string PrintUCI() {
+    public string GetLAN() {
         return $"{Coordinates.From1D(From)}{Coordinates.From1D(To)}{GetPromotionNotation()}";
     }
 

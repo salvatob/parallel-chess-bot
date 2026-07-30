@@ -93,7 +93,7 @@ public class ChessGame : IDisposable {
             var move = searchResult.BestMove;
 
             if (verbosity > 0) {
-                Console.WriteLine($"Player {player.GetType().Name} made move {move.PrintUCI()}");
+                Console.WriteLine($"Player {player.GetType().Name} made move {move.GetLAN()}");
                 Console.WriteLine();
                 Console.WriteLine();
             }

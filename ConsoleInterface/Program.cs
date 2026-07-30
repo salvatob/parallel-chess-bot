@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using ChessBotCore;
-using ChessBotCore.ChessWrappers;
 using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
+using ChessBotCore.Performance;
 using ChessBotCore.Players;
 
 namespace ConsoleInterface;
@@ -100,7 +100,7 @@ internal class Program {
         // TryPerft(6, new ParallelChessWrapper().EvalPerft);
     }
 
-    private static void DividePerft(State s, int depth, IChessWrapper chess) {
+    private static void DividePerft(State s, int depth) {
         var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
 
         var moveCounts = new Dictionary<string, long>();
@@ -109,7 +109,7 @@ internal class Program {
         foreach (var m in moves) {
             var nextState = s.Clone();
             nextState.ApplyMove(m);
-            var nodes = chess.Perft(nextState, depth - 1);
+            var nodes = Performance.Perft(nextState, depth - 1);
             var key = Move.TryGetNotation(s, nextState);
             if (key is null) moveCounts["unmarked"] += nodes;
             else moveCounts[key] = nodes;
@@ -121,7 +121,7 @@ internal class Program {
         Console.WriteLine($"Nodes searched: {moveCounts.Values.Sum()}");
     }
 
-    private static void PerftStats(int depth, IChessWrapper chess, State? state = null) {
+    private static void PerftStats(int depth, State? state = null) {
         state ??= State.Initial;
         GC.Collect();
         GC.WaitForPendingFinalizers();
@@ -130,7 +130,7 @@ internal class Program {
         var sw = Stopwatch.StartNew();
 
         var memoryBefore = GC.GetAllocatedBytesForCurrentThread();
-        var leavesExplored = chess.Perft(state, depth);
+        var leavesExplored = Performance.Perft(state, depth);
 
         var memoryAfter = GC.GetAllocatedBytesForCurrentThread();
         sw.Stop();

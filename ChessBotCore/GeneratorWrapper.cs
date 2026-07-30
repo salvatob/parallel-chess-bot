@@ -150,5 +150,4 @@ public sealed class GeneratorWrapper {
         return Bitboard.Empty;
     }
 
-    // TODO move Perft function here
 }

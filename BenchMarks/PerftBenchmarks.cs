@@ -1,14 +1,13 @@
 using BenchmarkDotNet.Attributes;
 using ChessBotCore;
-using ChessBotCore.ChessWrappers;
+using ChessBotCore.MoveGenerators;
+using ChessBotCore.Performance;
 
 namespace Benchmarks;
 
 [MemoryDiagnoser]
 public class PerftBenchmarks {
-    private DefaultChessWrapper _defaultChess = null!;
-    private ParallelChessWrapper _parallelChess = null!;
-    private State _state;
+    private State _state = null!;
 
     [ParamsSource(nameof(PositionCases))]
     public string Position { get; set; } = BenchmarkPositions.InitialPosition;
@@ -21,17 +20,15 @@ public class PerftBenchmarks {
     [GlobalSetup]
     public void Setup() {
         _state = BenchmarkPositions.GetState(Position);
-        _defaultChess = new DefaultChessWrapper();
-        _parallelChess = new ParallelChessWrapper();
     }
 
     [Benchmark(Baseline = true)]
     public long SingleThreaded() {
-        return _defaultChess.Perft(_state, Depth);
+        return Performance.Perft(_state, Depth);
     }
 
     [Benchmark]
     public long MultiThreaded() {
-        return _parallelChess.Perft(_state, Depth);
+        return Performance.ParallelPerft(_state, Depth);
     }
 }
