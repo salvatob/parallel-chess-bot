@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using ChessBotCore.Game;
-using ChessBotCore.MoveGenerators;
 
 namespace ChessBotCore.Search;
 
@@ -31,8 +29,16 @@ public struct SearchResults {
 /// </summary>
 public class MinimaxEvaluator {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int Eval(State s) => Evaluator.Evaluate(s);
-    
+    private static int Eval(State s) {
+        return Evaluator.Evaluate(s);
+    }
+
+    private TimeSpan CalculateAllowedTime(Timers timers, bool isWhite) {
+        var timeLeft = timers.ActiveTime(isWhite);
+        var timePerMoveFraction = timeLeft / 20 + timers.Increment / 2;
+        return new[] { timePerMoveFraction, timeLeft / 2 }.Min(); // never should use more than half of remaining time
+    }
+
     public SearchResults ChooseBestMove(State state, int maxDepth, SearchContext searchContext) {
         State copy = state.Clone();
         var bestMove = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
@@ -46,21 +52,21 @@ public class MinimaxEvaluator {
 
     // TODO this needs to be much better in time, hopefully the API stays the same tho
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
-        // context (mainly its stopwatch) should start ASAP
+        var timePerMove = CalculateAllowedTime(timers, state.WhiteIsActive);
         var context = new SearchContext {
             CancellationToken = cancellationToken
         };
-        context.Stopwatch.Start();
-        // TODO fix the time managing so it works
+
+        // this should cancel the search after the timeout runs out
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(timePerMove);
+
         List<SearchResults> results = [];
-        TimeSpan plannedTimeForSearch = timers.ActiveTime(state.WhiteIsActive) / 20 + timers.Increment / 2;
-
-
-        int depth = 1;
+        var depth = 1;
         while (true) {
-            if (cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested || context.StopRequested)
                 return results.Last();
-            
+
             var r = ChooseBestMove(state, depth, context);
             Console.WriteLine($"Search of depth {depth} hase yielded move {r.BestMove}");
             results.Add(r);
@@ -187,7 +193,6 @@ public class MinimaxEvaluator {
         public CancellationToken CancellationToken { get; init; }
 
         public bool StopRequested { get; private set; }
-        public Stopwatch Stopwatch { get; } = new();
         public SearchStats Stats { get; } = new();
 
         // TODO think of a way to keep it thread safe
