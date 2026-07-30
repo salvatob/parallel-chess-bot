@@ -8,19 +8,31 @@ public class SearchStats {
     public ulong NodesSearched;
 }
 
-public struct SearchResults {
+    public struct SearchResults {
     public required Move BestMove;
+    public int Score;
     public Move? PrincipalVariation;
     public SearchStats? Stats;
 
     [SetsRequiredMembers]
-    public SearchResults(Move bestMove) {
+    public SearchResults(Move bestMove, int score = 0) {
         BestMove = bestMove;
+        Score = score;
     }
 
     public override string ToString() {
-        if (Stats is null) return BestMove.ToString();
-        return $"{BestMove}, {Stats?.NodesSearched} nodes searched";
+        if (Stats is null) return $"{BestMove} ({Score})";
+        return $"{BestMove} ({Score}), {Stats?.NodesSearched} nodes searched";
+    }
+}
+
+internal struct ScoredMove {
+    public Move Move;
+    public int Score;
+
+    public ScoredMove(Move move, int score) {
+        Move = move;
+        Score = score;
     }
 }
 
@@ -41,45 +53,77 @@ public class MinimaxEvaluator {
 
     public SearchResults ChooseBestMove(State state, int maxDepth, SearchContext searchContext) {
         State copy = state.Clone();
-        var bestMove = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
+        var (bestMove, bestScore) = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
         var results = new SearchResults {
             BestMove = bestMove,
+            Score = bestScore,
             Stats = searchContext.Stats
         };
 
         return results;
     }
 
-    // TODO this needs to be much better in time, hopefully the API stays the same tho
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
         var timePerMove = CalculateAllowedTime(timers, state.WhiteIsActive);
         var context = new SearchContext {
             CancellationToken = cancellationToken
         };
 
-        // this should cancel the search after the timeout runs out
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(timePerMove);
+        context.CancellationToken = cts.Token;
 
-        List<SearchResults> results = [];
-        var depth = 1;
-        while (true) {
-            if (cancellationToken.IsCancellationRequested || context.StopRequested)
-                return results.Last();
+        var scoredMoves = GetInitialScoredMoves(state);
+        if (scoredMoves.Count == 0) return new SearchResults(default, 0);
 
-            var r = ChooseBestMove(state, depth, context);
-            Console.WriteLine($"Search of depth {depth} hase yielded move {r.BestMove}");
-            results.Add(r);
-            depth++;
+        SearchResults lastCompletedResult = new(scoredMoves[0].Move, scoredMoves[0].Score);
+
+        for (int depth = 2; depth <= 100; depth++) {
+            if (context.ShouldStop()) break;
+
+            PerformSearchIteration(state, depth, context, scoredMoves);
+            
+            scoredMoves.Sort((a, b) => b.Score.CompareTo(a.Score));
+            lastCompletedResult = new SearchResults(scoredMoves[0].Move, scoredMoves[0].Score) {
+                Stats = context.Stats
+            };
+
+        }
+
+        return lastCompletedResult;
+    }
+
+    private List<ScoredMove> GetInitialScoredMoves(State state) {
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
+        moves.Order();
+        var scoredMoves = new List<ScoredMove>(moves.Count);
+        foreach (var move in moves) {
+            scoredMoves.Add(new ScoredMove(move, 0));
+        }
+        return scoredMoves;
+    }
+
+    private void PerformSearchIteration(State state, int depth, SearchContext context, List<ScoredMove> scoredMoves) {
+        for (int i = 0; i < scoredMoves.Count; i++) {
+            if (context.ShouldStop()) break;
+
+            var move = scoredMoves[i].Move;
+            var undo = state.ApplyMove(move);
+            int score = -SmartABNegamax(state, depth - 1, context, -context.Beta, -context.Alpha);
+            state.UndoMove(move, undo);
+
+            if (!context.StopRequested) {
+                scoredMoves[i] = new ScoredMove(move, score);
+            }
         }
     }
 
-
-    private Move NegamaxBase(State state, int maxDepth, SearchContext searchContext, int alpha, int beta) {
+    private (Move BestMove, int BestScore) NegamaxBase(State state, int maxDepth, SearchContext searchContext, int alpha,
+        int beta) {
         var moves = new GeneratorWrapper(state).GetLegalMoves();
         moves.Sort();
 
-        int bestScore = int.MinValue;
+        int bestScore = int.MinValue + 1;
         Move bestMove = default;
 
         foreach (var move in moves) {
@@ -91,9 +135,12 @@ public class MinimaxEvaluator {
                 bestMove = move;
                 bestScore = currentScore;
             }
+
+            alpha = int.Max(alpha, bestScore);
+            if (alpha >= beta) break;
         }
 
-        return bestMove;
+        return (bestMove, bestScore);
     }
 
     internal int Negamax(State state, int depth) {
@@ -120,6 +167,7 @@ public class MinimaxEvaluator {
     }
 
     // be careful with the a-b values initialization that will overflow
+    // ReSharper disable once InconsistentNaming
     internal int ABNegamax(State state, int depth, int alpha, int beta) {
         bool isMaxing = state.WhiteIsActive;
 
@@ -149,9 +197,10 @@ public class MinimaxEvaluator {
     }
 
     // be careful with the a-b values initialization, they will overflow
+    // ReSharper disable once InconsistentNaming
     internal int SmartABNegamax(State state, int depth, SearchContext searchContext, int alpha, int beta) {
         if (searchContext.ShouldStop()) {
-            return int.MaxValue;
+            return alpha;
         }
 
         bool isMaxing = state.WhiteIsActive;
@@ -190,11 +239,10 @@ public class MinimaxEvaluator {
     ///     Currently isn't thread safe.
     /// </summary>
     public class SearchContext {
-        public CancellationToken CancellationToken { get; init; }
+        public CancellationToken CancellationToken { get; set; }
 
         public bool StopRequested { get; private set; }
         public SearchStats Stats { get; } = new();
-
         // TODO think of a way to keep it thread safe
         public int Alpha { get; set; } = int.MinValue + 1; // to prevent negation overflow
         public int Beta { get; set; } = int.MaxValue;
