@@ -45,12 +45,12 @@ public readonly record struct SearchScore : IEquatable<SearchScore>, IComparable
 
 public struct SearchResults {
     public required Move BestMove;
-    public int Score;
+    public SearchScore Score;
     public Move? PrincipalVariation;
     public SearchStats? Stats;
 
     [SetsRequiredMembers]
-    public SearchResults(Move bestMove, int score = 0) {
+    public SearchResults(Move bestMove, SearchScore score = default) {
         BestMove = bestMove;
         Score = score;
     }
@@ -61,23 +61,17 @@ public struct SearchResults {
     }
 }
 
-internal struct ScoredMove {
-    public Move Move;
-    public int Score;
-
-    public ScoredMove(Move move, int score) {
-        Move = move;
-        Score = score;
-    }
-}
+internal readonly record struct ScoredMove(Move Move, SearchScore Score);
 
 /// <summary>
 ///     A type encapsulating a Negamax-based State Space Search of the best move. It is not thread-safe.
 /// </summary>
 public class MinimaxEvaluator {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int Eval(State s) {
-        return Evaluator.Evaluate(s);
+    private static SearchScore Eval(State s) {
+        int score = Evaluator.Evaluate(s);
+        bool isMate = score is short.MinValue or short.MaxValue;
+        return new SearchScore(score, isMate);
     }
 
     private TimeSpan CalculateAllowedTime(Timers timers, bool isWhite) {
@@ -109,7 +103,7 @@ public class MinimaxEvaluator {
         context.CancellationToken = cts.Token;
 
         var scoredMoves = GetInitialScoredMoves(state);
-        if (scoredMoves.Count == 0) return new SearchResults(default, 0);
+        if (scoredMoves.Count == 0) return new SearchResults(default, new SearchScore(0));
 
         SearchResults lastCompletedResult = new(scoredMoves[0].Move, scoredMoves[0].Score);
 
@@ -133,7 +127,7 @@ public class MinimaxEvaluator {
         moves.Order();
         var scoredMoves = new List<ScoredMove>(moves.Count);
         foreach (var move in moves) {
-            scoredMoves.Add(new ScoredMove(move, 0));
+            scoredMoves.Add(new ScoredMove(move, new SearchScore(0)));
         }
         return scoredMoves;
     }
@@ -144,7 +138,7 @@ public class MinimaxEvaluator {
 
             var move = scoredMoves[i].Move;
             var undo = state.ApplyMove(move);
-            int score = -SmartABNegamax(state, depth - 1, context, -context.Beta, -context.Alpha);
+            SearchScore score = -SmartABNegamax(state, depth - 1, context, -context.Beta, -context.Alpha);
             state.UndoMove(move, undo);
 
             if (!context.StopRequested) {
@@ -153,17 +147,17 @@ public class MinimaxEvaluator {
         }
     }
 
-    private (Move BestMove, int BestScore) NegamaxBase(State state, int maxDepth, SearchContext searchContext, int alpha,
+    private (Move BestMove, SearchScore BestScore) NegamaxBase(State state, int maxDepth, SearchContext searchContext, int alpha,
         int beta) {
         var moves = new GeneratorWrapper(state).GetLegalMoves();
         moves.Sort();
 
-        int bestScore = int.MinValue + 1;
+        SearchScore bestScore = new SearchScore(int.MinValue + 1);
         Move bestMove = default;
 
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
-            int currentScore = -SmartABNegamax(state, maxDepth - 1, searchContext, -beta, -alpha);
+            SearchScore currentScore = -SmartABNegamax(state, maxDepth - 1, searchContext, -beta, -alpha);
             state.UndoMove(move, undo);
 
             if (currentScore > bestScore) {
@@ -171,20 +165,20 @@ public class MinimaxEvaluator {
                 bestScore = currentScore;
             }
 
-            alpha = int.Max(alpha, bestScore);
+            alpha = int.Max(alpha, bestScore.Score);
             if (alpha >= beta) break;
         }
 
         return (bestMove, bestScore);
     }
 
-    internal int Negamax(State state, int depth) {
+    internal SearchScore Negamax(State state, int depth) {
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
             return state.WhiteIsActive ? score : -score;
         }
 
-        int bestScore = int.MinValue;
+        SearchScore bestScore = new SearchScore(int.MinValue);
 
 
         var moves = new GeneratorWrapper(state).GetLegalMoves();
@@ -192,10 +186,12 @@ public class MinimaxEvaluator {
 
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
-            int currentScore = -Negamax(state, depth - 1);
+            SearchScore currentScore = -Negamax(state, depth - 1);
             state.UndoMove(move, undo);
 
-            bestScore = int.Max(bestScore, currentScore);
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+            }
         }
 
         return bestScore;
@@ -203,7 +199,7 @@ public class MinimaxEvaluator {
 
     // be careful with the a-b values initialization that will overflow
     // ReSharper disable once InconsistentNaming
-    internal int ABNegamax(State state, int depth, int alpha, int beta) {
+    internal SearchScore ABNegamax(State state, int depth, int alpha, int beta) {
         bool isMaxing = state.WhiteIsActive;
 
         if (depth <= 0 || state.IsTerminal()) {
@@ -211,7 +207,7 @@ public class MinimaxEvaluator {
             return isMaxing ? score : -score;
         }
 
-        int bestScore = int.MinValue;
+        SearchScore bestScore = new SearchScore(int.MinValue);
 
 
         var moves = new GeneratorWrapper(state).GetLegalMoves();
@@ -220,11 +216,13 @@ public class MinimaxEvaluator {
 
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
-            int currentScore = -ABNegamax(state, depth - 1, -beta, -alpha);
+            SearchScore currentScore = -ABNegamax(state, depth - 1, -beta, -alpha);
             state.UndoMove(move, undo);
 
-            bestScore = int.Max(bestScore, currentScore);
-            alpha = int.Max(alpha, bestScore);
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+            }
+            alpha = int.Max(alpha, bestScore.Score);
             if (alpha >= beta) break;
         }
 
@@ -233,9 +231,9 @@ public class MinimaxEvaluator {
 
     // be careful with the a-b values initialization, they will overflow
     // ReSharper disable once InconsistentNaming
-    internal int SmartABNegamax(State state, int depth, SearchContext searchContext, int alpha, int beta) {
+    internal SearchScore SmartABNegamax(State state, int depth, SearchContext searchContext, int alpha, int beta) {
         if (searchContext.ShouldStop()) {
-            return alpha;
+            return new SearchScore(alpha);
         }
 
         bool isMaxing = state.WhiteIsActive;
@@ -247,22 +245,24 @@ public class MinimaxEvaluator {
 
 
         var moves = new GeneratorWrapper(state).GetAllMoves();
-        if (moves.Count == 0) return 0; // stalemate
+        if (moves.Count == 0) return new SearchScore(0); // stalemate
 
         moves.Sort();
 
-        int bestScore = int.MinValue + 1;
+        SearchScore bestScore = new SearchScore(int.MinValue + 1);
 
         foreach (var move in moves) {
             // this is faster, because with pruning, the generator will skip the expensive move legality check altogether
             if (!GeneratorWrapper.CheckMoveLegality(move, state))
                 continue;
             var undo = state.ApplyMove(move);
-            int currentScore = -SmartABNegamax(state, depth - 1, searchContext, -beta, -alpha);
+            SearchScore currentScore = -SmartABNegamax(state, depth - 1, searchContext, -beta, -alpha);
             state.UndoMove(move, undo);
 
-            bestScore = int.Max(bestScore, currentScore);
-            alpha = int.Max(alpha, bestScore);
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+            }
+            alpha = int.Max(alpha, bestScore.Score);
             if (alpha >= beta) break;
         }
 

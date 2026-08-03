@@ -3,6 +3,7 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using ChessBotCore;
+using ChessBotCore.Search;
 
 namespace Benchmarks;
 
@@ -17,7 +18,7 @@ public class SearchCustomMetrics : IColumn {
             .Value;
 
         var value = EvaluateTestcase(benchmarkCase.Descriptor.WorkloadMethod, state, depth);
-        return value.ToString();
+        return value?.ToString() ?? "benchamrk not found";
     }
 
     public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style) {
@@ -41,7 +42,7 @@ public class SearchCustomMetrics : IColumn {
     public UnitType UnitType => UnitType.Dimensionless;
     public string Legend => "I am not sure what to write here :(";
 
-    private static int EvaluateTestcase(MethodInfo caseMethod, State state, int depth) {
+    private static SearchScore? EvaluateTestcase(MethodInfo caseMethod, State state, int depth) {
         var benchmarkCase = new Search {
             Depth = depth,
             state = state
@@ -52,10 +53,10 @@ public class SearchCustomMetrics : IColumn {
             nameof(Search.SimpleNegamax) => benchmarkCase.SimpleNegamax(),
             nameof(Search.ABNegamax) => benchmarkCase.ABNegamax(),
             nameof(Search.SmartABNegamax) => benchmarkCase.SmartABNegamax(),
-            _ => new Lazy<int>(() => {
+            _ => new Lazy<SearchScore?>(() => {
                 Console.Error.WriteLine(
                     $"Method {caseMethod.Name} not found in benchmark so it's node count is unknown.");
-                return 0;
+                return null;
             }).Value
         };
     }

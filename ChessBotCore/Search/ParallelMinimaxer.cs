@@ -5,7 +5,10 @@ namespace ChessBotCore.Search;
 public sealed class ParallelMinimaxer {
     
 
-    private static int Eval(State s) => Evaluator.Evaluate(s);
+    private static SearchScore Eval(State s) {
+        int score = Evaluator.Evaluate(s);
+        return new SearchScore(score, score is short.MinValue or short.MaxValue);
+    }
     private static bool IsTerminal(State s) => Evaluator.IsTerminal(s);
 
 
@@ -21,14 +24,14 @@ public sealed class ParallelMinimaxer {
         // querying for a move when stalemated is undefined behaviour
         if (!moves.MoveNext()) return default;
 
-        int bestScore = isMaxing ? int.MinValue : int.MaxValue;
+        SearchScore bestScore = isMaxing ? new SearchScore(int.MinValue) : new SearchScore(int.MaxValue);
         Move bestMove = default;
 
         // TODO this code is weird and not even parallel
         do {
             var move = moves.Current;
             var undo = state.ApplyMove(move);
-            int currentScore = Minimax(state, maxDepth - 1);
+            SearchScore currentScore = Minimax(state, maxDepth - 1);
             state.UndoMove(move, undo);
 
             if (isMaxing) {
@@ -48,26 +51,30 @@ public sealed class ParallelMinimaxer {
         return bestMove;
     }
 
-    internal int Minimax(State state, int depth) {
+    internal SearchScore Minimax(State state, int depth) {
         if (depth <= 0 || IsTerminal(state)) return Eval(state);
 
         bool isMaxing = state.WhiteIsActive;
-        int bestScore = isMaxing ? int.MinValue : int.MaxValue;
+        SearchScore bestScore = isMaxing ? new SearchScore(int.MinValue) : new SearchScore(int.MaxValue);
 
         // todo sort the moves somehow 
         var moves = new GeneratorWrapper(state).GetLegalMoves().GetEnumerator();
 
 
         // no moves means stalemate, which is loss for both players
-        if (!moves.MoveNext()) return 0;
+        if (!moves.MoveNext()) return new SearchScore(0);
 
         do {
             var move = moves.Current;
             var undo = state.ApplyMove(move);
-            int currentScore = Minimax(state, depth - 1);
+            SearchScore currentScore = Minimax(state, depth - 1);
             state.UndoMove(move, undo);
 
-            bestScore = isMaxing ? int.Max(bestScore, currentScore) : int.Min(bestScore, currentScore);
+            if (isMaxing) {
+                if (currentScore > bestScore) bestScore = currentScore;
+            } else {
+                if (currentScore < bestScore) bestScore = currentScore;
+            }
         } while (moves.MoveNext());
 
         return bestScore;

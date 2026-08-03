@@ -29,22 +29,22 @@ public class Search {
     // private var parameters = (State.Initial, depth);
 
     [Benchmark(Baseline = true)]
-    public int SimpleMinimax() {
+    public SearchScore SimpleMinimax() {
         return minimaxer.Minimax(state, Depth);
     }
 
     [Benchmark]
-    public int SimpleNegamax() {
+    public SearchScore SimpleNegamax() {
         return negamaxer.Negamax(state, Depth);
     }
 
     [Benchmark]
-    public int ABNegamax() {
+    public SearchScore ABNegamax() {
         return negamaxer.ABNegamax(state, Depth, int.MinValue + 1, int.MaxValue);
     }
 
     [Benchmark]
-    public int SmartABNegamax() {
+    public SearchScore SmartABNegamax() {
         return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue + 1, int.MaxValue);
     }
 }
