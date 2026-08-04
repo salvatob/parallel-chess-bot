@@ -51,7 +51,7 @@ public class SearchCustomMetrics : IColumn {
         return caseMethod.Name switch {
             nameof(Search.SimpleMinimax) => benchmarkCase.SimpleMinimax(),
             nameof(Search.SimpleNegamax) => benchmarkCase.SimpleNegamax(),
-            nameof(Search.ABNegamax) => benchmarkCase.ABNegamax(),
+            // nameof(Search.ABNegamax) => benchmarkCase.ABNegamax(),
             nameof(Search.SmartABNegamax) => benchmarkCase.SmartABNegamax(),
             _ => new Lazy<SearchScore?>(() => {
                 Console.Error.WriteLine(

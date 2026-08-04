@@ -37,13 +37,14 @@ public class Search {
     public SearchScore SimpleNegamax() {
         return negamaxer.Negamax(state, Depth);
     }
+    //
+    // [Benchmark]
+    // public SearchScore ABNegamax() {
+    //     return negamaxer.ABNegamax(state, Depth, int.MinValue + 1, int.MaxValue);
+    // }
 
     [Benchmark]
-    public SearchScore ABNegamax() {
-        return negamaxer.ABNegamax(state, Depth, int.MinValue + 1, int.MaxValue);
-    }
-
-    [Benchmark]
+    // ReSharper disable once InconsistentNaming
     public SearchScore SmartABNegamax() {
         return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue + 1, int.MaxValue);
     }
