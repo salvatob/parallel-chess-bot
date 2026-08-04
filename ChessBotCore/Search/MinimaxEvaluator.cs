@@ -8,7 +8,6 @@ namespace ChessBotCore.Search;
 ///     A type encapsulating a Negamax-based State Space Search of the best move. It is not thread-safe.
 /// </summary>
 public class MinimaxEvaluator {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static SearchScore Eval(State s) {
         int score = Evaluator.Evaluate(s);
         bool isMate = score is short.MinValue or short.MaxValue;
@@ -21,13 +20,22 @@ public class MinimaxEvaluator {
         return new[] { timePerMoveFraction, timeLeft / 2 }.Min(); // never should use more than half of remaining time
     }
 
-    public SearchResults ChooseBestMove(State state, int maxDepth, SearchContext searchContext) {
+    /// <summary>
+    /// A simple way to run the search.
+    /// </summary>
+    /// <param name="state">The state from which to search the best move</param>
+    /// <param name="maxDepth">The depth to which to run the search.</param>
+    /// <returns></returns>
+    public SearchResults ChooseBestMove(State state, int maxDepth) {
+        var searchContext = new SearchContext();
         State copy = state.Clone();
         var (bestMove, bestScore) = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
+        // searchContext.Stats.MaxDepth = maxDepth;
         var results = new SearchResults {
             BestMove = bestMove,
             Score = bestScore,
-            Stats = searchContext.Stats
+            Stats = searchContext.Stats,
+            MaxDepth = maxDepth
         };
 
         return results;
@@ -35,29 +43,42 @@ public class MinimaxEvaluator {
 
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
         var timePerMove = CalculateAllowedTime(timers, state.WhiteIsActive);
-        var context = new SearchContext {
-            CancellationToken = cancellationToken
-        };
-
+        // var context = new SearchContext {
+        //     CancellationToken = cancellationToken
+        // };
+        //
+        
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(timePerMove);
-        context.CancellationToken = cts.Token;
+        
+        // context.CancellationToken = cts.Token;
 
         var scoredMoves = GetInitialScoredMoves(state);
-        if (scoredMoves.Count == 0) return new SearchResults(default, new SearchScore(0));
-
-        SearchResults lastCompletedResult = new(scoredMoves[0].Move, scoredMoves[0].Score);
+        if (scoredMoves.Count == 0) throw new InvalidOperationException("Current State has no moves available, so it cannot be searched.");
+        
+        var bestMove =  scoredMoves[0];
+        SearchResults lastCompletedResult = new SearchResults {
+            BestMove = bestMove.Move,
+            Score = bestMove.Score,
+            Stats = new SearchStats {NodesSearched = (ulong)scoredMoves.Count},
+            MaxDepth = 1
+        };
 
         for (int depth = 2; depth <= 100; depth++) {
+            var context = new SearchContext {
+                CancellationToken = cts.Token
+            };
             if (context.ShouldStop()) break;
 
             PerformSearchIteration(state, depth, context, scoredMoves);
             
-            scoredMoves.Sort((a, b) => b.Score.CompareTo(a.Score));
-            lastCompletedResult = new SearchResults(scoredMoves[0].Move, scoredMoves[0].Score) {
-                Stats = context.Stats
-            };
-
+            if (!context.StopRequested) {
+                scoredMoves.Sort((a, b) => b.Score.CompareTo(a.Score));
+                
+                lastCompletedResult = new SearchResults(scoredMoves[0], context.Stats) {
+                    Stats = context.Stats
+                };
+            }
         }
 
         return lastCompletedResult;
@@ -88,8 +109,9 @@ public class MinimaxEvaluator {
         }
     }
 
-    private (Move BestMove, SearchScore BestScore) NegamaxBase(State state, int maxDepth, SearchContext searchContext, int alpha,
+    private ScoredMove NegamaxBase(State state, int maxDepth, SearchContext searchContext, int alpha,
         int beta) {
+        searchContext.IncrementNodeCount();
         var moves = new GeneratorWrapper(state).GetLegalMoves();
         moves.Sort();
 
@@ -110,7 +132,7 @@ public class MinimaxEvaluator {
             if (alpha >= beta) break;
         }
 
-        return (bestMove, bestScore);
+        return new ScoredMove(bestMove, bestScore);
     }
 
     internal SearchScore Negamax(State state, int depth) {
@@ -138,41 +160,11 @@ public class MinimaxEvaluator {
         return bestScore;
     }
 
-    // be careful with the a-b values initialization that will overflow
-    // ReSharper disable once InconsistentNaming
-    internal SearchScore ABNegamax(State state, int depth, int alpha, int beta) {
-        bool isMaxing = state.WhiteIsActive;
-
-        if (depth <= 0 || state.IsTerminal()) {
-            var score = Eval(state);
-            return isMaxing ? score : -score;
-        }
-
-        SearchScore bestScore = new SearchScore(int.MinValue);
-
-
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
-        // TODO allow sorting
-        // moves.Sort();
-
-        foreach (var move in moves) {
-            var undo = state.ApplyMove(move);
-            SearchScore currentScore = -ABNegamax(state, depth - 1, -beta, -alpha);
-            state.UndoMove(move, undo);
-
-            if (currentScore > bestScore) {
-                bestScore = currentScore;
-            }
-            alpha = int.Max(alpha, bestScore.Score);
-            if (alpha >= beta) break;
-        }
-
-        return bestScore;
-    }
 
     // be careful with the a-b values initialization, they will overflow
     // ReSharper disable once InconsistentNaming
     internal SearchScore SmartABNegamax(State state, int depth, SearchContext searchContext, int alpha, int beta) {
+        searchContext.IncrementNodeCount();
         if (searchContext.ShouldStop()) {
             return new SearchScore(alpha);
         }
@@ -219,6 +211,7 @@ public class MinimaxEvaluator {
 
         public bool StopRequested { get; private set; }
         public SearchStats Stats { get; } = new();
+        
         // TODO think of a way to keep it thread safe
         public int Alpha { get; set; } = int.MinValue + 1; // to prevent negation overflow
         public int Beta { get; set; } = int.MaxValue;
@@ -227,6 +220,10 @@ public class MinimaxEvaluator {
             Interlocked.Increment(ref Stats.NodesSearched);
         }
 
+        /// <summary>
+        /// Periodically checks, if the cancellation token has been called. If so 
+        /// </summary>
+        /// <returns>If the search should stop ASAP.</returns>
         public bool ShouldStop() {
             // in future this should also handle things like if we already found mate,
             // or in case of another thread finding a dominating move (alpha beta hit).

@@ -15,7 +15,7 @@ internal class Program {
         // await PlayGame();
 
         var n = new MinimaxEvaluator();
-        var m = n.ChooseBestMove(State.Initial, 6, new MinimaxEvaluator.SearchContext());
+        var m = n.ChooseBestMove(State.Initial, 6);
         Console.WriteLine(m.BestMove.PrintLAN());
         // var r = Performance.ParallelPerft(State.Initial, 6);
         // Console.WriteLine(r);
