@@ -63,7 +63,10 @@ public class ConsolePlayer : IPlayer {
         var move = Move.FindFullMove(moveDto, state);
 
         return new SearchResults {
-            BestMove = move
+            BestMove = move,
+            MaxDepth = 0,
+            Score = default,
+            Stats = new SearchStats {NodesSearched = default}
         };
     }
 

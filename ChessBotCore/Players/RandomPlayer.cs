@@ -13,7 +13,14 @@ public class RandomPlayer : IPlayer {
         List<Move> moves = new GeneratorWrapper(state).GetLegalMoves();
         Move move = moves[_random.Next(moves.Count)];
 
-        return new SearchHandle(new CancellationTokenSource(), Task.FromResult(new SearchResults(move)));
+        var result = new SearchResults {
+            BestMove = move,
+            MaxDepth = 0,
+            Score = default,
+            Stats = new SearchStats {NodesSearched = default}
+        };
+        
+        return new SearchHandle(new CancellationTokenSource(), Task.FromResult(result));
     }
 
     public Task OnGameStartAsync(bool yourColor, State state, Timers timers) {
