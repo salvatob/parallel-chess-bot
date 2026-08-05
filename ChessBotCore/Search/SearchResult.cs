@@ -29,7 +29,7 @@ public class SearchStats {
     /// <summary>
     /// Represents the depth to which the search has been evaluated.
     /// </summary>
-    public int MaxDepth { get; init; }
+    public int MaxDepth;
 }
 
 /// <summary>
@@ -38,16 +38,6 @@ public class SearchStats {
 /// </summary>
 public class EngineSearchResults :  SearchResults {
     public required SearchStats Stats {get; init; }
-    
-    /// <summary>
-    /// The score of the best move. 
-    /// </summary>
-    public SearchScore Score { get; init; }
-    
-    /// <summary>
-    /// Represents the depth to which the search has been evaluated.
-    /// </summary>
-    public int MaxDepth { get; init; }
     
     public EngineSearchResults() { }
     
