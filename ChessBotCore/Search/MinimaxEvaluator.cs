@@ -73,17 +73,7 @@ public class MinimaxEvaluator {
 
         return lastCompletedResult;
     }
-
-    private static List<ScoredMove> GetInitialScoredMoves(State state) {
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
-        moves.Order();
-        var scoredMoves = new List<ScoredMove>(moves.Count);
-        foreach (var move in moves) {
-            scoredMoves.Add(new ScoredMove(move, new SearchScore(0)));
-        }
-        return scoredMoves;
-    }
-
+    
     private void PerformSearchIteration(State state, int depth, SearchContext context, List<ScoredMove> scoredMoves) {
         for (int i = 0; i < scoredMoves.Count; i++) {
             if (context.ShouldStop()) break;
@@ -101,6 +91,17 @@ public class MinimaxEvaluator {
         }
     }
 
+    private static List<ScoredMove> GetInitialScoredMoves(State state) {
+            var moves = new GeneratorWrapper(state).GetLegalMoves();
+            moves.Order();
+            var scoredMoves = new List<ScoredMove>(moves.Count);
+            foreach (var move in moves) {
+                scoredMoves.Add(new ScoredMove(move, new SearchScore(0)));
+            }
+            return scoredMoves;
+        }
+    
+    
     private ScoredMove NegamaxBase(State state, int maxDepth, SearchContext context) {
         context.IncrementNodeCount();
         var moves = new GeneratorWrapper(state).GetLegalMoves();
