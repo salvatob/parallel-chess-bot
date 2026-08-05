@@ -31,7 +31,7 @@ public class MinimaxEvaluator {
         State copy = state.Clone();
         var (bestMove, bestScore) = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
         // searchContext.Stats.MaxDepth = maxDepth;
-        var results = new SearchResults {
+        var results = new EngineSearchResults {
             BestMove = bestMove,
             Score = bestScore,
             Stats = searchContext.Stats,
@@ -43,21 +43,15 @@ public class MinimaxEvaluator {
 
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
         var timePerMove = CalculateAllowedTime(timers, state.WhiteIsActive);
-        // var context = new SearchContext {
-        //     CancellationToken = cancellationToken
-        // };
-        //
         
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(timePerMove);
         
-        // context.CancellationToken = cts.Token;
-
         var scoredMoves = GetInitialScoredMoves(state);
         if (scoredMoves.Count == 0) throw new InvalidOperationException("Current State has no moves available, so it cannot be searched.");
         
         var bestMove =  scoredMoves[0];
-        SearchResults lastCompletedResult = new SearchResults {
+        var lastCompletedResult = new EngineSearchResults() {
             BestMove = bestMove.Move,
             Score = bestMove.Score,
             Stats = new SearchStats {NodesSearched = (ulong)scoredMoves.Count},
@@ -66,7 +60,8 @@ public class MinimaxEvaluator {
 
         for (int depth = 2; depth <= 100; depth++) {
             var context = new SearchContext {
-                CancellationToken = cts.Token
+                CancellationToken = cts.Token,
+                Stats = new SearchStats(){  }
             };
             if (context.ShouldStop()) break;
 
@@ -75,7 +70,7 @@ public class MinimaxEvaluator {
             if (!context.StopRequested) {
                 scoredMoves.Sort((a, b) => b.Score.CompareTo(a.Score));
                 
-                lastCompletedResult = new SearchResults(scoredMoves[0], context.Stats) {
+                lastCompletedResult = new EngineSearchResults(scoredMoves[0], context.Stats) {
                     Stats = context.Stats
                 };
             }
@@ -84,7 +79,7 @@ public class MinimaxEvaluator {
         return lastCompletedResult;
     }
 
-    private List<ScoredMove> GetInitialScoredMoves(State state) {
+    private static List<ScoredMove> GetInitialScoredMoves(State state) {
         var moves = new GeneratorWrapper(state).GetLegalMoves();
         moves.Order();
         var scoredMoves = new List<ScoredMove>(moves.Count);
@@ -210,7 +205,7 @@ public class MinimaxEvaluator {
         public CancellationToken CancellationToken { get; set; }
 
         public bool StopRequested { get; private set; }
-        public SearchStats Stats { get; } = new();
+        public SearchStats Stats { get; init; } = new();
         
         // TODO think of a way to keep it thread safe
         public int Alpha { get; set; } = int.MinValue + 1; // to prevent negation overflow

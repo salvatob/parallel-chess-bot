@@ -5,18 +5,18 @@ using ChessBotCore.Search;
 
 namespace MacroBenchmarks;
 
-class Program {
+class MacroBenchmarks {
     static void Main(string[] args) {
         var state = State.Initial;
 
         var minimaxer = new MinimaxEvaluator();
         var cts = new CancellationTokenSource();
-        // var timers = Timers.Default;
-        var timers = new Timers() {
-            BaseBlackTime =  TimeSpan.FromSeconds(2),
-            BaseWhiteTime = TimeSpan.FromSeconds(2),
-            Increment = TimeSpan.FromSeconds(1)
-        };
+        var timers = Timers.Default;
+        // var timers = new Timers() {
+        //     BaseBlackTime =  TimeSpan.FromSeconds(2),
+        //     BaseWhiteTime = TimeSpan.FromSeconds(2),
+        //     Increment = TimeSpan.FromSeconds(1)
+        // };
         
         var sw = Stopwatch.StartNew();
         var result = minimaxer.PrimitiveIterativeSearch(state, timers,  cts.Token);
