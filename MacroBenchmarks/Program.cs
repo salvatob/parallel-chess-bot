@@ -7,6 +7,11 @@ namespace MacroBenchmarks;
 
 class MacroBenchmarks {
     static void Main(string[] args) {
+        SearchComparing.CompareItearativeAndABMinimax();
+    }
+
+
+    static void RunSearch() {
         var state = State.Initial;
 
         var minimaxer = new MinimaxEvaluator();
@@ -23,23 +28,6 @@ class MacroBenchmarks {
         var time = sw.Elapsed;
         Console.WriteLine($"Took {time} time.");
         Console.WriteLine(result);
-    }
 
-    static void CompareItearativeAndABMinimax() {
-        var depth = 7;
-        
-        var state = State.Initial;
-        var minimaxer = new MinimaxEvaluator();
-        
-        var sw = new Stopwatch();
-        
-        sw.Start();
-        var minimaxed = minimaxer.ChooseBestMove(state, depth);
-        var mmTime = sw.Elapsed;
-        Console.WriteLine($"Took {mmTime} time.");
-        sw.Restart();
-        
-        // var itarated = minimaxer.PrimitiveIterativeSearch()
-        
-    }
+    } 
 }
