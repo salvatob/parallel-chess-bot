@@ -2,6 +2,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ChessBotCore.Search;
 
+
+/// <summary>
+/// The outer class representing the result of en <seealso cref="IPlayer"/>'s search.
+/// <remarks>An engine can return the more specific <seealso cref="EngineSearchResults"/> type
+/// that contains much more information.</remarks>
+/// </summary>
 public class SearchResults {
     public required Move BestMove { get; init; }
         
@@ -33,7 +39,10 @@ public class SearchStats {
 public class EngineSearchResults :  SearchResults {
     public required SearchStats Stats {get; init; }
     
-    public SearchScore? Score { get; init; }
+    /// <summary>
+    /// The score of the best move. 
+    /// </summary>
+    public SearchScore Score { get; init; }
     
     /// <summary>
     /// Represents the depth to which the search has been evaluated.
@@ -52,7 +61,6 @@ public class EngineSearchResults :  SearchResults {
     }
 
     public override string ToString() {
-        if (Stats is null) return BestMove.ToString();
         return $"{BestMove} ... score - ({Stats.Score}), depth {Stats.MaxDepth}, {Stats.NodesSearched} nodes searched";
     }
 }
