@@ -14,10 +14,7 @@ public class RandomPlayer : IPlayer {
         Move move = moves[_random.Next(moves.Count)];
 
         var result = new SearchResults {
-            BestMove = move,
-            MaxDepth = 0,
-            Score = default,
-            Stats = new SearchStats {NodesSearched = default}
+            BestMove = move
         };
         
         return new SearchHandle(new CancellationTokenSource(), Task.FromResult(result));
