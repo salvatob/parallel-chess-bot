@@ -8,17 +8,21 @@ namespace ChessBotCore.Search;
 ///     A type encapsulating a Negamax-based State Space Search of the best move. It is not thread-safe.
 /// </summary>
 public class MinimaxEvaluator {
+    private readonly ITimeManager _timeManager = new TimeManager();
+
+    public  MinimaxEvaluator() {}
+    public MinimaxEvaluator(ITimeManager timeManager) {
+        _timeManager = timeManager;
+    }
+    
+    
     private static SearchScore Eval(State s) {
         int score = Evaluator.Evaluate(s);
         bool isMate = score is short.MinValue or short.MaxValue;
         return new SearchScore(score, isMate);
     }
 
-    private TimeSpan CalculateAllowedTime(Timers timers, bool isWhite) {
-        var timeLeft = timers.ActiveTime(isWhite);
-        var timePerMoveFraction = timeLeft / 20 + timers.Increment / 2;
-        return new[] { timePerMoveFraction, timeLeft / 2 }.Min(); // never should use more than half of remaining time
-    }
+    
 
     /// <summary>
     /// A simple way to run the search.
@@ -30,7 +34,6 @@ public class MinimaxEvaluator {
         var searchContext = new SearchContext();
         State copy = state.Clone();
         var (bestMove, bestScore) = NegamaxBase(copy, maxDepth, searchContext, searchContext.Alpha, searchContext.Beta);
-        // searchContext.Stats.MaxDepth = maxDepth;
         var results = new EngineSearchResults {
             BestMove = bestMove,
             Score = bestScore,
@@ -42,7 +45,7 @@ public class MinimaxEvaluator {
     }
 
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
-        var timePerMove = CalculateAllowedTime(timers, state.WhiteIsActive);
+        var timePerMove = _timeManager.CalculateAllowedTime(timers, state.WhiteIsActive);
         
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(timePerMove);
