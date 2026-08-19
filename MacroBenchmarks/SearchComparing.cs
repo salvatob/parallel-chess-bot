@@ -18,7 +18,7 @@ class MockTimeManager : ITimeManager {
 public class SearchComparing {
     
     public static void CompareItearativeAndABMinimax() {
-        var depth = 9;
+        var depth = 10;
         
         var state1 = State.Initial;
         var state2 = state1.Clone();

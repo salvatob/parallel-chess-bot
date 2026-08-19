@@ -43,9 +43,9 @@ public class Search {
     //     return negamaxer.ABNegamax(state, Depth, int.MinValue + 1, int.MaxValue);
     // }
 
-    [Benchmark]
+    // [Benchmark]
     // ReSharper disable once InconsistentNaming
-    public SearchScore SmartABNegamax() {
-        return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue + 1, int.MaxValue);
-    }
+    // public SearchScore SmartABNegamax() {
+    //     return negamaxer.SmartABNegamax(state, Depth, _context, int.MinValue + 1, int.MaxValue);
+    // }
 }
