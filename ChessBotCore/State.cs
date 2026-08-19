@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Text;
 using ChessBotCore.Board;
-using ChessBotCore.MoveGenerators;
+using ChessBotCore.Game;
 using ChessBotCore.Parser;
 
 namespace ChessBotCore;
@@ -152,19 +152,40 @@ public sealed class State {
     }
 
     /// <summary>
+    ///     Determines the current outcome of the game.
+    /// </summary>
+    /// <returns>A GameOutcome indicating if the game is over and why, or if it's playable.</returns>
+    public GameOutcome GetOutcome() {
+        if (HalfMovesSincePawnMoveOrCapture >= 100) return GameOutcome.Draw;
+
+        if (GetAllPieces().PopCount() <= 2) return GameOutcome.Draw; // insufficient material (KK)
+        // cannot mate with only a knight (KNK)
+        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights | BlackKnights).IsEmpty())
+            return GameOutcome.Draw;
+        // TODO: Other insufficient material cases (KBK, etc.)
+
+        var generator = new GeneratorWrapper(this);
+        var legalMoves = generator.GetLegalMoves();
+
+        if (legalMoves.Count == 0) {
+            var activeKing = WhiteIsActive ? WhiteKing : BlackKing;
+            if (GeneratorWrapper.IsSquareAttacked(activeKing.TrailingZeroCount(), !WhiteIsActive, this)) {
+                return WhiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin;
+            }
+
+            return GameOutcome.Draw; // Stalemate
+        }
+
+        return GameOutcome.NonTerminal;
+    }
+
+    /// <summary>
     ///     Determines, if either player has won, or if the game is a draw.
     ///     Stalemates (no possible move for active player) are not accounted by this method.
     /// </summary>
     /// <returns>If the game can continue.</returns>
     public bool IsTerminal() {
-        if (GetAllPieces().PopCount() <= 2) return true; // insufficient material
-        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights & BlackKnights).IsEmpty())
-            return true; // cannot mate with only a knight
-
-        var inactiveKing = !WhiteIsActive ? WhiteKing : BlackKing;
-
-        // TODO might need some testing
-        return GeneratorWrapper.IsSquareAttacked(inactiveKing.TrailingZeroCount(), WhiteIsActive, this);
+        return GetOutcome() != GameOutcome.NonTerminal;
     }
     
     public static State FromFen(string fen) => FenParser.ParseFen(fen);

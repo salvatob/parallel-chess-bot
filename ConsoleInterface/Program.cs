@@ -27,7 +27,7 @@ internal class Program {
         // var whitePlayer = new RandomPlayer();
         var blackPlayer = new RandomPlayer();
         var game = new ChessGame(whitePlayer, blackPlayer);
-        return await game.Play(1);
+        return await game.PlayAsync(1);
     }
 
     public static async Task OneMove() {

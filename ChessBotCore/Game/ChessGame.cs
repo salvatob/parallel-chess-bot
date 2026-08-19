@@ -3,6 +3,7 @@ using System.Diagnostics;
 namespace ChessBotCore.Game;
 
 public enum GameOutcome {
+    NonTerminal,
     WhiteWin,
     BlackWin,
     Draw
@@ -41,23 +42,36 @@ public class ChessGame : IDisposable {
         return isWhite ? _whitePlayer : _blackPlayer;
     }
 
-    private async Task PushGameStart() {
+    private async Task PushGameStartAsync() {
         var wps = _whitePlayer.OnGameStartAsync(true, _state, _timers);
         var bps = _blackPlayer.OnGameStartAsync(false, _state, _timers);
         await Task.WhenAll(wps, bps);
     }
 
-    private async Task PushGameEnd(GameResult gameResult) {
+    private async Task PushGameEndAsync(GameResult gameResult) {
         var wpe = _whitePlayer.OnGameGameEndAsync(true, gameResult);
         var bpe = _blackPlayer.OnGameGameEndAsync(false, gameResult);
         await Task.WhenAll(wpe, bpe);
     }
 
-    public async Task<GameResult> Play(int verbosity = 0) {
+    
+    /// <summary>
+    /// Runs the entire game loop until time has ran out, or a terminal state has been reached.
+    /// </summary>
+    /// <param name="verbosity">Verbosity level (0,1,2)</param>
+    /// <returns>The outcome of the game.</returns>
+    public async Task<GameResult> PlayAsync(int verbosity = 0) {
         List<Move> moveList = new();
-        await PushGameStart();
+        await PushGameStartAsync();
 
-        while (!_state.IsTerminal()) {
+        while (true) {
+            GameOutcome currentOutcome = _state.GetOutcome();
+            if (currentOutcome != GameOutcome.NonTerminal) {
+                var finalResult = new GameResult(currentOutcome, moveList);
+                await PushGameEndAsync(finalResult);
+                return finalResult;
+            }
+
             var whiteIsActive = _state.WhiteIsActive;
             var player = ActivePlayer(whiteIsActive);
             ref var playerTime = ref _timers.ActiveTime(whiteIsActive);
@@ -101,11 +115,5 @@ public class ChessGame : IDisposable {
             moveList.Add(move);
             _state.ApplyMove(move);
         }
-
-        var gameResult = new GameResult(GameOutcome.Draw, moveList);
-
-        await PushGameEnd(gameResult);
-
-        return gameResult;
     }
 }
