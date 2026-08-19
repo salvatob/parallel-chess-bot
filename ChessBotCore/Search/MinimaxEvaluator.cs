@@ -77,29 +77,31 @@ public class MinimaxEvaluator {
     private void PerformSearchIteration(State state, int depth, SearchContext context, List<ScoredMove> scoredMoves) {
         for (int i = 0; i < scoredMoves.Count; i++) {
             if (context.ShouldStop()) break;
-
+        
             var move = scoredMoves[i].Move;
             var undo = state.ApplyMove(move);
             SearchScore score = -SmartABNegamax(state, depth - 1, context, -context.Beta, -context.Alpha);
             
             state.UndoMove(move, undo);
-            if (score > context.Alpha) context.Alpha = score;
             
             if (!context.StopRequested) {
                 scoredMoves[i] = new ScoredMove(move, score);
+                if (score > context.Alpha) context.Alpha = score;
             }
+
+            // if (context.Alpha >= context.Beta) break;
         }
     }
 
     private static List<ScoredMove> GetInitialScoredMoves(State state) {
-            var moves = new GeneratorWrapper(state).GetLegalMoves();
-            moves.Order();
-            var scoredMoves = new List<ScoredMove>(moves.Count);
-            foreach (var move in moves) {
-                scoredMoves.Add(new ScoredMove(move, new SearchScore(0)));
-            }
-            return scoredMoves;
+        var moves = new GeneratorWrapper(state).GetLegalMoves();
+        moves.Sort();
+        var scoredMoves = new List<ScoredMove>(moves.Count);
+        foreach (var move in moves) {
+            scoredMoves.Add(new ScoredMove(move, new SearchScore(0)));
         }
+        return scoredMoves;
+    }
     
     
     private ScoredMove NegamaxBase(State state, int maxDepth, SearchContext context) {
@@ -213,6 +215,10 @@ public class MinimaxEvaluator {
             Interlocked.Increment(ref Stats.NodesSearched);
         }
 
+        public void Reset() {
+            
+        }
+        
         /// <summary>
         /// Periodically checks, if the cancellation token has been called. If so 
         /// </summary>
