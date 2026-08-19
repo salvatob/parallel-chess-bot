@@ -4,7 +4,7 @@ namespace ChessBotCore.Search;
 
 
 /// <summary>
-/// The outer class representing the result of en <seealso cref="IPlayer"/>'s search.
+/// The outer class representing the result of an <seealso cref="IPlayer"/>'s search.
 /// <remarks>An engine can return the more specific <seealso cref="EngineSearchResults"/> type
 /// that contains much more information.</remarks>
 /// </summary>
