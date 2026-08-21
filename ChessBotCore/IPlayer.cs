@@ -20,8 +20,9 @@ public interface IPlayer : IDisposable {
     /// <param name="yourColor">The color of the player. true is white</param>
     /// <param name="state">The initial state of the game.</param>
     /// <param name="timers">The time info for both players.</param>
+    /// <param name="moveHistory">Reference to a record of played moves, if the IPlayer wants to store it.</param>
     /// <returns>A void task signifying if the method ran successfully.</returns>
-    public Task OnGameStartAsync(bool yourColor, State state, Timers timers);
+    public Task OnGameStartAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory);
 
     /// <summary>
     ///     Should be called for both players by the game owner after the game ends, to notify them of the results.\
