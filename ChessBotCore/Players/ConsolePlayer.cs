@@ -56,15 +56,29 @@ public class ConsolePlayer : IPlayer {
     }
 
     private SearchResults GetCommand(State state, Timers timers) {
-        var command = Console.ReadLine();
-        if (command is null) throw new InvalidOperationException($"No command for the {nameof(ConsolePlayer)}.");
+        while (true) {
+            string? command = null;
+            while (command is null) {
+                command = Console.ReadLine();
+            }
 
-        var moveDto = MoveDTO.Parse(command);
-        var move = Move.FindFullMove(moveDto, state);
-
-        return new SearchResults {
-            BestMove = move
-        };
+            MoveDTO moveDto;
+            try {
+                moveDto = MoveDTO.Parse(command);
+            } catch (ArgumentException ae) {
+                Console.WriteLine(ae.Message);
+                continue;
+            }
+            try {
+                var move = Move.FindFullMove(moveDto, state);
+                return new SearchResults {
+                    BestMove = move
+                };
+            } catch (ArgumentException ae) {
+                Console.WriteLine($"Move <{moveDto}> is illegal");
+                continue;
+            }
+        }
     }
 
     private bool ValidateMove(State state, MoveDTO move) {
