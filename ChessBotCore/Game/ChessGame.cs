@@ -28,8 +28,9 @@ public class ChessGame : IDisposable {
     private readonly IPlayer _whitePlayer;
     private readonly IPlayer _blackPlayer;
     private readonly State _state = State.Initial;
-
     private readonly List<Move> _moveList;
+    private bool _started = false;
+    
     private readonly Timers _timers = new() {
         BaseWhiteTime = TimeSpan.FromMinutes(5),
         BaseBlackTime = TimeSpan.FromMinutes(5),
@@ -68,14 +69,24 @@ public class ChessGame : IDisposable {
         await Task.WhenAll(wpe, bpe);
     }
 
+    private void ThrowIfGameStarted() {
+        // if started == true, then the game has already been ran and should throw
+        if (Interlocked.CompareExchange(ref _started, true, false) == true)
+        {
+            throw new InvalidOperationException(
+                "A Game instance can only be played once.");
+        }
+
+    }
     
     /// <summary>
     /// Runs the entire game loop until time has ran out, or a terminal state has been reached.
     /// </summary>
     /// <param name="verbosity">Verbosity level (0,1,2)</param>
     /// <returns>The outcome of the game.</returns>
+    /// <exception cref="InvalidOperationException">The game has already been played.</exception>
     public async Task<GameResult> PlayAsync(int verbosity = 0) {
-        List<Move> moveList = new();
+        ThrowIfGameStarted();
         await PushGameStartAsync();
 
         while (true) {
