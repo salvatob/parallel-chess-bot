@@ -137,4 +137,9 @@ public record MoveDTO(int From, int To, char? Promotion) {
 
         return new MoveDTO(from, to, promotionS);
     }
+
+    public override string ToString() {
+        return Coordinates.From1D(From).ToString() + Coordinates.From1D(To).ToString()
+            + (Promotion.HasValue ? Promotion.Value.ToString() : "");
+    }
 }
