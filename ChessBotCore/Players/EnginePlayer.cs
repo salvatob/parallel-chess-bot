@@ -24,7 +24,7 @@ public class EnginePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
-    public Task OnGameGameEndAsync(bool yourColor, GameResult result) {
+    public Task OnGameEndAsync(bool yourColor, GameResult result) {
         return Task.CompletedTask;
     }
 

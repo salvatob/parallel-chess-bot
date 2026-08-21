@@ -64,8 +64,8 @@ public class ChessGame : IDisposable {
     }
 
     private async Task PushGameEndAsync(GameResult gameResult) {
-        var wpe = _whitePlayer.OnGameGameEndAsync(true, gameResult);
-        var bpe = _blackPlayer.OnGameGameEndAsync(false, gameResult);
+        var wpe = _whitePlayer.OnGameEndAsync(true, gameResult);
+        var bpe = _blackPlayer.OnGameEndAsync(false, gameResult);
         await Task.WhenAll(wpe, bpe);
     }
 

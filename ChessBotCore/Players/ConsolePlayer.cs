@@ -27,7 +27,7 @@ public class ConsolePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
-    public Task OnGameGameEndAsync(bool yourColor, GameResult result) {
+    public Task OnGameEndAsync(bool yourColor, GameResult result) {
         if (result.Outcome == GameOutcome.Draw) {
             Console.WriteLine("Game was a draw");
             return Task.CompletedTask;

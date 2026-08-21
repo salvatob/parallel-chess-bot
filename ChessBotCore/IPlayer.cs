@@ -31,7 +31,7 @@ public interface IPlayer : IDisposable {
     /// <param name="yourColor"></param>
     /// <param name="result"></param>
     /// <returns></returns>
-    public Task OnGameGameEndAsync(bool yourColor, GameResult result);
+    public Task OnGameEndAsync(bool yourColor, GameResult result);
 
     /// <summary>
     ///     Notify the player that an error has occured in the lifetime of the player, or the game.
