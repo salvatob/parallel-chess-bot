@@ -9,7 +9,20 @@ public enum GameOutcome {
     Draw
 }
 
-public record GameResult(GameOutcome Outcome, List<Move> Moves);
+public enum GameEndReason {
+    ClockTimedOut,
+    InsufficientMaterial,
+    Stalemate,
+    FiftyMoveRule,
+    Checkmate,
+    Resignation,
+    DrawAgreed,
+    Unknown
+}
+
+
+
+public record GameResult(GameOutcome Outcome, GameEndReason GameEndReason, List<Move> Moves);
 
 public class ChessGame : IDisposable {
     private readonly IPlayer _whitePlayer;
@@ -67,7 +80,8 @@ public class ChessGame : IDisposable {
         while (true) {
             GameOutcome currentOutcome = _state.GetOutcome();
             if (currentOutcome != GameOutcome.NonTerminal) {
-                var finalResult = new GameResult(currentOutcome, moveList);
+                // TODO find the reason game ended
+                var finalResult = new GameResult(currentOutcome, GameEndReason.Unknown, moveList);
                 await PushGameEndAsync(finalResult);
                 return finalResult;
             }
@@ -95,7 +109,7 @@ public class ChessGame : IDisposable {
             if (t == timeOutTask) {
                 moveHandle.Cancel();
                 var outcome = whiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin;
-                return new GameResult(outcome, moveList);
+                return new GameResult(outcome, GameEndReason.ClockTimedOut ,moveList);
             }
 
             _timers.UpdateTimer(sw.Elapsed, whiteIsActive);
