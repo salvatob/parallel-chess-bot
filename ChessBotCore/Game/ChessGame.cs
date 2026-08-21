@@ -29,6 +29,7 @@ public class ChessGame : IDisposable {
     private readonly IPlayer _blackPlayer;
     private readonly State _state = State.Initial;
 
+    private readonly List<Move> _moveList;
     private readonly Timers _timers = new() {
         BaseWhiteTime = TimeSpan.FromMinutes(5),
         BaseBlackTime = TimeSpan.FromMinutes(5),
@@ -56,8 +57,8 @@ public class ChessGame : IDisposable {
     }
 
     private async Task PushGameStartAsync() {
-        var wps = _whitePlayer.OnGameStartAsync(true, _state, _timers);
-        var bps = _blackPlayer.OnGameStartAsync(false, _state, _timers);
+        var wps = _whitePlayer.OnGameStartAsync(true, _state, _timers, _moveList);
+        var bps = _blackPlayer.OnGameStartAsync(false, _state, _timers, _moveList);
         await Task.WhenAll(wps, bps);
     }
 
@@ -81,7 +82,7 @@ public class ChessGame : IDisposable {
             GameOutcome currentOutcome = _state.GetOutcome();
             if (currentOutcome != GameOutcome.NonTerminal) {
                 // TODO find the reason game ended
-                var finalResult = new GameResult(currentOutcome, GameEndReason.Unknown, moveList);
+                var finalResult = new GameResult(currentOutcome, GameEndReason.Unknown, _moveList);
                 await PushGameEndAsync(finalResult);
                 return finalResult;
             }
@@ -109,7 +110,7 @@ public class ChessGame : IDisposable {
             if (t == timeOutTask) {
                 moveHandle.Cancel();
                 var outcome = whiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin;
-                return new GameResult(outcome, GameEndReason.ClockTimedOut ,moveList);
+                return new GameResult(outcome, GameEndReason.ClockTimedOut ,_moveList);
             }
 
             _timers.UpdateTimer(sw.Elapsed, whiteIsActive);
@@ -127,7 +128,7 @@ public class ChessGame : IDisposable {
                 Console.WriteLine();
             }
 
-            moveList.Add(move);
+            _moveList.Add(move);
             _state.ApplyMove(move);
         }
     }
