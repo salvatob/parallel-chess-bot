@@ -5,7 +5,7 @@ namespace ChessBotCore.Players;
 
 public class EnginePlayer : IPlayer {
     private readonly MinimaxEvaluator _negamaxer = new();
-
+    
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         var cts = new CancellationTokenSource();
 
@@ -15,7 +15,10 @@ public class EnginePlayer : IPlayer {
         return new SearchHandle(cts, task);
     }
 
-    public Task OnGameStartAsync(bool yourColor, State state, Timers timers) {
+    
+    public Task OnGameStartAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> _) {
+        //currently we don't store the move list
+        
         // This could probably be pretty nice later, we could fire up some lookup tables,
         // or do similar work before the game starts
         return Task.CompletedTask;
