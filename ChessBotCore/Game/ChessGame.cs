@@ -28,7 +28,7 @@ public class ChessGame : IDisposable {
     private readonly IPlayer _whitePlayer;
     private readonly IPlayer _blackPlayer;
     private readonly State _state = State.Initial;
-    private readonly List<Move> _moveList;
+    private readonly List<Move> _moveList = new();
     private bool _started = false;
     
     private readonly Timers _timers = new() {
