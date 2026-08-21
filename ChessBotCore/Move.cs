@@ -111,8 +111,15 @@ public readonly struct Move : IComparable<Move>, IEquatable<Move> {
     }
 }
 
+
 // ReSharper disable once InconsistentNaming
 public record MoveDTO(int From, int To, char? Promotion) {
+    /// <summary>
+    /// Parses a move in LAN notation.
+    /// </summary>
+    /// <param name="move">The string to parse.</param>
+    /// <returns>A move DTO abject</returns>
+    /// <exception cref="ArgumentException">If the move string is in an incorrect format</exception>
     public static MoveDTO Parse(string move) {
         string moveRegex = "([a-h][1-8])([a-h][1-8])([qrbn]?)";
         var match = Regex.Match(move, moveRegex);
