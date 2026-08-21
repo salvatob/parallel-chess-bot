@@ -74,9 +74,10 @@ public class ChessGame : IDisposable {
 
             var whiteIsActive = _state.WhiteIsActive;
             var player = ActivePlayer(whiteIsActive);
-            ref var playerTime = ref _timers.ActiveTime(whiteIsActive);
+            var playerTime = _timers.ActiveTime(whiteIsActive);
             if (verbosity > 0) {
-                Console.WriteLine($"Player {player.GetType().Name} turn");
+                Console.WriteLine($"Player {player.GetType().Name} turn.");
+                Console.WriteLine($"They have {playerTime} time.");
                 Console.WriteLine(_state.PrettyPrint());
             }
 
