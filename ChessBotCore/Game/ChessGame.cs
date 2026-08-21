@@ -101,11 +101,8 @@ public class ChessGame : IDisposable {
             var whiteIsActive = _state.WhiteIsActive;
             var player = ActivePlayer(whiteIsActive);
             var playerTime = _timers.ActiveTime(whiteIsActive);
-            if (verbosity > 0) {
-                Console.WriteLine($"Player {player.GetType().Name} turn.");
-                Console.WriteLine($"They have {playerTime} time.");
-                Console.WriteLine(_state.PrettyPrint());
-            }
+            
+            LogGameProgress(verbosity, player, playerTime);
 
             using var timeOutCts = new CancellationTokenSource();
             var timeOutTask = Task.Delay(playerTime, timeOutCts.Token);
@@ -132,15 +129,25 @@ public class ChessGame : IDisposable {
 
 
             var move = searchResult.BestMove;
-
-            if (verbosity > 0) {
-                Console.WriteLine($"Player {player.GetType().Name} made move {move.PrintLAN()}");
-                Console.WriteLine();
-                Console.WriteLine();
-            }
+            
+            LogMovePlayed(verbosity, player, move);
 
             _moveList.Add(move);
             _state.ApplyMove(move);
         }
+    }
+
+    private void LogGameProgress(int verbosity, IPlayer currentPlayer, TimeSpan time) {
+        if (verbosity == 0) return;
+        Console.WriteLine($"Player {currentPlayer.GetType().Name} turn.");
+        Console.WriteLine($"They have {time} time.");
+        Console.WriteLine(_state.PrettyPrint());
+    }
+
+    private void LogMovePlayed(int verbosity, IPlayer player, Move move) {
+        if (verbosity == 0) return;
+        Console.WriteLine($"Player {player.GetType().Name} made move {move.PrintLAN()}");
+        Console.WriteLine();
+        Console.WriteLine();
     }
 }
