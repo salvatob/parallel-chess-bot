@@ -34,8 +34,8 @@ public interface IPlayer : IDisposable {
     public Task OnGameStartAsync();
 
     /// <summary>
-    ///     Should be called for both players by the game owner after the game ends, to notify them of the results.\
-    ///     It is okay for this method to be empty for some IPlayers.
+    ///     Notifies the player that the game has ended and provides the outcome information.
+    ///     Should be called for both players by the game owner after the game ends, to notify them of the results.
     /// </summary>
     /// <param name="yourColor"></param>
     /// <param name="result"></param>
@@ -51,18 +51,18 @@ public interface IPlayer : IDisposable {
     public Task OnOpponentsMoveAsync(Move move, State newState);
 
     /// <summary>
-    ///     Notify the player that an error has occured in the lifetime of the player, or the game.
+    ///     Notify the player that an error has occurred in the lifetime of the player, or the game.
     /// </summary>
-    /// <param name="error">The specific error that occured.</param>
-    /// <param name="gameEnd">True, it the error was so critical, that the game cannot continue.</param>
+    /// <param name="error">The specific error that occurred.</param>
+    /// <param name="gameEnd">True, it the error was so critical that the game cannot continue.</param>
     /// <returns></returns>
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd);
 
     /// <summary>
-    ///     Notify the player that an error has occured in the lifetime of the player, or the game.
+    ///     Notify the player that an error has occurred in the lifetime of the player, or the game.
     /// </summary>
-    /// <param name="errorMessage">The error message that occured.</param>
-    /// <param name="gameEnd">True, it the error was so critical, that the game cannot continue.</param>
+    /// <param name="errorMessage">The error message that occurred.</param>
+    /// <param name="gameEnd">True, it the error was so critical that the game cannot continue.</param>
     /// <returns></returns>
     public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd);
 }
@@ -77,8 +77,3 @@ public abstract class PlayerException : ApplicationException {
 public class MoveException : PlayerException {
     public MoveException(string message) : base(message) { }
 }
-
-//
-// public class InvalidMoveFormatException : PlayerException {
-//     public InvalidMoveFormatException(string move) : base($"Invalid move format: {move}") { }
-// }
