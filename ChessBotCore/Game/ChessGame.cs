@@ -98,10 +98,9 @@ public class ChessGame : IDisposable {
         await PushGameStartAsync();
 
         while (true) {
-            GameOutcome currentOutcome = _state.GetOutcome();
+            var (currentOutcome, reason) = _state.GetDetailedOutcome();
             if (currentOutcome != GameOutcome.NonTerminal) {
-                // TODO find the reason game ended
-                var finalResult = new GameResult(currentOutcome, GameEndReason.Unknown, _moveList);
+                var finalResult = new GameResult(currentOutcome, reason, _moveList);
                 await PushGameEndAsync(finalResult);
                 return finalResult;
             }
