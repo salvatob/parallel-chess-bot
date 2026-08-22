@@ -62,8 +62,12 @@ public class ChessGame : IDisposable {
     }
 
     private async Task PushGameStartAsync() {
-        var wps = _whitePlayer.OnGameStartAsync(true, _state, _timers, _moveList);
-        var bps = _blackPlayer.OnGameStartAsync(false, _state, _timers, _moveList);
+        var wpSetup = _whitePlayer.PrepareAsync(true, _state, _timers, _moveList);
+        var bpSetup = _blackPlayer.PrepareAsync(false, _state, _timers, _moveList);
+        await Task.WhenAll(wpSetup, bpSetup);
+
+        var wps = _whitePlayer.OnGameStartAsync();
+        var bps = _blackPlayer.OnGameStartAsync();
         await Task.WhenAll(wps, bps);
     }
 
