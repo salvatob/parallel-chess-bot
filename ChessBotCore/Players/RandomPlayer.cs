@@ -20,7 +20,11 @@ public class RandomPlayer : IPlayer {
         return new SearchHandle(new CancellationTokenSource(), Task.FromResult(result));
     }
 
-    public Task OnGameStartAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> _) {
+    public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) {
+        return Task.CompletedTask;
+    }
+
+    public Task OnGameStartAsync() {
         return Task.CompletedTask;
     }
 

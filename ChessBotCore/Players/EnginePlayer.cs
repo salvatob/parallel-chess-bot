@@ -16,11 +16,16 @@ public class EnginePlayer : IPlayer {
     }
 
     
-    public Task OnGameStartAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> _) {
-        //currently we don't store the move list
+    public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) {
+        // currently we don't store the move list
         
         // This could probably be pretty nice later, we could fire up some lookup tables,
-        // or do similar work before the game starts
+        // or load an opening bookor do similar work before the game starts
+        return Task.CompletedTask;
+    }
+
+    public Task OnGameStartAsync() {
+        // pondering could start here 
         return Task.CompletedTask;
     }
 

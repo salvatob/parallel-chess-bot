@@ -22,8 +22,12 @@ public class ConsolePlayer : IPlayer {
 
     public void Dispose() { } // its totally okay this is empty
 
-    public Task OnGameStartAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> _) {
+    public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) {
         Console.WriteLine($"You are {(yourColor ? "white" : "black")}");
+        return Task.CompletedTask;
+    }
+
+    public Task OnGameStartAsync() {
         return Task.CompletedTask;
     }
 
