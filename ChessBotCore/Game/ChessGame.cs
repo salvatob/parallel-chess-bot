@@ -123,9 +123,16 @@ public class ChessGame : IDisposable {
             sw.Stop();
             // player has lost on time
             if (t == timeOutTask) {
-                moveHandle.Cancel();
                 var outcome = whiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin;
-                return new GameResult(outcome, GameEndReason.ClockTimedOut ,_moveList);
+                var gameResult = new GameResult(outcome, GameEndReason.ClockTimedOut ,_moveList);
+                
+                if (verbosity > 0)
+                    Console.WriteLine($"Player {ActivePlayer().GetType().Name} lost on time.");
+                
+                await PushGameEndAsync(gameResult);
+                // the handle should be cancelled after the game end is propagated
+                moveHandle.Cancel();
+                return gameResult;
             }
 
             _timers.UpdateTimer(sw.Elapsed, whiteIsActive);
