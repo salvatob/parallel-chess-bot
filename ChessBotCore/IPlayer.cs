@@ -14,15 +14,24 @@ public interface IPlayer : IDisposable {
     public SearchHandle ChooseMoveAsync(State state, Timers timers);
 
     /// <summary>
-    ///     Should be called for both players by the game owner before the game itself starts.\
-    ///     It is okay for this method to be empty for some IPlayers
+    ///     Prepares the player for an upcoming game.
+    ///     This method should be used to provide the player with necessary game context
+    ///     that wasn't available at construction time,
+    ///     or to run something that takes too much time to be called in a constructor.
     /// </summary>
-    /// <param name="yourColor">The color of the player. true is white</param>
-    /// <param name="state">The initial state of the game.</param>
-    /// <param name="timers">The time info for both players.</param>
-    /// <param name="moveHistory">Reference to a record of played moves, if the IPlayer wants to store it.</param>
-    /// <returns>A void task signifying if the method ran successfully.</returns>
-    public Task OnGameStartAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory);
+    /// <param name="yourColor">The color assigned to this player. True for white, false for black.</param>
+    /// <param name="state">The initial state of the game board.</param>
+    /// <param name="timers">The time settings for both players.</param>
+    /// <param name="moveHistory">A reference to the list of moves played so far.</param>
+    /// <returns>A task representing the preparation process.</returns>
+    public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory);
+
+    /// <summary>
+    ///     Notifies the player that the game has officially started and clocks are running.
+    ///     This is called after <see cref="PrepareAsync" /> and signifies the beginning of active play.
+    /// </summary>
+    /// <returns>A task representing the notification process.</returns>
+    public Task OnGameStartAsync();
 
     /// <summary>
     ///     Should be called for both players by the game owner after the game ends, to notify them of the results.\
