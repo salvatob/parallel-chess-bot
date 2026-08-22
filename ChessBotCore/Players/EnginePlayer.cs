@@ -28,6 +28,10 @@ public class EnginePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
+    public Task OnOpponentsMoveAsync(Move move, State newState) {
+        return Task.CompletedTask;
+    }
+
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
         return OnErrorNotifyAsync(error.Message, gameEnd);
     }

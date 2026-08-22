@@ -53,8 +53,12 @@ public class ChessGame : IDisposable {
         _whitePlayer.Dispose();
     }
 
-    private IPlayer ActivePlayer(bool isWhite) {
-        return isWhite ? _whitePlayer : _blackPlayer;
+    private IPlayer ActivePlayer() {
+        return _state.WhiteIsActive ? _whitePlayer : _blackPlayer;
+    }
+    
+    private IPlayer InactivePlayer() {
+        return _state.WhiteIsActive ? _blackPlayer : _whitePlayer;
     }
 
     private async Task PushGameStartAsync() {
@@ -99,16 +103,15 @@ public class ChessGame : IDisposable {
             }
 
             var whiteIsActive = _state.WhiteIsActive;
-            var player = ActivePlayer(whiteIsActive);
             var playerTime = _timers.ActiveTime(whiteIsActive);
             
-            LogGameProgress(verbosity, player, playerTime);
+            LogGameProgress(verbosity, ActivePlayer(), playerTime);
 
             using var timeOutCts = new CancellationTokenSource();
             var timeOutTask = Task.Delay(playerTime, timeOutCts.Token);
 
             var sw = Stopwatch.StartNew();
-            using var moveHandle = player.ChooseMoveAsync(_state, _timers);
+            using var moveHandle = ActivePlayer().ChooseMoveAsync(_state, _timers);
 
 
             var t = await Task.WhenAny(moveHandle.Result, timeOutTask);
@@ -130,10 +133,12 @@ public class ChessGame : IDisposable {
 
             var move = searchResult.BestMove;
             
-            LogMovePlayed(verbosity, player, move);
+            LogMovePlayed(verbosity, ActivePlayer(), move);
 
             _moveList.Add(move);
             _state.ApplyMove(move);
+            
+            await InactivePlayer().OnOpponentsMoveAsync(move, _state);
         }
     }
 

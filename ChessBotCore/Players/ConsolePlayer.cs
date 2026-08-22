@@ -44,6 +44,11 @@ public class ConsolePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
+    public Task OnOpponentsMoveAsync(Move move, State newState) {
+        Console.WriteLine($"Opponent played: {move.PrintLAN()}");
+        return Task.CompletedTask;
+    }
+
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
         return OnErrorNotifyAsync(error.Message, gameEnd);
     }

@@ -34,6 +34,14 @@ public interface IPlayer : IDisposable {
     public Task OnGameEndAsync(bool yourColor, GameResult result);
 
     /// <summary>
+    ///     Notify the player that their opponent has played a move.
+    /// </summary>
+    /// <param name="move">The move the opponent played.</param>
+    /// <param name="newState">The state of the board after the move was played.</param>
+    /// <returns>A void task signifying if the method ran successfully.</returns>
+    public Task OnOpponentsMoveAsync(Move move, State newState);
+
+    /// <summary>
     ///     Notify the player that an error has occured in the lifetime of the player, or the game.
     /// </summary>
     /// <param name="error">The specific error that occured.</param>

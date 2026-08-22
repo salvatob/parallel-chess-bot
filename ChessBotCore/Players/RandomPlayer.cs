@@ -28,6 +28,10 @@ public class RandomPlayer : IPlayer {
         return Task.CompletedTask;
     }
 
+    public Task OnOpponentsMoveAsync(Move move, State newState) {
+        return Task.CompletedTask;
+    }
+
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
         return Task.CompletedTask;
     }
