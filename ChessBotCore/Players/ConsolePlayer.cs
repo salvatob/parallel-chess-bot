@@ -31,13 +31,13 @@ public class ConsolePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
-    public Task OnGameEndAsync(bool yourColor, GameResult result) {
+    public Task OnGameEndAsync(bool youreWhite, GameResult result) {
         if (result.Outcome == GameOutcome.Draw) {
             Console.WriteLine("Game was a draw");
             return Task.CompletedTask;
         }
 
-        bool weWon = yourColor ^ (result.Outcome == GameOutcome.WhiteWin);
+        bool weWon = youreWhite == (result.Outcome == GameOutcome.WhiteWin);
 
         var res = weWon switch {
             true => "You won!!!",
