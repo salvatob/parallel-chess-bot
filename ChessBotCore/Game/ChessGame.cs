@@ -78,9 +78,8 @@ public class ChessGame : IDisposable {
     }
 
     private void ThrowIfGameStarted() {
-        // if started == true, then the game has already been ran and should throw
-        if (Interlocked.CompareExchange(ref _started, true, false) == true)
-        {
+        // if started is true, then the game has already been ran and should throw
+        if (Interlocked.CompareExchange(ref _started, true, false) == true) {
             throw new InvalidOperationException(
                 "A Game instance can only be played once.");
         }
@@ -99,6 +98,7 @@ public class ChessGame : IDisposable {
 
         while (true) {
             var (currentOutcome, reason) = _state.GetDetailedOutcome();
+            // TODO should handle threefold repetition here
             if (currentOutcome != GameOutcome.NonTerminal) {
                 var finalResult = new GameResult(currentOutcome, reason, _moveList);
                 await PushGameEndAsync(finalResult);
