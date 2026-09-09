@@ -152,48 +152,12 @@ public sealed class State {
     }
 
     /// <summary>
-    ///     Determines the current outcome and reason of the game.
-    /// </summary>
-    /// <returns>A tuple of GameOutcome and GameEndReason.</returns>
-    public (GameOutcome Outcome, GameEndReason Reason) GetDetailedOutcome() {
-        if (HalfMovesSincePawnMoveOrCapture >= 100) return (GameOutcome.Draw, GameEndReason.FiftyMoveRule);
-
-        if (GetAllPieces().PopCount() <= 2) return (GameOutcome.Draw, GameEndReason.InsufficientMaterial); // insufficient material (KK)
-        // cannot mate with only a knight (KNK)
-        if (GetAllPieces().PopCount() == 3 && !(WhiteKnights | BlackKnights).IsEmpty())
-            return (GameOutcome.Draw, GameEndReason.InsufficientMaterial);
-        // TODO: Other insufficient material cases (KBK, etc.)
-
-        var generator = new GeneratorWrapper(this);
-        var legalMoves = generator.GetLegalMoves();
-
-        if (legalMoves.Count == 0) {
-            var activeKing = WhiteIsActive ? WhiteKing : BlackKing;
-            if (GeneratorWrapper.IsSquareAttacked(activeKing.TrailingZeroCount(), !WhiteIsActive, this)) {
-                return (WhiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin, GameEndReason.Checkmate);
-            }
-
-            return (GameOutcome.Draw, GameEndReason.Stalemate);
-        }
-
-        return (GameOutcome.NonTerminal, GameEndReason.Unknown);
-    }
-
-    /// <summary>
-    ///     Determines the current outcome of the game.
-    /// </summary>
-    /// <returns>A GameOutcome indicating if the game is over and why, or if it's playable.</returns>
-    public GameOutcome GetOutcome() {
-        return GetDetailedOutcome().Outcome;
-    }
-
-    /// <summary>
     ///     Determines, if either player has won, or if the game is a draw.
     ///     Stalemates (no possible move for active player) are not accounted by this method.
     /// </summary>
     /// <returns>If the game can continue.</returns>
     public bool IsTerminal() {
-        return GetOutcome() != GameOutcome.NonTerminal;
+        return ChessGame.GetDetailedOutcome(this).Outcome != GameOutcome.NonTerminal;
     }
     
     public static State FromFen(string fen) => FenParser.ParseFen(fen);

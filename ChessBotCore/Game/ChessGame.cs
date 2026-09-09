@@ -97,7 +97,7 @@ public class ChessGame : IDisposable {
         await PushGameStartAsync();
 
         while (true) {
-            var (currentOutcome, reason) = _state.GetDetailedOutcome();
+            var (currentOutcome, reason) = GetDetailedOutcome(_state);
             // TODO should handle threefold repetition here
             if (currentOutcome != GameOutcome.NonTerminal) {
                 var finalResult = new GameResult(currentOutcome, reason, _moveList);
@@ -152,6 +152,36 @@ public class ChessGame : IDisposable {
         }
     }
 
+    
+    /// <summary>
+    ///     Determines the current outcome and reason of the game.
+    /// If the game is unresolved, returns (GameOutcome.NonTerminal, GameEndReason.Unknown).
+    /// </summary>
+    /// <returns>A tuple of GameOutcome and GameEndReason.</returns>
+    public static (GameOutcome Outcome, GameEndReason Reason) GetDetailedOutcome(State state) {
+        if (state.HalfMovesSincePawnMoveOrCapture >= 100) return (GameOutcome.Draw, GameEndReason.FiftyMoveRule);
+
+        if (state.GetAllPieces().PopCount() <= 2) return (GameOutcome.Draw, GameEndReason.InsufficientMaterial); // insufficient material (KK)
+        // cannot mate with only a knight (KNK)
+        if (state.GetAllPieces().PopCount() == 3 && !(state.WhiteKnights | state.BlackKnights).IsEmpty())
+            return (GameOutcome.Draw, GameEndReason.InsufficientMaterial);
+        // TODO: Other insufficient material cases (KBK, etc.)
+
+        var generator = new GeneratorWrapper(state);
+        var legalMoves = generator.GetLegalMoves();
+
+        if (legalMoves.Count == 0) {
+            var activeKing = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
+            if (GeneratorWrapper.IsSquareAttacked(activeKing.TrailingZeroCount(), !state.WhiteIsActive, state)) {
+                return (state.WhiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin, GameEndReason.Checkmate);
+            }
+
+            return (GameOutcome.Draw, GameEndReason.Stalemate);
+        }
+
+        return (GameOutcome.NonTerminal, GameEndReason.Unknown);
+    }
+    
     private void LogGameProgress(int verbosity, IPlayer currentPlayer, TimeSpan time) {
         if (verbosity == 0) return;
         Console.WriteLine($"Player {currentPlayer.GetType().Name} turn.");
