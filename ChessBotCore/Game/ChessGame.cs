@@ -14,6 +14,7 @@ public enum GameEndReason {
     InsufficientMaterial,
     Stalemate,
     FiftyMoveRule,
+    ThreeFoldRepetition,
     Checkmate,
     Resignation,
     DrawAgreed,
@@ -29,6 +30,8 @@ public class ChessGame : IDisposable {
     private readonly IPlayer _blackPlayer;
     private readonly State _state = State.Initial;
     private readonly List<Move> _moveList = new();
+
+    private readonly Dictionary<State, int> _stateRepetitionCounter = new(new ThreeFoldRepetitionStateComparer());
     private bool _started = false;
     
     private readonly Timers _timers = new() {
@@ -85,6 +88,16 @@ public class ChessGame : IDisposable {
         }
 
     }
+
+    private bool CheckThreeFoldRepetition() {
+        return _stateRepetitionCounter.Values.Any(x => x >= 3);
+    }
+
+    private void IncrementRepetitionCounter(State state) {
+        if (!_stateRepetitionCounter.TryAdd(state.Clone(), 1)) {
+            _stateRepetitionCounter[state]++;
+        }
+    }
     
     /// <summary>
     /// Runs the entire game loop until time has ran out, or a terminal state has been reached.
@@ -97,8 +110,13 @@ public class ChessGame : IDisposable {
         await PushGameStartAsync();
 
         while (true) {
+            if (CheckThreeFoldRepetition()) {
+                var finalResult = new GameResult(GameOutcome.Draw, GameEndReason.ThreeFoldRepetition, _moveList);
+                await PushGameEndAsync(finalResult);
+                return finalResult;                
+            }
+            
             var (currentOutcome, reason) = GetDetailedOutcome(_state);
-            // TODO should handle threefold repetition here
             if (currentOutcome != GameOutcome.NonTerminal) {
                 var finalResult = new GameResult(currentOutcome, reason, _moveList);
                 await PushGameEndAsync(finalResult);
@@ -149,6 +167,7 @@ public class ChessGame : IDisposable {
             _state.ApplyMove(move);
             
             await InactivePlayer().OnOpponentsMoveAsync(move, _state);
+            IncrementRepetitionCounter(_state);
         }
     }
 
@@ -160,7 +179,7 @@ public class ChessGame : IDisposable {
     /// <returns>A tuple of GameOutcome and GameEndReason.</returns>
     public static (GameOutcome Outcome, GameEndReason Reason) GetDetailedOutcome(State state) {
         if (state.HalfMovesSincePawnMoveOrCapture >= 100) return (GameOutcome.Draw, GameEndReason.FiftyMoveRule);
-
+        
         if (state.GetAllPieces().PopCount() <= 2) return (GameOutcome.Draw, GameEndReason.InsufficientMaterial); // insufficient material (KK)
         // cannot mate with only a knight (KNK)
         if (state.GetAllPieces().PopCount() == 3 && !(state.WhiteKnights | state.BlackKnights).IsEmpty())
