@@ -9,11 +9,21 @@ namespace ChessBotCore.Board;
 /// </summary>
 internal static class BitBoardHelpers {
     
+    /// <summary>
+    /// Creates a bitboard with a single bit set at the specified index.
+    /// </summary>
+    /// <param name="index">The index of the bit to set (0-63).</param>
+    /// <returns>A bitboard with one bit set.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Bitboard OneBitMask(int index) {
         return 1UL << index;
     }
 
+    /// <summary>
+    /// Creates a bitboard with a single bit set at the specified coordinates.
+    /// </summary>
+    /// <param name="coords">The coordinates of the bit to set.</param>
+    /// <returns>A bitboard with one bit set.</returns>
     public static Bitboard OneBitMask(Coordinates coords) {
         return 1UL << coords.To1D();
     }
@@ -111,6 +121,14 @@ internal static class BitBoardHelpers {
         };
     }
 
+    /// <summary>
+    /// Moves a bitboard in a specified direction and distance.
+    /// </summary>
+    /// <param name="bits">The starting bitboard.</param>
+    /// <param name="dir">The direction to move.</param>
+    /// <param name="distance">The distance to move.</param>
+    /// <returns>The resulting bitboard.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if distance is less than or equal to zero.</exception>
     public static Bitboard Move(Bitboard bits, Direction dir, int distance) {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(distance, 0);
         Bitboard buffer = bits;
@@ -121,6 +139,12 @@ internal static class BitBoardHelpers {
         return buffer;
     }
 
+    /// <summary>
+    /// Returns the opposite direction of the given direction.
+    /// </summary>
+    /// <param name="dir">The direction to invert.</param>
+    /// <returns>The opposite direction.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the direction is not recognized.</exception>
     public static Direction OppositeDir(Direction dir) {
         return dir switch {
             Direction.N => Direction.S,
@@ -145,9 +169,14 @@ internal static class BitBoardHelpers {
     }
 }
 
+/// <summary>
+/// Represents directions on a chess board.
+/// </summary>
 public enum Direction {
+    // ReSharper disable InconsistentNaming
     N, S, W, E,
     NE, NW, SE, SW,
     NNE, NEE, NNW, NWW,
     SSE, SEE, SSW, SWW
+    // ReSharper restore InconsistentNaming
 }

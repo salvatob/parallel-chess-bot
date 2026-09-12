@@ -5,9 +5,16 @@ namespace ChessBotCore.Search;
 /// like if the score was a checkmate.  
 /// </summary>
 public readonly record struct SearchScore : IComparable<SearchScore> {
+    /// <summary> The evaluation score. </summary>
     public int Score { get; }
+    /// <summary> True if the score represents a checkmate. </summary>
     public bool IsMate { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SearchScore"/> struct.
+    /// </summary>
+    /// <param name="score">The evaluation score.</param>
+    /// <param name="isMate">Whether it's a checkmate score.</param>
     public SearchScore(int score, bool isMate = false) {
         Score = score;
         IsMate = isMate;

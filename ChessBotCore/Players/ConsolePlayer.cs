@@ -3,7 +3,11 @@ using ChessBotCore.Search;
 
 namespace ChessBotCore.Players;
 
+/// <summary>
+/// A chess player implementation that allows a human to play via the console.
+/// </summary>
 public class ConsolePlayer : IPlayer {
+    /// <inheritdoc/>
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         var cts = new CancellationTokenSource();
 
@@ -20,17 +24,21 @@ public class ConsolePlayer : IPlayer {
         return new SearchHandle(cts, cancellableTask);
     }
 
+    /// <inheritdoc/>
     public void Dispose() { } // its totally okay this is empty
 
+    /// <inheritdoc/>
     public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) {
         Console.WriteLine($"You are {(yourColor ? "white" : "black")}");
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task OnGameStartAsync() {
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task OnGameEndAsync(bool youreWhite, GameResult result) {
         if (result.Outcome == GameOutcome.Draw) {
             Console.WriteLine("Game was a draw");
@@ -48,15 +56,18 @@ public class ConsolePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task OnOpponentsMoveAsync(Move move, State newState) {
         Console.WriteLine($"Opponent played: {move.PrintLAN()}");
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd) {
         return OnErrorNotifyAsync(error.Message, gameEnd);
     }
 
+    /// <inheritdoc/>
     public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd) {
         Console.WriteLine("An error has occured:");
         Console.WriteLine(errorMessage);
@@ -64,6 +75,12 @@ public class ConsolePlayer : IPlayer {
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Reads and parses a move command from the console.
+    /// </summary>
+    /// <param name="state">The current board state.</param>
+    /// <param name="timers">The game timers.</param>
+    /// <returns>The search results containing the chosen move.</returns>
     private SearchResults GetCommand(State state, Timers timers) {
         while (true) {
             string? command = null;
@@ -87,17 +104,6 @@ public class ConsolePlayer : IPlayer {
                 Console.WriteLine($"Move <{moveDto}> is illegal");
                 continue;
             }
-        }
-    }
-
-    private bool ValidateMove(State state, MoveDTO move) {
-        var copy = state.Clone();
-        try {
-            copy.ApplyMove(move);
-            return true;
-        }
-        catch (ArgumentException) {
-            return false;
         }
     }
 }

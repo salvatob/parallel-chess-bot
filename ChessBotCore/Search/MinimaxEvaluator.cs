@@ -10,12 +10,25 @@ namespace ChessBotCore.Search;
 public class MinimaxEvaluator {
     private readonly ITimeManager _timeManager = new TimeManager();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MinimaxEvaluator"/> class.
+    /// </summary>
     public  MinimaxEvaluator() {}
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MinimaxEvaluator"/> class with a specific time manager.
+    /// </summary>
+    /// <param name="timeManager">The time manager to use for allocating search time.</param>
     public MinimaxEvaluator(ITimeManager timeManager) {
         _timeManager = timeManager;
     }
     
     
+    /// <summary>
+    /// Evaluates the board state and returns a score from the perspective of the player to move.
+    /// </summary>
+    /// <param name="s">The board state.</param>
+    /// <returns>The evaluation score.</returns>
     private static SearchScore Eval(State s) {
         int score = Evaluator.Evaluate(s);
         bool isMate = score is short.MinValue or short.MaxValue;
@@ -41,6 +54,14 @@ public class MinimaxEvaluator {
         return results;
     }
 
+    /// <summary>
+    /// Performs an iterative deepening search to find the best move within the allotted time.
+    /// </summary>
+    /// <param name="state">The starting board state.</param>
+    /// <param name="timers">The game timers.</param>
+    /// <param name="cancellationToken">Token to cancel the search.</param>
+    /// <returns>The search results containing the best move found.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the state has no legal moves.</exception>
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
         var timePerMove = _timeManager.CalculateAllowedTime(timers, state.WhiteIsActive);
         
@@ -74,6 +95,13 @@ public class MinimaxEvaluator {
         return lastCompletedResult;
     }
     
+    /// <summary>
+    /// Performs a single depth iteration of the search.
+    /// </summary>
+    /// <param name="state">The current board state.</param>
+    /// <param name="depth">The target depth for this iteration.</param>
+    /// <param name="context">The search context.</param>
+    /// <param name="scoredMoves">The list of moves to evaluate, which will be updated with new scores.</param>
     private void PerformSearchIteration(State state, int depth, SearchContext context, List<ScoredMove> scoredMoves) {
         for (int i = 0; i < scoredMoves.Count; i++) {
             if (context.ShouldStop()) break;
@@ -93,6 +121,11 @@ public class MinimaxEvaluator {
         }
     }
 
+    /// <summary>
+    /// Gets the initial list of moves for the search, sorted by their heuristic priority.
+    /// </summary>
+    /// <param name="state">The board state.</param>
+    /// <returns>A list of moves with initial zero scores.</returns>
     private static List<ScoredMove> GetInitialScoredMoves(State state) {
         var moves = new GeneratorWrapper(state).GetLegalMoves();
         moves.Sort();
@@ -104,6 +137,13 @@ public class MinimaxEvaluator {
     }
     
     
+    /// <summary>
+    /// The entry point for a recursive Negamax search with alpha-beta pruning.
+    /// </summary>
+    /// <param name="state">The board state.</param>
+    /// <param name="maxDepth">The maximum depth to search.</param>
+    /// <param name="context">The search context.</param>
+    /// <returns>The best move found and its score.</returns>
     private ScoredMove NegamaxBase(State state, int maxDepth, SearchContext context) {
         context.IncrementNodeCount();
         var moves = new GeneratorWrapper(state).GetLegalMoves();
@@ -129,6 +169,12 @@ public class MinimaxEvaluator {
         return new ScoredMove(bestMove, bestScore);
     }
 
+    /// <summary>
+    /// A standard recursive Negamax search without pruning.
+    /// </summary>
+    /// <param name="state">The board state.</param>
+    /// <param name="depth">The remaining depth to search.</param>
+    /// <returns>The score of the position.</returns>
     internal SearchScore Negamax(State state, int depth) {
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
@@ -155,6 +201,15 @@ public class MinimaxEvaluator {
     }
 
 
+    /// <summary>
+    /// A recursive Negamax search with alpha-beta pruning.
+    /// </summary>
+    /// <param name="state">The board state.</param>
+    /// <param name="depth">The remaining depth to search.</param>
+    /// <param name="searchContext">The search context.</param>
+    /// <param name="alpha">The alpha bound.</param>
+    /// <param name="beta">The beta bound.</param>
+    /// <returns>The score of the position.</returns>
     // be careful with the a-b values initialization, they will overflow
     // ReSharper disable once InconsistentNaming
     internal SearchScore SmartABNegamax(State state, int depth, SearchContext searchContext, SearchScore alpha, SearchScore beta) {

@@ -37,9 +37,9 @@ public interface IPlayer : IDisposable {
     ///     Notifies the player that the game has ended and provides the outcome information.
     ///     Should be called for both players by the game owner after the game ends, to notify them of the results.
     /// </summary>
-    /// <param name="yourColor"></param>
-    /// <param name="result"></param>
-    /// <returns></returns>
+    /// <param name="yourColor">The color of this player.</param>
+    /// <param name="result">The final result of the game.</param>
+    /// <returns>A task representing the notification process.</returns>
     public Task OnGameEndAsync(bool yourColor, GameResult result);
 
     /// <summary>
@@ -54,19 +54,22 @@ public interface IPlayer : IDisposable {
     ///     Notify the player that an error has occurred in the lifetime of the player, or the game.
     /// </summary>
     /// <param name="error">The specific error that occurred.</param>
-    /// <param name="gameEnd">True, it the error was so critical that the game cannot continue.</param>
-    /// <returns></returns>
+    /// <param name="gameEnd">True, if the error was so critical that the game cannot continue.</param>
+    /// <returns>A task representing the notification process.</returns>
     public Task OnErrorNotifyAsync(Exception error, bool gameEnd);
 
     /// <summary>
     ///     Notify the player that an error has occurred in the lifetime of the player, or the game.
     /// </summary>
     /// <param name="errorMessage">The error message that occurred.</param>
-    /// <param name="gameEnd">True, it the error was so critical that the game cannot continue.</param>
-    /// <returns></returns>
+    /// <param name="gameEnd">True, if the error was so critical that the game cannot continue.</param>
+    /// <returns>A task representing the notification process.</returns>
     public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd);
 }
 
+/// <summary>
+/// Base class for exceptions related to chess players.
+/// </summary>
 public abstract class PlayerException : ApplicationException {
     protected PlayerException(string message) : base(message) { }
 }

@@ -4,6 +4,9 @@ using ChessBotCore.MoveGenerators.PieceGenerators;
 
 namespace ChessBotCore;
 
+/// <summary>
+/// A wrapper for move generation, providing access to both pseudo-legal and fully legal moves.
+/// </summary>
 public sealed class GeneratorWrapper {
     private static readonly IMoveGenerator[] Generators = [
         KingMoveGenerator.Instance,
@@ -22,14 +25,26 @@ public sealed class GeneratorWrapper {
     private readonly List<Move> _buffer = new(40);
 
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GeneratorWrapper"/> class for a given state.
+    /// </summary>
+    /// <param name="state">The board state to generate moves for.</param>
     public GeneratorWrapper(State state) {
         _state = state;
         FillBuffer(state);
         _filteredBuffer = new Lazy<List<Move>>(FilterBuffer);
     }
     
+    /// <summary>
+    /// Gets all pseudo-legal moves in the current state.
+    /// </summary>
+    /// <returns>A list of moves.</returns>
     public List<Move> GetAllMoves() => _buffer;
     
+    /// <summary>
+    /// Gets all legal moves in the current state, filtering out moves that leave the king in check.
+    /// </summary>
+    /// <returns>A list of legal moves.</returns>
     public List<Move> GetLegalMoves() => _filteredBuffer.Value;
 
     private void FillBuffer(State state) {
@@ -47,6 +62,12 @@ public sealed class GeneratorWrapper {
         return filtered;
     }
 
+    /// <summary>
+    /// Checks if a pseudo-legal move is fully legal (i.e., it doesn't leave the king in check).
+    /// </summary>
+    /// <param name="move">The move to check.</param>
+    /// <param name="state">The board state.</param>
+    /// <returns>True if the move is legal, false otherwise.</returns>
     public static bool CheckMoveLegality(Move move, State state) {
         // castles are already checked
         if (move.IsCastle) return true;
@@ -71,6 +92,13 @@ public sealed class GeneratorWrapper {
         return legal;
     }
 
+    /// <summary>
+    /// Checks if a specific square is under attack by a given player.
+    /// </summary>
+    /// <param name="square">The square index to check.</param>
+    /// <param name="byWhite">True to check for white attackers, false for black.</param>
+    /// <param name="state">The board state.</param>
+    /// <returns>True if the square is attacked, false otherwise.</returns>
     internal static bool IsSquareAttacked(int square, bool byWhite, State state) {
         Bitboard squareMask = BitBoardHelpers.OneBitMask(square);
         Bitboard allPieces = state.GetAllPieces();
@@ -114,6 +142,9 @@ public sealed class GeneratorWrapper {
         return false;
     }
 
+    /// <summary>
+    /// Gets a bitboard of squares attacked by a knight on a given square.
+    /// </summary>
     private static Bitboard GetKnightAttacks(int square) {
         Bitboard mask = BitBoardHelpers.OneBitMask(square);
         return BitBoardHelpers.Move(mask, Direction.NNE) |
@@ -126,6 +157,9 @@ public sealed class GeneratorWrapper {
                BitBoardHelpers.Move(mask, Direction.SSW);
     }
 
+    /// <summary>
+    /// Gets a bitboard of squares attacked by a king on a given square.
+    /// </summary>
     private static Bitboard GetKingAttacks(int square) {
         Bitboard mask = BitBoardHelpers.OneBitMask(square);
         return BitBoardHelpers.Move(mask, Direction.N) |
@@ -138,6 +172,9 @@ public sealed class GeneratorWrapper {
                BitBoardHelpers.Move(mask, Direction.SW);
     }
 
+    /// <summary>
+    /// Checks for slider attacks along a ray in a specified direction.
+    /// </summary>
     private static Bitboard GetSliderAttack(int square, Direction dir, Bitboard allPieces, Bitboard attackers) {
         Bitboard ray = BitBoardHelpers.OneBitMask(square);
         while (true) {

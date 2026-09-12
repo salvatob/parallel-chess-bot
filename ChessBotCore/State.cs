@@ -6,6 +6,9 @@ using ChessBotCore.Parser;
 
 namespace ChessBotCore;
 
+/// <summary>
+/// Represents the different types and colors of chess pieces.
+/// </summary>
 public enum Pieces {
     WhitePawns,
     WhiteRooks,
@@ -22,6 +25,9 @@ public enum Pieces {
     BlackKing
 }
 
+/// <summary>
+/// Represents the state of a chess board, including piece positions and game metadata.
+/// </summary>
 public sealed class State {
     public const string DefaultFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     public const char WhiteQueenSymbol = 'Q';
@@ -38,10 +44,17 @@ public sealed class State {
     public const char BlackKnightSymbol = 'n';
     public const char BlackRookSymbol = 'r';
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="State"/> class by copying another state.
+    /// </summary>
+    /// <param name="other">The state to copy from.</param>
     public State(State other) {
         CopyFrom(other);
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="State"/> class with an empty board.
+    /// </summary>
     public State() {
         WhitePawns = 0;
         WhiteRooks = 0;
@@ -65,33 +78,55 @@ public sealed class State {
         FullMoves = 1;
     }
 
+    /// <summary> Bitboard for white pawns. </summary>
     public Bitboard WhitePawns { get; set; }
+    /// <summary> Bitboard for white rooks. </summary>
     public Bitboard WhiteRooks { get; set; }
+    /// <summary> Bitboard for white knights. </summary>
     public Bitboard WhiteKnights { get; set; }
+    /// <summary> Bitboard for white bishops. </summary>
     public Bitboard WhiteBishops { get; set; }
+    /// <summary> Bitboard for white queens. </summary>
     public Bitboard WhiteQueens { get; set; }
+    /// <summary> Bitboard for white king. </summary>
     public Bitboard WhiteKing { get; set; }
 
+    /// <summary> Bitboard for black pawns. </summary>
     public Bitboard BlackPawns { get; set; }
+    /// <summary> Bitboard for black rooks. </summary>
     public Bitboard BlackRooks { get; set; }
+    /// <summary> Bitboard for black knights. </summary>
     public Bitboard BlackKnights { get; set; }
+    /// <summary> Bitboard for black bishops. </summary>
     public Bitboard BlackBishops { get; set; }
+    /// <summary> Bitboard for black queens. </summary>
     public Bitboard BlackQueens { get; set; }
+    /// <summary> Bitboard for black king. </summary>
     public Bitboard BlackKing { get; set; }
 
+    /// <summary> True if it is white's turn to move. </summary>
     public bool WhiteIsActive { get; set; } = true;
 
+    /// <summary> True if white has kingside castling rights. </summary>
     public bool WhiteCastleKingSide { get; set; }
+    /// <summary> True if white has queenside castling rights. </summary>
     public bool WhiteCastleQueenSide { get; set; }
+    /// <summary> True if black has kingside castling rights. </summary>
     public bool BlackCastleKingSide { get; set; }
+    /// <summary> True if black has queenside castling rights. </summary>
     public bool BlackCastleQueenSide { get; set; }
 
+    /// <summary> Bitboard representing the en passant target square, if any. </summary>
     public Bitboard EnPassant { get; set; } = 0UL;
 
+    /// <summary> Number of half-moves since the last pawn move or capture (for the 50-move rule). </summary>
     public int HalfMovesSincePawnMoveOrCapture { get; set; } = 0;
+    /// <summary> The total number of full moves in the game. Incremented after black's move. </summary>
     public int FullMoves { get; set; } = 1;
 
-
+    /// <summary>
+    /// Gets the initial starting state of a standard chess game.
+    /// </summary>
     public static State Initial =>
         new() {
             WhitePawns   = 0b_1111_1111_0000_0000,
@@ -116,13 +151,23 @@ public sealed class State {
             FullMoves = 1
         };
 
+    /// <summary>
+    /// Gets an empty board state.
+    /// </summary>
     public static State Empty => new() {
         WhiteIsActive = true,
         FullMoves = 1
     };
 
+    /// <summary>
+    /// Indicates whether an en passant capture is currently possible.
+    /// </summary>
     public bool EnPassantAvailable => EnPassant.RawBits != 0;
 
+    /// <summary>
+    /// Copies all properties from another state into this one.
+    /// </summary>
+    /// <param name="other">The state to copy from.</param>
     public void CopyFrom(State other) {
         WhitePawns = other.WhitePawns;
         WhiteRooks = other.WhiteRooks;

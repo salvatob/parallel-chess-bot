@@ -2,12 +2,26 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.Search;
 
+/// <summary>
+/// Provides methods to evaluate the material and positional advantage of a chess state.
+/// </summary>
 public static class Evaluator {
+    /// <summary>
+    /// Checks if the state is terminal (e.g., one of the kings is missing).
+    /// </summary>
+    /// <param name="state">The board state.</param>
+    /// <returns>True if the state is terminal, false otherwise.</returns>
     public static bool IsTerminal(State state) {
         return state.WhiteKing.IsEmpty() ||
                state.BlackKing.IsEmpty();
     }
 
+    /// <summary>
+    /// Evaluates the board state and returns a numerical score.
+    /// Positive values favor white, negative values favor black.
+    /// </summary>
+    /// <param name="s">The board state.</param>
+    /// <returns>The evaluation score.</returns>
     public static int Evaluate(State s) {
         // short circuit whole evaluation, because no king means loss
         // returns short, because it is enough to always be larger than normal value,
@@ -28,6 +42,9 @@ public static class Evaluator {
     }
 
 
+    /// <summary>
+    /// Evaluates the pawn material and positioning for both players.
+    /// </summary>
     private static int EvalPawns(State s) {
         int val = 0;
         const int valPerPawn = 40;
@@ -46,6 +63,9 @@ public static class Evaluator {
         return val;
     }
 
+    /// <summary>
+    /// Evaluates the knight material for both players.
+    /// </summary>
     private static int EvalKnights(State s) {
         const int valPerKnight = 230;
         int val = 0;
@@ -54,6 +74,9 @@ public static class Evaluator {
         return val;
     }
 
+    /// <summary>
+    /// Evaluates the bishop material for both players.
+    /// </summary>
     private static int EvalBishops(State s) {
         const int valPerBishop = 250;
         int val = 0;
@@ -62,6 +85,9 @@ public static class Evaluator {
         return val;
     }
 
+    /// <summary>
+    /// Evaluates the rook material for both players.
+    /// </summary>
     private static int EvalRooks(State s) {
         const int valPerRook = 450;
         int val = 0;
@@ -70,6 +96,9 @@ public static class Evaluator {
         return val;
     }
 
+    /// <summary>
+    /// Evaluates the queen material for both players.
+    /// </summary>
     private static int EvalQueens(State s) {
         const int valPerQueen = 900;
         int val = 0;

@@ -3,15 +3,20 @@ using System.Numerics;
 
 namespace ChessBotCore.Board;
 
+/// <summary>
+/// Provides static bitboard masks for rows and columns.
+/// </summary>
 public static class BitMask {
     static BitMask() {
         Row = InitRows();
         Col = InitCols();
     }
 
+    /// <summary> Bitboard masks for each row (0-7). </summary>
     public static Bitboard[] Row { get; private set; }
 
 
+    /// <summary> Bitboard masks for each column (0-7, where 0 is file a). </summary>
     public static Bitboard[] Col { get; private set; }
 
     private static Bitboard[] InitRows() {
