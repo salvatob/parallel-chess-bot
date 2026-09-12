@@ -107,6 +107,7 @@ public class ChessGame : IDisposable {
     /// <exception cref="InvalidOperationException">The game has already been played.</exception>
     public async Task<GameResult> PlayAsync(int verbosity = 0) {
         ThrowIfGameStarted();
+        IncrementRepetitionCounter( _state);
         await PushGameStartAsync();
 
         while (true) {
