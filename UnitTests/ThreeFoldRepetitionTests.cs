@@ -180,8 +180,8 @@ public class ThreeFoldRepetitionTests {
         // 3. Nf3 Nf6 4. Ng1 Ng8 (White to move, piece positions same as start) -> 3rd occurrence -> DRAW
         
         // We need 4 moves for each player to reach the same position 2 more times.
-        var whiteMoves = new[] { "g1f3", "f3g1", "g1f3", "f3g1", "g1f3" }; // one extra to be safe if it doesn't trigger at start of loop
-        var blackMoves = new[] { "g8f6", "f6g8", "g8f6", "f6g8", "g8f6" };
+        var whiteMoves = new[] { "g1f3", "f3g1", "g1f3", "f3g1" }; // one extra to be safe if it doesn't trigger at start of loop
+        var blackMoves = new[] { "g8f6", "f6g8", "g8f6", "f6g8" };
 
         var whitePlayer = new SequencePlayer(whiteMoves);
         var blackPlayer = new SequencePlayer(blackMoves);
