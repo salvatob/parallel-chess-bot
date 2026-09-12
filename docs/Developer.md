@@ -89,6 +89,7 @@ ParallelChessBot is designed to be extended. Possible such ideas include:
 The engine communicates primarily through the **`IPlayer`** abstraction. 
 *   **`ConsolePlayer`**: Handles user input from the terminal.
 *   **`EnginePlayer`**: Wraps the `MinimaxEvaluator` to act as an automated opponent.
+*   **`SearchHandle`**: Wraps the asynchronous search task, allowing callers to monitor progress or trigger cancellation.
 
 The **`ChessGame`** class orchestrates the game flow, alternating between players and checking for game-over conditions like checkmate, stalemate, or three-fold repetition.
 
