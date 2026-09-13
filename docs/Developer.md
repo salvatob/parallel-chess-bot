@@ -59,8 +59,86 @@ The process of playing a game is managed with the **`ChessGame`** class.
 It handles creation, game flow, and correct disposal of a chess game.
 Introduces safe API to limit invalid states (only one player connected, game stuck in a loop or a deadlock).
 
-Just set players using **`RegisterPlayer`**, run the **`PlayAsync`** method i na separate therad, and collect 
+Just set players using **`RegisterPlayer`**, run the **`PlayAsync`** method in a separate thread, and collect 
 the **`GameResult`** type to get the final outcome.
+
+## Using the Library
+
+
+### 1. Creating a State from FEN
+
+You can easily create a board state by parsing a FEN (Forsyth-Edwards Notation) string using the `State.FromFen` method.
+
+```csharp
+using ChessBotCore;
+
+// Initialize a state from the starting position
+string startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+State state = State.FromFen(startFen);
+
+// Or a custom position
+State customState = State.FromFen("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3");
+```
+
+### 2. Generating and Applying Moves
+
+To generate moves, use the `GeneratorWrapper` class. It provides methods for both pseudo-legal and fully legal moves.
+
+```csharp
+using ChessBotCore;
+
+State state = State.FromFen("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3");
+
+// Initialize the generator wrapper for the current state
+var generator = new GeneratorWrapper(state);
+
+// Get all legal moves
+List<Move> legalMoves = generator.GetLegalMoves();
+
+foreach (var move in legalMoves)
+{
+    Console.WriteLine($"Legal move: {move.PrintLAN()}");
+}
+
+// Apply a move to the state
+if (legalMoves.Count > 0)
+{
+    Move firstMove = legalMoves[0];
+    State.UndoInfo undoInfo = state.ApplyMove(firstMove);
+    
+    // ... do something with the new state ...
+    
+    // Undo the move to return to the previous state
+    state.UndoMove(firstMove, undoInfo);
+}
+```
+
+### 3. Creating Players and Running a ChessGame
+
+The `ChessGame` class orchestrates a match between two players. You can use the built-in `EnginePlayer` or `ConsolePlayer`, or implement your own `IPlayer`.
+
+```csharp
+using ChessBotCore;
+using ChessBotCore.Game;
+using ChessBotCore.Players;
+
+// 1. Create players
+IPlayer whitePlayer = new EnginePlayer(); // AI player
+IPlayer blackPlayer = new ConsolePlayer(); // Human player via console
+
+// 2. Configure game timers (optional, uses defaults if not provided)
+Timers timers = Timers.Default;
+
+// 3. Initialize the game
+using ChessGame game = new ChessGame(whitePlayer, blackPlayer, timers, State.FromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+
+// 4. Run the game asynchronously
+Console.WriteLine("Starting game...");
+GameResult result = await game.PlayAsync(verbosity: 1);
+
+// 5. Check the result
+Console.WriteLine($"Game Over: {result.Outcome} due to {result.Reason}");
+```
 
 ## Search and Evaluation
 
