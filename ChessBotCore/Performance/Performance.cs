@@ -1,6 +1,9 @@
+using ChessBotCore.MoveGenerators;
+
 namespace ChessBotCore.Performance;
 
 public static class Performance {
+    private static readonly IMoveGenerator _generator = new GeneratorWrapper();
     
     /// <summary>
     /// Performs a DFS search, to the specified depth, and returns the number of leaf nodes, including duplicate states.\
@@ -13,7 +16,8 @@ public static class Performance {
         if (depth <= 0) return 1;
 
         long nodesExplored = 0;
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
+        var moves = _generator.GenerateMoves(state).GetLegalMoves();
+
 
         foreach (var move in moves) {
             var undo = state.ApplyMove(move);
@@ -44,7 +48,8 @@ public static class Performance {
     /// <param name="depth">A depth to which perform the search.</param>
     /// <returns>A dictionary of leaf node counts from each move.</returns>
     public static Dictionary<Move, long> DividePerft(State s, int depth) {
-        var moves = new GeneratorWrapper(s).GetLegalMoves().ToList();
+        var moves = _generator.GenerateMoves(s).GetLegalMoves();
+
 
         var moveCounts = new Dictionary<Move, long>();
 
@@ -66,7 +71,8 @@ public static class Performance {
             if (depth <= 0) return 1;
 
             var po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
-            var moves = new GeneratorWrapper(state).GetLegalMoves();
+            var moves = _generator.GenerateMoves(state).GetLegalMoves();
+
 
             Parallel.ForEach(
                 moves,
@@ -88,7 +94,8 @@ public static class Performance {
             if (depth <= 0) return 1;
 
             long nodesExplored = 0;
-            var moves = new GeneratorWrapper(state).GetLegalMoves();
+            var moves = _generator.GenerateMoves(state).GetLegalMoves();
+
 
             foreach (var move in moves) {
                 var undo = state.ApplyMove(move);

@@ -3,6 +3,7 @@ using ChessBotCore.MoveGenerators;
 namespace ChessBotCore.Search;
 
 public sealed class ParallelMinimaxer {
+    private static readonly IMoveGenerator _generator = new GeneratorWrapper();
     
 
     private static SearchScore Eval(State s) {
@@ -19,8 +20,8 @@ public sealed class ParallelMinimaxer {
     private Move MinimaxSetup(State state, int maxDepth) {
         bool isMaxing = state.WhiteIsActive;
 
-        using var moves = new GeneratorWrapper(state).GetLegalMoves().GetEnumerator();
-
+        using var moves = _generator.GenerateMoves(state).GetLegalMoves().GetEnumerator();
+        
         // querying for a move when stalemated is undefined behaviour
         if (!moves.MoveNext()) return default;
 
@@ -58,7 +59,7 @@ public sealed class ParallelMinimaxer {
         SearchScore bestScore = isMaxing ? new SearchScore(int.MinValue) : new SearchScore(int.MaxValue);
 
         // todo sort the moves somehow 
-        var moves = new GeneratorWrapper(state).GetLegalMoves().GetEnumerator();
+        var moves = _generator.GenerateMoves(state).GetLegalMoves().GetEnumerator();
 
 
         // no moves means stalemate, which is loss for both players

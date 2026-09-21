@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
 using ChessBotCore.Game;
+using ChessBotCore.MoveGenerators;
 
 namespace ChessBotCore.Search;
 
@@ -9,21 +9,21 @@ namespace ChessBotCore.Search;
 /// </summary>
 public class MinimaxEvaluator {
     private readonly ITimeManager _timeManager = new TimeManager();
+    private readonly IMoveGenerator _moveGenerator = new GeneratorWrapper();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MinimaxEvaluator"/> class.
     /// </summary>
-    public  MinimaxEvaluator() {}
+    public MinimaxEvaluator(
+        ITimeManager? timeManager = null,
+        IMoveGenerator? moveGenerator = null)
+    {
+        if (timeManager is not null)
+            _timeManager = timeManager;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MinimaxEvaluator"/> class with a specific time manager.
-    /// </summary>
-    /// <param name="timeManager">The time manager to use for allocating search time.</param>
-    public MinimaxEvaluator(ITimeManager timeManager) {
-        _timeManager = timeManager;
+        if (moveGenerator is not null)
+            _moveGenerator = moveGenerator;
     }
-    
-    
     /// <summary>
     /// Evaluates the board state and returns a score from the perspective of the player to move.
     /// </summary>
@@ -126,8 +126,8 @@ public class MinimaxEvaluator {
     /// </summary>
     /// <param name="state">The board state.</param>
     /// <returns>A list of moves with initial zero scores.</returns>
-    private static List<ScoredMove> GetInitialScoredMoves(State state) {
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
+    private List<ScoredMove> GetInitialScoredMoves(State state) {
+        var moves = _moveGenerator.GenerateMoves(state).GetLegalMoves();
         moves.Sort();
         var scoredMoves = new List<ScoredMove>(moves.Count);
         foreach (var move in moves) {
@@ -146,7 +146,8 @@ public class MinimaxEvaluator {
     /// <returns>The best move found and its score.</returns>
     private ScoredMove NegamaxBase(State state, int maxDepth, SearchContext context) {
         context.IncrementNodeCount();
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
+                var moves = _moveGenerator.GenerateMoves(state).GetLegalMoves();
+
         moves.Sort();
 
         SearchScore bestScore = new SearchScore(int.MinValue + 1);
@@ -184,7 +185,8 @@ public class MinimaxEvaluator {
         SearchScore bestScore = new SearchScore(int.MinValue);
 
 
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
+                var moves = _moveGenerator.GenerateMoves(state).GetLegalMoves();
+
         moves.Sort();
 
         foreach (var move in moves) {
@@ -226,7 +228,8 @@ public class MinimaxEvaluator {
         }
 
 
-        var moves = new GeneratorWrapper(state).GetAllMoves();
+        var moves = _moveGenerator.GenerateMoves(state).GetAllMoves();
+
         if (moves.Count == 0) return new SearchScore(0); // stalemate
 
         moves.Sort();

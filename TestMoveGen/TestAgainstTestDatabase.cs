@@ -8,7 +8,8 @@ namespace TestMoveGen;
 
 public class TestAgainstTestDatabase {
     private readonly ITestOutputHelper _out;
-
+    private readonly IMoveGenerator _generator = new GeneratorWrapper();
+    
     public TestAgainstTestDatabase(ITestOutputHelper output) {
         _out = output;
     }
@@ -41,7 +42,8 @@ public class TestAgainstTestDatabase {
 
 
         //act
-        var moves = new GeneratorWrapper(start).GetLegalMoves().ToList();
+        var moves = _generator.GenerateMoves(start).GetLegalMoves();
+
 
         var moveFens = moves.Select(m => {
             var nextState = start.Clone();

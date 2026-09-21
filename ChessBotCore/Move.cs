@@ -144,7 +144,8 @@ public readonly struct Move : IComparable<Move>, IEquatable<Move> {
     /// <returns>The matching full Move object.</returns>
     /// <exception cref="ArgumentException">Thrown if no legal move matches the DTO.</exception>
     public static Move FindFullMove(MoveDTO moveDto, State state) {
-        var moves = new GeneratorWrapper(state).GetLegalMoves();
+        var generator = new GeneratorWrapper();
+        var moves = generator.GenerateMoves(state).GetLegalMoves();
 
         // just try to find a move that matches the move passed in 
         foreach (var m in moves)

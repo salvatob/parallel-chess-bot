@@ -244,8 +244,8 @@ public class ChessGame : IDisposable {
             return (GameOutcome.Draw, GameEndReason.InsufficientMaterial);
         // TODO: Other insufficient material cases (KBK, etc.)
 
-        var generator = new GeneratorWrapper(state);
-        var legalMoves = generator.GetLegalMoves();
+        var generator = new GeneratorWrapper();
+        var legalMoves = generator.GenerateMoves(state).GetLegalMoves();
 
         if (legalMoves.Count == 0) {
             var activeKing = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;

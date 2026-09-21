@@ -7,6 +7,7 @@ namespace Benchmarks;
 [MemoryDiagnoser]
 public class AllocationExperiments {
     private State _state;
+    private readonly IMoveGenerator _generator = new GeneratorWrapper();
 
     [ParamsSource(nameof(PositionCases))]
     public string Position { get; set; } = BenchmarkPositions.InitialPosition;
@@ -20,11 +21,13 @@ public class AllocationExperiments {
 
     [Benchmark]
     public List<Move> LegalMovesToList() {
-        return new GeneratorWrapper(_state).GetLegalMoves();
+        return _generator.GenerateMoves(_state).GetLegalMoves();
+
     }
 
     [Benchmark(Baseline = true)]
     public List<Move> PseudoLegalMovesToList() {
-        return new GeneratorWrapper(_state).GetAllMoves();
+        return _generator.GenerateMoves(_state).GetAllMoves();
+        
     }
 }
