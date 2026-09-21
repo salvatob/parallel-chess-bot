@@ -5,10 +5,14 @@ using ChessBotCore.MoveGenerators.PieceGenerators;
 namespace ChessBotCore;
 
 /// <summary>
-/// A wrapper for move generation, providing access to both pseudo-legal and fully legal moves.
+/// A wrapper for move generation, providing access to both pseudo-legal and fully legal moves.\
+/// Should be used once, and then discarded.
 /// </summary>
-public sealed class GeneratorWrapper {
-    private static readonly IMoveGenerator[] Generators = [
+public sealed class GeneratorWrapper : IMoveGenerator {
+    /// <summary>
+    /// Default set of move generators for a standard chess game.
+    /// </summary>
+    public static readonly IPieceMoveGenerator[] DefaultGenerators = [
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,
         RookMoveGenerator.Instance,
@@ -17,49 +21,30 @@ public sealed class GeneratorWrapper {
         BishopMoveGenerator.Instance
     ];
 
-    private readonly Lazy<List<Move>> _filteredBuffer;
-
-    private readonly State _state;
-
-
-    private readonly List<Move> _buffer = new(40);
-
+    private readonly IPieceMoveGenerator[] _generators;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GeneratorWrapper"/> class for a given state.
+    /// Initializes a new instance of the <see cref="GeneratorWrapper"/> class for a given state using default generators.
     /// </summary>
-    /// <param name="state">The board state to generate moves for.</param>
-    public GeneratorWrapper(State state) {
-        _state = state;
-        FillBuffer(state);
-        _filteredBuffer = new Lazy<List<Move>>(FilterBuffer);
-    }
-    
-    /// <summary>
-    /// Gets all pseudo-legal moves in the current state.
-    /// </summary>
-    /// <returns>A list of moves.</returns>
-    public List<Move> GetAllMoves() => _buffer;
-    
-    /// <summary>
-    /// Gets all legal moves in the current state, filtering out moves that leave the king in check.
-    /// </summary>
-    /// <returns>A list of legal moves.</returns>
-    public List<Move> GetLegalMoves() => _filteredBuffer.Value;
-
-    private void FillBuffer(State state) {
-        foreach (var generator in Generators) {
-            generator.GenerateMoves(state, _buffer);
-        }
+    public GeneratorWrapper() : this(DefaultGenerators) {
     }
 
-    private List<Move> FilterBuffer() {
-        List<Move> filtered = new(20);
-        foreach (var move in _buffer) {
-            if (CheckMoveLegality(move, _state))
-                filtered.Add(move);
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GeneratorWrapper"/> class with custom generators.
+    /// </summary>
+    /// <param name="generators">Custom move generators to use.</param>
+    public GeneratorWrapper(IEnumerable<IPieceMoveGenerator> generators) {
+        _generators = generators.ToArray();
+    }
+    
+
+    public MoveSet GenerateMoves(State state) {
+        List<Move> buffer = new(40);
+        foreach (var generator in _generators) {
+            generator.GenerateMoves(state, buffer);
         }
-        return filtered;
+        
+        return new MoveSet(state, buffer);
     }
 
     /// <summary>
@@ -186,5 +171,4 @@ public sealed class GeneratorWrapper {
 
         return Bitboard.Empty;
     }
-
 }
