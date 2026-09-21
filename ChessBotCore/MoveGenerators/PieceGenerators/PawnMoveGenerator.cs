@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
-public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
+public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
     private readonly Direction[] _blackDiagonals = [Direction.SW, Direction.SE];
     private readonly Direction _blackForward = Direction.S;
 
@@ -11,7 +11,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IMoveGenerator {
     private readonly Direction _whiteForward = Direction.N;
 
     private PawnMoveGenerator() { }
-    public static IMoveGenerator Instance => new PawnMoveGenerator();
+    public static IPieceMoveGenerator Instance => new PawnMoveGenerator();
 
     protected override Pieces WhitePiece => Pieces.WhitePawns;
     protected override Pieces BlackPiece => Pieces.BlackPawns;

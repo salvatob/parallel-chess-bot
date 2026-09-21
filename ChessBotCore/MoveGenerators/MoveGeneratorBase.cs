@@ -6,7 +6,7 @@ namespace ChessBotCore.MoveGenerators;
 ///     A base of all main move generators. All non-abstract inheritors are expected be sealed and
 ///     to implement the Singleton pattern.
 /// </summary>
-public abstract class MoveGeneratorBase : IMoveGenerator {
+public abstract class MoveGeneratorBase : IPieceMoveGenerator {
     protected abstract Pieces WhitePiece { get; }
     protected abstract Pieces BlackPiece { get; }
 

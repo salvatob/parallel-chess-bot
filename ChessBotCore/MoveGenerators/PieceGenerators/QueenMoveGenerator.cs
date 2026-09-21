@@ -20,5 +20,5 @@ public sealed class QueenMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
         Direction.SE
     ];
 
-    public static IMoveGenerator Instance => new QueenMoveGenerator();
+    public static IPieceMoveGenerator Instance => new QueenMoveGenerator();
 }

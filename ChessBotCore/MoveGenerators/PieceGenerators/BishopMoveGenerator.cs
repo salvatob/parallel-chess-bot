@@ -15,5 +15,5 @@ public sealed class BishopMoveGenerator : RayMoveGenerator, IGeneratorSingleton 
 
     private BishopMoveGenerator(){}
     
-    public static IMoveGenerator Instance => new BishopMoveGenerator();
+    public static IPieceMoveGenerator Instance => new BishopMoveGenerator();
 }

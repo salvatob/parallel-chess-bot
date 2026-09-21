@@ -15,5 +15,5 @@ public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
     protected override Pieces WhitePiece => Pieces.WhiteRooks;
     protected override Pieces BlackPiece => Pieces.BlackRooks;
 
-    public static IMoveGenerator Instance => new RookMoveGenerator();
+    public static IPieceMoveGenerator Instance => new RookMoveGenerator();
 }

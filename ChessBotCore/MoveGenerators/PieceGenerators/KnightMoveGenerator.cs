@@ -19,7 +19,7 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
 
     protected override Pieces WhitePiece => Pieces.WhiteKnights;
     protected override Pieces BlackPiece => Pieces.BlackKnights;
-    public static IMoveGenerator Instance => new KnightMoveGenerator();
+    public static IPieceMoveGenerator Instance => new KnightMoveGenerator();
 
     public override void GenerateMoves(State state, List<Move> buffer) {
         var knights = state.WhiteIsActive ? state.WhiteKnights : state.BlackKnights;
