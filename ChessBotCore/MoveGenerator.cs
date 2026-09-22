@@ -36,6 +36,10 @@ public sealed class MoveGenerator : IMoveGenerator {
         _generators = generators.ToArray();
     }
 
+    /// <summary>
+    ///     A shared, stateless default Singleton-like instance. 
+    /// </summary>
+    public static MoveGenerator Default { get; } = new();
 
     public MoveSet GenerateMoves(State state) {
         List<Move> buffer = new(40);
