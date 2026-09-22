@@ -3,7 +3,7 @@ using ChessBotCore.MoveGenerators;
 namespace ChessBotCore.Search;
 
 public sealed class ParallelMinimaxer {
-    private static readonly IMoveGenerator _generator = new GeneratorWrapper();
+    private static readonly IMoveGenerator _generator = new MoveGenerator();
     
 
     private static SearchScore Eval(State s) {

@@ -5,12 +5,12 @@ using ChessBotCore.MoveGenerators.PieceGenerators;
 namespace ChessBotCore;
 
 /// <summary>
-/// A wrapper for move generation, providing access to both pseudo-legal and fully legal moves.\
-/// Should be used once, and then discarded.
+///     The default implementation of the <seealso cref="IMoveGenerator" /> interface,
+///     providing access to both pseudo-legal and fully legal moves.
 /// </summary>
-public sealed class GeneratorWrapper : IMoveGenerator {
+public sealed class MoveGenerator : IMoveGenerator {
     /// <summary>
-    /// Default set of move generators for a standard chess game.
+    ///     Default set of move generators for a standard chess game.
     /// </summary>
     public static readonly IPieceMoveGenerator[] DefaultGenerators = [
         KingMoveGenerator.Instance,
@@ -24,31 +24,28 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     private readonly IPieceMoveGenerator[] _generators;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GeneratorWrapper"/> class for a given state using default generators.
+    ///     Initializes a new instance of the <see cref="MoveGenerator" /> class for a given state using default generators.
     /// </summary>
-    public GeneratorWrapper() : this(DefaultGenerators) {
-    }
+    public MoveGenerator() : this(DefaultGenerators) { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GeneratorWrapper"/> class with custom generators.
+    ///     Initializes a new instance of the <see cref="MoveGenerator" /> class with custom generators.
     /// </summary>
     /// <param name="generators">Custom move generators to use.</param>
-    public GeneratorWrapper(IEnumerable<IPieceMoveGenerator> generators) {
+    public MoveGenerator(IEnumerable<IPieceMoveGenerator> generators) {
         _generators = generators.ToArray();
     }
-    
+
 
     public MoveSet GenerateMoves(State state) {
         List<Move> buffer = new(40);
-        foreach (var generator in _generators) {
-            generator.GenerateMoves(state, buffer);
-        }
-        
+        foreach (var generator in _generators) generator.GenerateMoves(state, buffer);
+
         return new MoveSet(state, buffer);
     }
 
     /// <summary>
-    /// Checks if a pseudo-legal move is fully legal (i.e., it doesn't leave the king in check).
+    ///     Checks if a pseudo-legal move is fully legal (i.e., it doesn't leave the king in check).
     /// </summary>
     /// <param name="move">The move to check.</param>
     /// <param name="state">The board state.</param>
@@ -62,14 +59,15 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         // After ApplyMove, WhiteIsActive has flipped.
         // If white just moved, it's now black's turn. 
         // We need to check if white's king is under attack.
-        bool wasWhiteTurn = !state.WhiteIsActive;
-        Bitboard kingBoard = wasWhiteTurn ? state.WhiteKing : state.BlackKing;
+        var wasWhiteTurn = !state.WhiteIsActive;
+        var kingBoard = wasWhiteTurn ? state.WhiteKing : state.BlackKing;
 
         bool legal;
         if (kingBoard.IsEmpty()) {
             legal = false; // Should not happen if king was there before
-        } else {
-            int kingSquare = kingBoard.TrailingZeroCount();
+        }
+        else {
+            var kingSquare = kingBoard.TrailingZeroCount();
             legal = !IsSquareAttacked(kingSquare, state.WhiteIsActive, state);
         }
 
@@ -78,7 +76,7 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     }
 
     /// <summary>
-    /// Checks if a specific square is under attack by a given player.
+    ///     Checks if a specific square is under attack by a given player.
     /// </summary>
     /// <param name="square">The square index to check.</param>
     /// <param name="byWhite">True to check for white attackers, false for black.</param>
@@ -94,12 +92,12 @@ public sealed class GeneratorWrapper : IMoveGenerator {
 
         // 2. Pawns
         if (byWhite) {
-            if (!( (squareMask.MovePieces(Direction.SW) & state.WhitePawns).IsEmpty() && 
-                   (squareMask.MovePieces(Direction.SE) & state.WhitePawns).IsEmpty() ))
+            if (!((squareMask.MovePieces(Direction.SW) & state.WhitePawns).IsEmpty() &&
+                  (squareMask.MovePieces(Direction.SE) & state.WhitePawns).IsEmpty()))
                 return true;
         } else {
-            if (!( (squareMask.MovePieces(Direction.NW) & state.BlackPawns).IsEmpty() && 
-                   (squareMask.MovePieces(Direction.NE) & state.BlackPawns).IsEmpty() ))
+            if (!((squareMask.MovePieces(Direction.NW) & state.BlackPawns).IsEmpty() &&
+                  (squareMask.MovePieces(Direction.NE) & state.BlackPawns).IsEmpty()))
                 return true;
         }
 
@@ -110,11 +108,10 @@ public sealed class GeneratorWrapper : IMoveGenerator {
         // 4. Sliding Pieces (Rooks, Bishops, Queens)
         // Orthogonal (Rook/Queen)
         Direction[] orthoDirs = [Direction.N, Direction.S, Direction.E, Direction.W];
-        Bitboard orthoSliders = byWhite ? (state.WhiteRooks | state.WhiteQueens) : (state.BlackRooks | state.BlackQueens);
-        foreach (var dir in orthoDirs) {
+        Bitboard orthoSliders = byWhite ? state.WhiteRooks | state.WhiteQueens : state.BlackRooks | state.BlackQueens;
+        foreach (var dir in orthoDirs)
             if (!GetSliderAttack(square, dir, allPieces, orthoSliders).IsEmpty())
                 return true;
-        }
 
         // Diagonal (Bishop/Queen)
         Direction[] diagDirs = [Direction.NE, Direction.NW, Direction.SE, Direction.SW];
@@ -128,7 +125,7 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     }
 
     /// <summary>
-    /// Gets a bitboard of squares attacked by a knight on a given square.
+    ///     Gets a bitboard of squares attacked by a knight on a given square.
     /// </summary>
     private static Bitboard GetKnightAttacks(int square) {
         Bitboard mask = BitBoardHelpers.OneBitMask(square);
@@ -143,7 +140,7 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     }
 
     /// <summary>
-    /// Gets a bitboard of squares attacked by a king on a given square.
+    ///     Gets a bitboard of squares attacked by a king on a given square.
     /// </summary>
     private static Bitboard GetKingAttacks(int square) {
         Bitboard mask = BitBoardHelpers.OneBitMask(square);
@@ -158,7 +155,7 @@ public sealed class GeneratorWrapper : IMoveGenerator {
     }
 
     /// <summary>
-    /// Checks for slider attacks along a ray in a specified direction.
+    ///     Checks for slider attacks along a ray in a specified direction.
     /// </summary>
     private static Bitboard GetSliderAttack(int square, Direction dir, Bitboard allPieces, Bitboard attackers) {
         Bitboard ray = BitBoardHelpers.OneBitMask(square);

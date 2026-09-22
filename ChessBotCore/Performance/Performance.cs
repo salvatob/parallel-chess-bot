@@ -3,7 +3,7 @@ using ChessBotCore.MoveGenerators;
 namespace ChessBotCore.Performance;
 
 public static class Performance {
-    private static readonly IMoveGenerator _generator = new GeneratorWrapper();
+    private static readonly IMoveGenerator _generator = new MoveGenerator();
     
     /// <summary>
     /// Performs a DFS search, to the specified depth, and returns the number of leaf nodes, including duplicate states.\

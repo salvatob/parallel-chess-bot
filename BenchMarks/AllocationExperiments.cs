@@ -7,7 +7,7 @@ namespace Benchmarks;
 [MemoryDiagnoser]
 public class AllocationExperiments {
     private State _state;
-    private readonly IMoveGenerator _generator = new GeneratorWrapper();
+    private readonly IMoveGenerator _generator = new MoveGenerator();
 
     [ParamsSource(nameof(PositionCases))]
     public string Position { get; set; } = BenchmarkPositions.InitialPosition;

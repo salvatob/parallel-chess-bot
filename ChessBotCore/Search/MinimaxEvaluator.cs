@@ -9,7 +9,7 @@ namespace ChessBotCore.Search;
 /// </summary>
 public class MinimaxEvaluator {
     private readonly ITimeManager _timeManager = new TimeManager();
-    private readonly IMoveGenerator _moveGenerator = new GeneratorWrapper();
+    private readonly IMoveGenerator _moveGenerator = new MoveGenerator();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MinimaxEvaluator"/> class.
@@ -238,7 +238,7 @@ public class MinimaxEvaluator {
 
         foreach (var move in moves) {
             // this is faster, because with pruning, the generator will skip the expensive move legality check altogether
-            if (!GeneratorWrapper.CheckMoveLegality(move, state))
+            if (!MoveGenerator.CheckMoveLegality(move, state))
                 continue;
             var undo = state.ApplyMove(move);
             SearchScore currentScore = -SmartABNegamax(state, depth - 1, searchContext, -beta, -alpha);

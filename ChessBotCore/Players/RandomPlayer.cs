@@ -15,7 +15,7 @@ public class RandomPlayer : IPlayer {
 
     /// <inheritdoc/>
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
-        var generator = new GeneratorWrapper();
+        var generator = new MoveGenerator();
         var moves = generator.GenerateMoves(state).GetLegalMoves();
 
         Move move = moves[_random.Next(moves.Count)];

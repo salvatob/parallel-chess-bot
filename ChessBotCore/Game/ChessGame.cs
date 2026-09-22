@@ -244,12 +244,12 @@ public class ChessGame : IDisposable {
             return (GameOutcome.Draw, GameEndReason.InsufficientMaterial);
         // TODO: Other insufficient material cases (KBK, etc.)
 
-        var generator = new GeneratorWrapper();
+        var generator = new MoveGenerator();
         var legalMoves = generator.GenerateMoves(state).GetLegalMoves();
 
         if (legalMoves.Count == 0) {
             var activeKing = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
-            if (GeneratorWrapper.IsSquareAttacked(activeKing.TrailingZeroCount(), !state.WhiteIsActive, state)) {
+            if (MoveGenerator.IsSquareAttacked(activeKing.TrailingZeroCount(), !state.WhiteIsActive, state)) {
                 return (state.WhiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin, GameEndReason.Checkmate);
             }
 

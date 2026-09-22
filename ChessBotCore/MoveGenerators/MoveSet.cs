@@ -30,7 +30,7 @@ public class MoveSet {
     private List<Move> FilterLegalMoves() {
         List<Move> filtered = new(20);
         foreach (var move in _pseudoLegalMoves) {
-            if (GeneratorWrapper.CheckMoveLegality(move, State))
+            if (MoveGenerator.CheckMoveLegality(move, State))
                 filtered.Add(move);
         }
         return filtered;

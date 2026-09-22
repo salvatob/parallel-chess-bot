@@ -8,7 +8,7 @@ namespace TestMoveGen;
 
 public class TestAgainstTestDatabase {
     private readonly ITestOutputHelper _out;
-    private readonly IMoveGenerator _generator = new GeneratorWrapper();
+    private readonly IMoveGenerator _generator = new MoveGenerator();
     
     public TestAgainstTestDatabase(ITestOutputHelper output) {
         _out = output;

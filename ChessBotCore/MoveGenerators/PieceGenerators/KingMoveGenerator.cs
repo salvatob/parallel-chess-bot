@@ -96,7 +96,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
 
         bool attackedByWhite = !state.WhiteIsActive;
         foreach (int square in safeSquares) {
-            if (GeneratorWrapper.IsSquareAttacked(square, attackedByWhite, state)) return false;
+            if (MoveGenerator.IsSquareAttacked(square, attackedByWhite, state)) return false;
         }
 
         return true;
