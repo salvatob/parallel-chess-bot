@@ -12,7 +12,7 @@ public sealed class MoveGenerator : IMoveGenerator {
     /// <summary>
     ///     Default set of move generators for a standard chess game.
     /// </summary>
-    public static readonly IPieceMoveGenerator[] DefaultGenerators = [
+    private static readonly IPieceMoveGenerator[] DefaultGenerators = [
         KingMoveGenerator.Instance,
         KnightMoveGenerator.Instance,
         RookMoveGenerator.Instance,
