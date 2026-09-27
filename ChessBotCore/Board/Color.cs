@@ -18,4 +18,6 @@ public static class ColorEnumExtensions {
     public static Color Opposite(this Color color) {
         return color == Color.White ? Color.Black : Color.White;
     }
+    public static bool IsWhite(this Color color) => color == Color.White;
+    public static bool IsBlack(this Color color) => color == Color.Black;
 }
