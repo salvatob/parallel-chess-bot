@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using ChessBotCore.Board;
 
 namespace ChessBotCore.Game;
 
@@ -91,7 +92,7 @@ public class ChessGame : IDisposable {
     /// </summary>
     /// <returns>The active player.</returns>
     private IPlayer ActivePlayer() {
-        return _state.WhiteIsActive ? _whitePlayer : _blackPlayer;
+        return _state.WhiteIsActive.Choose(_whitePlayer, _blackPlayer);
     }
     
     /// <summary>
@@ -99,7 +100,7 @@ public class ChessGame : IDisposable {
     /// </summary>
     /// <returns>The inactive player.</returns>
     private IPlayer InactivePlayer() {
-        return _state.WhiteIsActive ? _blackPlayer : _whitePlayer;
+        return _state.WhiteIsActive.Choose(_blackPlayer, _whitePlayer);
     }
 
     /// <summary>
@@ -200,7 +201,7 @@ public class ChessGame : IDisposable {
             sw.Stop();
             // player has lost on time
             if (t == timeOutTask) {
-                var outcome = whiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin;
+                var outcome = whiteIsActive.Choose( GameOutcome.BlackWin , GameOutcome.WhiteWin);
                 var gameResult = new GameResult(outcome, GameEndReason.ClockTimedOut ,_moveList);
                 
                 if (verbosity > 0)
@@ -250,9 +251,9 @@ public class ChessGame : IDisposable {
         var legalMoves = generator.GenerateMoves(state).GetLegalMoves();
 
         if (legalMoves.Count == 0) {
-            var activeKing = state.WhiteIsActive ? state.WhiteKing : state.BlackKing;
-            if (MoveGenerator.IsSquareAttacked(activeKing.TrailingZeroCount(), !state.WhiteIsActive, state)) {
-                return (state.WhiteIsActive ? GameOutcome.BlackWin : GameOutcome.WhiteWin, GameEndReason.Checkmate);
+            var activeKing = state.WhiteIsActive.Choose( state.WhiteKing,  state.BlackKing);
+            if (MoveGenerator.IsSquareAttacked(activeKing.TrailingZeroCount(), state.WhiteIsActive.Opposite(), state)) {
+                return (state.WhiteIsActive.Choose( GameOutcome.BlackWin , GameOutcome.WhiteWin), GameEndReason.Checkmate);
             }
 
             return (GameOutcome.Draw, GameEndReason.Stalemate);

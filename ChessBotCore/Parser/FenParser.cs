@@ -111,13 +111,13 @@ internal class FenParser {
         bits |= mask;
     }
 
-    private static bool ParseActiveColor(string color) {
-        if (color == "w") return true;
-        if (color == "b") return false;
+    private static Color ParseActiveColor(string color) {
+        if (color == "w") return Color.White;
+        if (color == "b") return Color.Black;
         throw new ArgumentException($"The argument {nameof(color)} from FEN string is not in a correct format");
     }
 
-    public static bool DetectActiveColor(string fen) {
+    public static Color DetectActiveColor(string fen) {
         string[] tokens = fen.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (tokens.Length != 6)
             throw new ArgumentException($"The {nameof(fen)} argument has incorrect" +

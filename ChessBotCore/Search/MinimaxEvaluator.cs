@@ -1,3 +1,4 @@
+using ChessBotCore.Board;
 using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
 
@@ -179,7 +180,7 @@ public class MinimaxEvaluator {
     internal SearchScore Negamax(State state, int depth) {
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
-            return state.WhiteIsActive ? score : -score;
+            return state.WhiteIsActive.Choose(  score , -score);
         }
 
         SearchScore bestScore = new SearchScore(int.MinValue);
@@ -220,7 +221,7 @@ public class MinimaxEvaluator {
             return alpha;
         }
 
-        bool isMaxing = state.WhiteIsActive;
+        bool isMaxing = state.WhiteIsActive.IsWhite();
 
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);

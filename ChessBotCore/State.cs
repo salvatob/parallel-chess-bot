@@ -71,7 +71,7 @@ public sealed class State {
         BlackQueens = 0;
         BlackKing = 0;
 
-        WhiteIsActive = true;
+        WhiteIsActive = Color.White;
         WhiteCastleKingSide = false;
         WhiteCastleQueenSide = false;
         BlackCastleKingSide = false;
@@ -106,7 +106,7 @@ public sealed class State {
     public Bitboard BlackKing { get; set; }
 
     /// <summary> True if it is white's turn to move. </summary>
-    public bool WhiteIsActive { get; set; } = true;
+    public Color WhiteIsActive { get; set; } = Color.White;
 
     /// <summary> True if white has kingside castling rights. </summary>
     public bool WhiteCastleKingSide { get; set; }
@@ -148,7 +148,7 @@ public sealed class State {
             WhiteCastleQueenSide = true,
             BlackCastleKingSide  = true,
             BlackCastleQueenSide = true,
-            WhiteIsActive = true,
+            WhiteIsActive = Color.White,
             FullMoves = 1
         };
 
@@ -156,7 +156,7 @@ public sealed class State {
     /// Gets an empty board state.
     /// </summary>
     public static State Empty => new() {
-        WhiteIsActive = true,
+        WhiteIsActive = Color.White,
         FullMoves = 1
     };
 
@@ -224,9 +224,9 @@ public sealed class State {
     /// </summary>
     /// <returns>The same instance.</returns>
     public void Next() {
-        WhiteIsActive = !WhiteIsActive;
+        WhiteIsActive = WhiteIsActive.Opposite();
         // update fullmove clock after blacks turn
-        if (WhiteIsActive) FullMoves++;
+        if (WhiteIsActive.IsWhite()) FullMoves++;
         HalfMovesSincePawnMoveOrCapture += 1;
         EnPassant = default;
     }
@@ -249,7 +249,7 @@ public sealed class State {
         Pieces movingPiece = move.Piece;
 
         Pieces? capturedPiece = move.IsEnPassant
-            ? WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns
+            ? WhiteIsActive.Choose(Pieces.BlackPawns , Pieces.WhitePawns)
             : DetectPieceCollision(toMask);
 
         var undo = new UndoInfo(this, capturedPiece);
@@ -291,7 +291,7 @@ public sealed class State {
 
         if (move.IsPromotion) {
             Pieces promotedPiece = GetPromotedPiece(move);
-            Pieces pawnPiece = WhiteIsActive ? Pieces.WhitePawns : Pieces.BlackPawns;
+            Pieces pawnPiece = WhiteIsActive.Choose(  Pieces.WhitePawns , Pieces.BlackPawns);
             
             // Remove promoted piece from 'to'
             Set(promotedPiece, GetPieces(promotedPiece) & ~toMask);
@@ -307,9 +307,10 @@ public sealed class State {
         // 3. Restore Captured Piece
         if (move.IsCapture && undo.CapturedPiece.HasValue) {
             if (move.IsEnPassant) {
-                Bitboard capturedPawnMask = WhiteIsActive
-                    ? toMask.MovePieces(Direction.S)
-                    : toMask.MovePieces(Direction.N);
+                Bitboard capturedPawnMask = WhiteIsActive.Choose(
+                     toMask.MovePieces(Direction.S),
+                     toMask.MovePieces(Direction.N)
+                     );
                 Set(undo.CapturedPiece.Value, GetPieces(undo.CapturedPiece.Value) | capturedPawnMask);
             } else {
                 Set(undo.CapturedPiece.Value, GetPieces(undo.CapturedPiece.Value) | toMask);
@@ -331,12 +332,12 @@ public sealed class State {
     }
 
     private void ReverseNext() {
-        if (WhiteIsActive) FullMoves--;
-        WhiteIsActive = !WhiteIsActive;
+        if (WhiteIsActive.IsWhite()) FullMoves--;
+        WhiteIsActive = WhiteIsActive.Opposite();
     }
 
     private void UndoCastling(Move move) {
-        if (WhiteIsActive) {
+        if (WhiteIsActive.IsWhite()) {
             if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
                 MovePiece(Pieces.WhiteRooks, 1UL << 2, 1UL << 0); // f1 to h1
             } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
@@ -383,11 +384,12 @@ public sealed class State {
             // Wait, I should check the order in ApplyMove.
 
             // If ApplyMove calls ExecuteMove BEFORE Next(), then WhiteIsActive is the mover.
-            Bitboard capturedPawnMask = WhiteIsActive
-                ? toMask.MovePieces(Direction.S)
-                : toMask.MovePieces(Direction.N);
+            Bitboard capturedPawnMask = WhiteIsActive.Choose(
+                 toMask.MovePieces(Direction.S),
+                toMask.MovePieces(Direction.N)
+                );
 
-            Pieces capturedPiece = WhiteIsActive ? Pieces.BlackPawns : Pieces.WhitePawns;
+            Pieces capturedPiece = WhiteIsActive.Choose(  Pieces.BlackPawns , Pieces.WhitePawns);
             Set(capturedPiece, GetPieces(capturedPiece) & ~capturedPawnMask);
         } else {
             Pieces? capturedPiece = DetectPieceCollision(toMask);
@@ -407,7 +409,7 @@ public sealed class State {
     }
 
     private Pieces GetPromotedPiece(Move move) {
-        if (WhiteIsActive) {
+        if (WhiteIsActive.IsWhite()) {
             if (move.Flags.HasFlag(MoveFlags.PromoteToQueen)) return Pieces.WhiteQueens;
             if (move.Flags.HasFlag(MoveFlags.PromoteToRook)) return Pieces.WhiteRooks;
             if (move.Flags.HasFlag(MoveFlags.PromoteToBishop)) return Pieces.WhiteBishops;
@@ -425,7 +427,7 @@ public sealed class State {
     private void HandleCastling(Move move) {
         // King move is already handled by MovePiece in ExecuteMove
         // We just need to move the Rook
-        if (WhiteIsActive) {
+        if (WhiteIsActive.IsWhite()) {
             if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
                 MovePiece(Pieces.WhiteRooks, 1UL << 0, 1UL << 2); // h1 to f1
             } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
@@ -492,24 +494,25 @@ public sealed class State {
     /// <summary>
     ///     Return Bitboard of all pieces of certain color.
     /// </summary>
-    /// <param name="white">If true, returns white pieces, else black pieces.</param>
+    /// <param name="color">Color of the requested pieces</param>
     /// <returns>The combination bitmap of the pieces.</returns>
-    public Bitboard GetPieces(bool white) {
-        return white switch {
-            true =>
+    public Bitboard GetPieces(Color color) {
+        return color switch {
+            Color.White =>
                 WhiteBishops |
                 WhiteKnights |
                 WhiteQueens |
                 WhiteKing |
                 WhitePawns |
                 WhiteRooks,
-            false =>
+            Color.Black =>
                 BlackBishops |
                 BlackKnights |
                 BlackQueens |
                 BlackKing |
                 BlackPawns |
-                BlackRooks
+                BlackRooks,
+            _ => throw new ArgumentOutOfRangeException(nameof(color), color, null)
         };
     }
 
@@ -518,12 +521,12 @@ public sealed class State {
     /// </summary>
     /// <returns>Bitmask of all squares occupied by any piece.</returns>
     public Bitboard GetAllPieces() {
-        return GetPieces(true) | GetPieces(false);
+        return GetPieces(Color.White) | GetPieces(Color.Black);
     }
 
     public Bitboard GetActivePieces() => GetPieces(WhiteIsActive);
     
-    public Bitboard GetInactivePieces() => GetPieces(!WhiteIsActive);
+    public Bitboard GetInactivePieces() => GetPieces(WhiteIsActive.Opposite());
 
 
     /// <summary>

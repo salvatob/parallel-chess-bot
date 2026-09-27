@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ChessBotCore.Board;
 
 namespace ChessBotCore.Game;
 
@@ -71,8 +72,8 @@ public class Timers {
     /// </summary>
     /// <param name="elapsedTime">The amount of time the player used for their move.</param>
     /// <param name="white">True means the player is white.</param>
-    /// <returns>If the new value is negative, ie the player has lost on time.</returns>
-    public bool UpdateTimer(TimeSpan elapsedTime, bool white) {
+    /// <returns>If the new value is negative, ie, the timer stat is illegal, ie the player has lost on time.</returns>
+    public bool UpdateTimer(TimeSpan elapsedTime, Color white) {
         ref var activeTime = ref ActiveTime(white);
         activeTime -= elapsedTime;
         if (activeTime < TimeSpan.Zero) return false;
@@ -85,7 +86,7 @@ public class Timers {
     /// </summary>
     /// <param name="color">True means white</param>
     /// <returns>The Time by reference.</returns>
-    public ref TimeSpan ActiveTime(bool color) {
-        return ref color ? ref _whiteTime : ref _blackTime;
+    public ref TimeSpan ActiveTime(Color color) {
+        return ref color.Choose( ref _whiteTime , ref _blackTime);
     }
 }

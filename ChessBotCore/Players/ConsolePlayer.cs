@@ -1,3 +1,4 @@
+using ChessBotCore.Board;
 using ChessBotCore.Game;
 using ChessBotCore.Search;
 
@@ -11,7 +12,7 @@ public class ConsolePlayer : IPlayer {
     public SearchHandle ChooseMoveAsync(State state, Timers timers) {
         var cts = new CancellationTokenSource();
 
-        Console.WriteLine($"You are {(state.WhiteIsActive ? "white" : "black")}");
+        Console.WriteLine($"You are {state.WhiteIsActive.Choose( "white" , "black")}");
         Console.WriteLine($"You have {timers.ActiveTime(state.WhiteIsActive)} time");
         // Start the input task on a background thread
         var command = Task.Run(() => GetCommand(state, timers));

@@ -21,7 +21,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
         GenerateNonCaptures(state, buffer);
     }
 
-    private static void AddMoveHandlingPromotion(Move move, bool white, List<Move> buffer) {
+    private static void AddMoveHandlingPromotion(Move move, Color color, List<Move> buffer) {
         int to = move.To;
         int toRank = to / 8;
         bool isPromotionRank = toRank is 0 or 7;
@@ -31,7 +31,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
             return;
         }
 
-        Pieces pieceType = white ? Pieces.WhitePawns : Pieces.BlackPawns;
+        Pieces pieceType = color.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
         MoveFlags baseFlags = move.Flags | MoveFlags.Promotion;
         buffer.Add(new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToQueen));
         buffer.Add(new Move(move.From, to, pieceType, baseFlags | MoveFlags.PromoteToRook));
@@ -40,13 +40,13 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
     }
 
     internal void GenerateNonCaptures(State state, List<Move> buffer) {
-        bool whitesMove = state.WhiteIsActive;
-        Pieces pieceType = whitesMove ? Pieces.WhitePawns : Pieces.BlackPawns;
+        // bool whitesMove = state.WhiteIsActive;
+        Pieces pieceType = state.WhiteIsActive.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
         
-        Bitboard currentPawns = whitesMove ? state.WhitePawns : state.BlackPawns;
+        Bitboard currentPawns = state.WhiteIsActive.Choose( state.WhitePawns , state.BlackPawns);
         Bitboard emptySpace = ~state.GetAllPieces();
 
-        Direction dirForward = whitesMove ? _whiteForward : _blackForward;
+        Direction dirForward = state.WhiteIsActive.Choose( _whiteForward , _blackForward);
         Direction oppositeDir = BitBoardHelpers.OppositeDir(dirForward);
 
         // One cell forward
@@ -57,12 +57,12 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
             
-            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.None), whitesMove, buffer);
+            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.None), state.WhiteIsActive, buffer);
             tempOnce &= ~toMask;
         }
 
         // Double move forward
-        Bitboard startingPawns = currentPawns & (whitesMove ? BitMask.Row[1] : BitMask.Row[6]);
+        Bitboard startingPawns = currentPawns & (state.WhiteIsActive.Choose( BitMask.Row[1] , BitMask.Row[6]));
         Bitboard movedTwice = BitBoardHelpers.Move(startingPawns, dirForward, 1) & emptySpace;
         movedTwice = BitBoardHelpers.Move(movedTwice, dirForward, 1) & emptySpace;
 
@@ -70,16 +70,16 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
             int to = movedTwice.TrailingZeroCount();
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir, 2).TrailingZeroCount();
-            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.DoublePawnPush), whitesMove, buffer);
+            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.DoublePawnPush), state.WhiteIsActive, buffer);
             movedTwice &= ~toMask;
         }
     }
 
     internal void GenerateCaptures(State state, List<Move> buffer) {
         Bitboard enemyPieces = state.GetInactivePieces();
-        Bitboard pawns = state.WhiteIsActive ? state.WhitePawns : state.BlackPawns;
-        Direction[] directions = state.WhiteIsActive ? _whiteDiagonals : _blackDiagonals;
-        Pieces pieceType = state.WhiteIsActive ? Pieces.WhitePawns : Pieces.BlackPawns;
+        Bitboard pawns = state.WhiteIsActive.Choose( state.WhitePawns , state.BlackPawns);
+        Direction[] directions = state.WhiteIsActive.Choose( _whiteDiagonals , _blackDiagonals);
+        Pieces pieceType = state.WhiteIsActive.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
 
 
         foreach (Direction dir in directions) {
