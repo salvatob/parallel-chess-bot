@@ -2,10 +2,15 @@ using System.Runtime.CompilerServices;
 
 namespace ChessBotCore.Board;
 
-
+/// <summary>
+/// A boolean-like enum representing a chess player color/side
+/// </summary>
 public enum Color : byte {
-    White,
-    Black
+    // having this enum, opposed to a simple bool, offers identical performance, however offers significantly more ergonomic
+    // interface, by using extension methods, and also better readability
+    // for historical reasons, where the boolean true used to represent the white player, Black is first in this enum
+    Black,
+    White
 }
 
 public static class ColorEnumExtensions {
