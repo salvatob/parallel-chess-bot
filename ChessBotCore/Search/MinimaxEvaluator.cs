@@ -64,7 +64,7 @@ public class MinimaxEvaluator {
     /// <returns>The search results containing the best move found.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the state has no legal moves.</exception>
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
-        var timePerMove = _timeManager.CalculateAllowedTime(timers, state.WhiteIsActive);
+        var timePerMove = _timeManager.CalculateAllowedTime(timers, state.ActiveColor);
         
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(timePerMove);
@@ -180,7 +180,7 @@ public class MinimaxEvaluator {
     internal SearchScore Negamax(State state, int depth) {
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
-            return state.WhiteIsActive.Choose(  score , -score);
+            return state.ActiveColor.Choose(  score , -score);
         }
 
         SearchScore bestScore = new SearchScore(int.MinValue);
@@ -221,7 +221,7 @@ public class MinimaxEvaluator {
             return alpha;
         }
 
-        bool isMaxing = state.WhiteIsActive.IsWhite();
+        bool isMaxing = state.ActiveColor.IsWhite();
 
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);

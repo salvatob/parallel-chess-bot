@@ -19,7 +19,7 @@ public sealed class ParallelMinimaxer {
     }
 
     private Move MinimaxSetup(State state, int maxDepth) {
-        bool isMaxing = state.WhiteIsActive.IsWhite();
+        bool isMaxing = state.ActiveColor.IsWhite();
 
         using var moves = _generator.GenerateMoves(state).GetLegalMoves().GetEnumerator();
         
@@ -56,7 +56,7 @@ public sealed class ParallelMinimaxer {
     internal SearchScore Minimax(State state, int depth) {
         if (depth <= 0 || IsTerminal(state)) return Eval(state);
 
-        bool isMaxing = state.WhiteIsActive.IsWhite();
+        bool isMaxing = state.ActiveColor.IsWhite();
         SearchScore bestScore = isMaxing ? new SearchScore(int.MinValue) : new SearchScore(int.MaxValue);
 
         // todo sort the moves somehow 

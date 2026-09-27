@@ -71,7 +71,7 @@ public sealed class State {
         BlackQueens = 0;
         BlackKing = 0;
 
-        WhiteIsActive = Color.White;
+        ActiveColor = Color.White;
         WhiteCastleKingSide = false;
         WhiteCastleQueenSide = false;
         BlackCastleKingSide = false;
@@ -106,7 +106,7 @@ public sealed class State {
     public Bitboard BlackKing { get; set; }
 
     /// <summary> True if it is white's turn to move. </summary>
-    public Color WhiteIsActive { get; set; } = Color.White;
+    public Color ActiveColor { get; set; } = Color.White;
 
     /// <summary> True if white has kingside castling rights. </summary>
     public bool WhiteCastleKingSide { get; set; }
@@ -148,7 +148,7 @@ public sealed class State {
             WhiteCastleQueenSide = true,
             BlackCastleKingSide  = true,
             BlackCastleQueenSide = true,
-            WhiteIsActive = Color.White,
+            ActiveColor = Color.White,
             FullMoves = 1
         };
 
@@ -156,7 +156,7 @@ public sealed class State {
     /// Gets an empty board state.
     /// </summary>
     public static State Empty => new() {
-        WhiteIsActive = Color.White,
+        ActiveColor = Color.White,
         FullMoves = 1
     };
 
@@ -184,7 +184,7 @@ public sealed class State {
         BlackQueens = other.BlackQueens;
         BlackKing = other.BlackKing;
 
-        WhiteIsActive = other.WhiteIsActive;
+        ActiveColor = other.ActiveColor;
 
         WhiteCastleKingSide = other.WhiteCastleKingSide;
         WhiteCastleQueenSide = other.WhiteCastleQueenSide;
@@ -217,16 +217,16 @@ public sealed class State {
 
     /// <summary>
     ///     Pushes the state into a next move, so some properties are updated automatically.
-    ///     <see cref="WhiteIsActive" />, <see cref="EnPassant" />, <see cref="FullMoves" /> clock and HalfMoves clock, are
+    ///     <see cref="ActiveColor" />, <see cref="EnPassant" />, <see cref="FullMoves" /> clock and HalfMoves clock, are
     ///     updated automatically.
     ///     Pieces are left untouched, user should change them on their own.
     ///     Specific properties such as castling and enpassant are also left to the user to handle.
     /// </summary>
     /// <returns>The same instance.</returns>
     public void Next() {
-        WhiteIsActive = WhiteIsActive.Opposite();
+        ActiveColor = ActiveColor.Opposite();
         // update fullmove clock after blacks turn
-        if (WhiteIsActive.IsWhite()) FullMoves++;
+        if (ActiveColor.IsWhite()) FullMoves++;
         HalfMovesSincePawnMoveOrCapture += 1;
         EnPassant = default;
     }
@@ -249,7 +249,7 @@ public sealed class State {
         Pieces movingPiece = move.Piece;
 
         Pieces? capturedPiece = move.IsEnPassant
-            ? WhiteIsActive.Choose(Pieces.BlackPawns , Pieces.WhitePawns)
+            ? ActiveColor.Choose(Pieces.BlackPawns , Pieces.WhitePawns)
             : DetectPieceCollision(toMask);
 
         var undo = new UndoInfo(this, capturedPiece);
@@ -291,7 +291,7 @@ public sealed class State {
 
         if (move.IsPromotion) {
             Pieces promotedPiece = GetPromotedPiece(move);
-            Pieces pawnPiece = WhiteIsActive.Choose(  Pieces.WhitePawns , Pieces.BlackPawns);
+            Pieces pawnPiece = ActiveColor.Choose(  Pieces.WhitePawns , Pieces.BlackPawns);
             
             // Remove promoted piece from 'to'
             Set(promotedPiece, GetPieces(promotedPiece) & ~toMask);
@@ -307,7 +307,7 @@ public sealed class State {
         // 3. Restore Captured Piece
         if (move.IsCapture && undo.CapturedPiece.HasValue) {
             if (move.IsEnPassant) {
-                Bitboard capturedPawnMask = WhiteIsActive.Choose(
+                Bitboard capturedPawnMask = ActiveColor.Choose(
                      toMask.MovePieces(Direction.S),
                      toMask.MovePieces(Direction.N)
                      );
@@ -332,12 +332,12 @@ public sealed class State {
     }
 
     private void ReverseNext() {
-        if (WhiteIsActive.IsWhite()) FullMoves--;
-        WhiteIsActive = WhiteIsActive.Opposite();
+        if (ActiveColor.IsWhite()) FullMoves--;
+        ActiveColor = ActiveColor.Opposite();
     }
 
     private void UndoCastling(Move move) {
-        if (WhiteIsActive.IsWhite()) {
+        if (ActiveColor.IsWhite()) {
             if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
                 MovePiece(Pieces.WhiteRooks, 1UL << 2, 1UL << 0); // f1 to h1
             } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
@@ -384,12 +384,12 @@ public sealed class State {
             // Wait, I should check the order in ApplyMove.
 
             // If ApplyMove calls ExecuteMove BEFORE Next(), then WhiteIsActive is the mover.
-            Bitboard capturedPawnMask = WhiteIsActive.Choose(
+            Bitboard capturedPawnMask = ActiveColor.Choose(
                  toMask.MovePieces(Direction.S),
                 toMask.MovePieces(Direction.N)
                 );
 
-            Pieces capturedPiece = WhiteIsActive.Choose(  Pieces.BlackPawns , Pieces.WhitePawns);
+            Pieces capturedPiece = ActiveColor.Choose(  Pieces.BlackPawns , Pieces.WhitePawns);
             Set(capturedPiece, GetPieces(capturedPiece) & ~capturedPawnMask);
         } else {
             Pieces? capturedPiece = DetectPieceCollision(toMask);
@@ -409,7 +409,7 @@ public sealed class State {
     }
 
     private Pieces GetPromotedPiece(Move move) {
-        if (WhiteIsActive.IsWhite()) {
+        if (ActiveColor.IsWhite()) {
             if (move.Flags.HasFlag(MoveFlags.PromoteToQueen)) return Pieces.WhiteQueens;
             if (move.Flags.HasFlag(MoveFlags.PromoteToRook)) return Pieces.WhiteRooks;
             if (move.Flags.HasFlag(MoveFlags.PromoteToBishop)) return Pieces.WhiteBishops;
@@ -427,7 +427,7 @@ public sealed class State {
     private void HandleCastling(Move move) {
         // King move is already handled by MovePiece in ExecuteMove
         // We just need to move the Rook
-        if (WhiteIsActive.IsWhite()) {
+        if (ActiveColor.IsWhite()) {
             if (move.Flags.HasFlag(MoveFlags.KingCastle)) {
                 MovePiece(Pieces.WhiteRooks, 1UL << 0, 1UL << 2); // h1 to f1
             } else if (move.Flags.HasFlag(MoveFlags.QueenCastle)) {
@@ -524,9 +524,9 @@ public sealed class State {
         return GetPieces(Color.White) | GetPieces(Color.Black);
     }
 
-    public Bitboard GetActivePieces() => GetPieces(WhiteIsActive);
+    public Bitboard GetActivePieces() => GetPieces(ActiveColor);
     
-    public Bitboard GetInactivePieces() => GetPieces(WhiteIsActive.Opposite());
+    public Bitboard GetInactivePieces() => GetPieces(ActiveColor.Opposite());
 
 
     /// <summary>

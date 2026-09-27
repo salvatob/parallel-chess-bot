@@ -22,7 +22,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     public static IPieceMoveGenerator Instance => new KingMoveGenerator();
 
     public override void GenerateMoves(State state, List<Move> buffer) {
-        var king = state.WhiteIsActive.Choose( state.WhiteKing , state.BlackKing);
+        var king = state.ActiveColor.Choose( state.WhiteKing , state.BlackKing);
         var allyPieces = state.GetActivePieces();
         foreach (var dir in MoveDirections) {
             var beforeCollision = king.MovePieces(dir);
@@ -50,7 +50,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     }
 
     private void GenerateCastleMoves(State state, List<Move> buffer) {
-        if (state.WhiteIsActive.IsWhite()) {
+        if (state.ActiveColor.IsWhite()) {
             if (CanCastle(state, kingFrom: 3, rookFrom: 0, emptySquares: [2, 1], safeSquares: [3, 2, 1])) {
                 var newMove = new Move(3, 1, Pieces.WhiteKing, MoveFlags.KingCastle);
                 buffer.Add(newMove);
@@ -76,7 +76,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
     private static bool CanCastle(State state, int kingFrom, int rookFrom, int[] emptySquares, int[] safeSquares) {
         bool kingSide = rookFrom is 0 or 56;
 
-        if (state.WhiteIsActive.IsWhite()) {
+        if (state.ActiveColor.IsWhite()) {
             if (kingSide && !state.WhiteCastleKingSide) return false;
             if (!kingSide && !state.WhiteCastleQueenSide) return false;
             if ((state.WhiteKing & BitBoardHelpers.OneBitMask(kingFrom)).IsEmpty()) return false;
@@ -94,7 +94,7 @@ public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
             if (!(occupied & BitBoardHelpers.OneBitMask(square)).IsEmpty()) return false;
         }
 
-        var attackedBy = state.WhiteIsActive.Opposite();
+        var attackedBy = state.ActiveColor.Opposite();
         foreach (int square in safeSquares) {
             if (MoveGenerator.IsSquareAttacked(square, attackedBy, state)) return false;
         }

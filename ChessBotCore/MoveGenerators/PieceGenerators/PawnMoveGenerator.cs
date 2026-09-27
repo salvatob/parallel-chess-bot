@@ -41,12 +41,12 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
 
     internal void GenerateNonCaptures(State state, List<Move> buffer) {
         // bool whitesMove = state.WhiteIsActive;
-        Pieces pieceType = state.WhiteIsActive.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
+        Pieces pieceType = state.ActiveColor.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
         
-        Bitboard currentPawns = state.WhiteIsActive.Choose( state.WhitePawns , state.BlackPawns);
+        Bitboard currentPawns = state.ActiveColor.Choose( state.WhitePawns , state.BlackPawns);
         Bitboard emptySpace = ~state.GetAllPieces();
 
-        Direction dirForward = state.WhiteIsActive.Choose( _whiteForward , _blackForward);
+        Direction dirForward = state.ActiveColor.Choose( _whiteForward , _blackForward);
         Direction oppositeDir = BitBoardHelpers.OppositeDir(dirForward);
 
         // One cell forward
@@ -57,12 +57,12 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
             
-            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.None), state.WhiteIsActive, buffer);
+            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.None), state.ActiveColor, buffer);
             tempOnce &= ~toMask;
         }
 
         // Double move forward
-        Bitboard startingPawns = currentPawns & (state.WhiteIsActive.Choose( BitMask.Row[1] , BitMask.Row[6]));
+        Bitboard startingPawns = currentPawns & (state.ActiveColor.Choose( BitMask.Row[1] , BitMask.Row[6]));
         Bitboard movedTwice = BitBoardHelpers.Move(startingPawns, dirForward, 1) & emptySpace;
         movedTwice = BitBoardHelpers.Move(movedTwice, dirForward, 1) & emptySpace;
 
@@ -70,16 +70,16 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
             int to = movedTwice.TrailingZeroCount();
             Bitboard toMask = BitBoardHelpers.OneBitMask(to);
             int from = BitBoardHelpers.Move(toMask, oppositeDir, 2).TrailingZeroCount();
-            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.DoublePawnPush), state.WhiteIsActive, buffer);
+            AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.DoublePawnPush), state.ActiveColor, buffer);
             movedTwice &= ~toMask;
         }
     }
 
     internal void GenerateCaptures(State state, List<Move> buffer) {
         Bitboard enemyPieces = state.GetInactivePieces();
-        Bitboard pawns = state.WhiteIsActive.Choose( state.WhitePawns , state.BlackPawns);
-        Direction[] directions = state.WhiteIsActive.Choose( _whiteDiagonals , _blackDiagonals);
-        Pieces pieceType = state.WhiteIsActive.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
+        Bitboard pawns = state.ActiveColor.Choose( state.WhitePawns , state.BlackPawns);
+        Direction[] directions = state.ActiveColor.Choose( _whiteDiagonals , _blackDiagonals);
+        Pieces pieceType = state.ActiveColor.Choose( Pieces.WhitePawns , Pieces.BlackPawns);
 
 
         foreach (Direction dir in directions) {
@@ -91,7 +91,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
                 Bitboard toMask = BitBoardHelpers.OneBitMask(to);
                 int from = BitBoardHelpers.Move(toMask, oppositeDir).TrailingZeroCount();
 
-                AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.Capture), state.WhiteIsActive, buffer);
+                AddMoveHandlingPromotion(new Move(from, to, pieceType, MoveFlags.Capture), state.ActiveColor, buffer);
                 pawnsThatCapturedSomething &= ~toMask;
             }
         }
@@ -109,7 +109,7 @@ public sealed class PawnMoveGenerator : MoveGeneratorBase, IPieceMoveGenerator {
                     int to = BitBoardHelpers.Move(fromMask, dir).TrailingZeroCount();
                     AddMoveHandlingPromotion(
                         new Move(from, to, pieceType, MoveFlags.Capture | MoveFlags.EnPassant),
-                        state.WhiteIsActive,
+                        state.ActiveColor,
                         buffer);
                     pawnsThatCanCaptureEP &= ~fromMask;
                 }

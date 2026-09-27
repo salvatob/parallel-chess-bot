@@ -92,7 +92,7 @@ public class ChessGame : IDisposable {
     /// </summary>
     /// <returns>The active player.</returns>
     private IPlayer ActivePlayer() {
-        return _state.WhiteIsActive.Choose(_whitePlayer, _blackPlayer);
+        return _state.ActiveColor.Choose(_whitePlayer, _blackPlayer);
     }
     
     /// <summary>
@@ -100,7 +100,7 @@ public class ChessGame : IDisposable {
     /// </summary>
     /// <returns>The inactive player.</returns>
     private IPlayer InactivePlayer() {
-        return _state.WhiteIsActive.Choose(_blackPlayer, _whitePlayer);
+        return _state.ActiveColor.Choose(_blackPlayer, _whitePlayer);
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ public class ChessGame : IDisposable {
                 return finalResult;
             }
 
-            var whiteIsActive = _state.WhiteIsActive;
+            var whiteIsActive = _state.ActiveColor;
             var playerTime = _timers.ActiveTime(whiteIsActive);
             
             LogGameProgress(verbosity, ActivePlayer(), playerTime);
@@ -251,9 +251,9 @@ public class ChessGame : IDisposable {
         var legalMoves = generator.GenerateMoves(state).GetLegalMoves();
 
         if (legalMoves.Count == 0) {
-            var activeKing = state.WhiteIsActive.Choose( state.WhiteKing,  state.BlackKing);
-            if (MoveGenerator.IsSquareAttacked(activeKing.TrailingZeroCount(), state.WhiteIsActive.Opposite(), state)) {
-                return (state.WhiteIsActive.Choose( GameOutcome.BlackWin , GameOutcome.WhiteWin), GameEndReason.Checkmate);
+            var activeKing = state.ActiveColor.Choose( state.WhiteKing,  state.BlackKing);
+            if (MoveGenerator.IsSquareAttacked(activeKing.TrailingZeroCount(), state.ActiveColor.Opposite(), state)) {
+                return (state.ActiveColor.Choose( GameOutcome.BlackWin , GameOutcome.WhiteWin), GameEndReason.Checkmate);
             }
 
             return (GameOutcome.Draw, GameEndReason.Stalemate);

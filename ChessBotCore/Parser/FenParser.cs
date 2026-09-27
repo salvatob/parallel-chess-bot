@@ -27,7 +27,7 @@ internal class FenParser {
         string fullClock = tokens[5];
 
         ParsePieces(pieces);
-        _state.WhiteIsActive = ParseActiveColor(activeColor);
+        _state.ActiveColor = ParseActiveColor(activeColor);
         _state.EnPassant = ParseEnpassant(enpassant);
         _state.HalfMovesSincePawnMoveOrCapture = ParseClock(halfClock);
         _state.FullMoves = ParseClock(fullClock);

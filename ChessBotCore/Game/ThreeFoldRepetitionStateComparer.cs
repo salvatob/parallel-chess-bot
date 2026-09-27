@@ -22,7 +22,7 @@ public class ThreeFoldRepetitionStateComparer : IEqualityComparer<State> {
             s.BlackPawns, s.BlackRooks, s.BlackKnights, s.BlackBishops, s.BlackQueens, s.BlackKing,
             s.WhiteCastleKingSide, s.WhiteCastleQueenSide,
             s.BlackCastleKingSide, s.BlackCastleQueenSide,
-            s.WhiteIsActive,
+            s.ActiveColor,
             s.EnPassant
         );
     }

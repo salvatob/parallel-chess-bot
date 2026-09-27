@@ -63,7 +63,7 @@ public sealed class MoveGenerator : IMoveGenerator {
         // After ApplyMove, WhiteIsActive has flipped.
         // If white just moved, it's now black's turn. 
         // We need to check if white's king is under attack.
-        var wasWhiteTurn = state.WhiteIsActive.Opposite();
+        var wasWhiteTurn = state.ActiveColor.Opposite();
         var kingBoard = wasWhiteTurn.Choose( state.WhiteKing , state.BlackKing);
 
         bool legal;
@@ -72,7 +72,7 @@ public sealed class MoveGenerator : IMoveGenerator {
         }
         else {
             var kingSquare = kingBoard.TrailingZeroCount();
-            legal = !IsSquareAttacked(kingSquare, state.WhiteIsActive, state);
+            legal = !IsSquareAttacked(kingSquare, state.ActiveColor, state);
         }
 
         state.UndoMove(move, undo);
