@@ -39,6 +39,8 @@ public record GameResult(GameOutcome Outcome, GameEndReason GameEndReason, List<
 /// Manages the execution of a chess game between two players.
 /// </summary>
 public class ChessGame : IDisposable {
+    private static readonly int HalfMoveLimit = 100;
+    
     private readonly IPlayer _whitePlayer;
     private readonly IPlayer _blackPlayer;
     private readonly State _state = State.Initial;
@@ -229,14 +231,14 @@ public class ChessGame : IDisposable {
         }
     }
 
-    
+
     /// <summary>
     ///     Determines the current outcome and reason of the game.
     /// If the game is unresolved, returns (GameOutcome.NonTerminal, GameEndReason.Unknown).
     /// </summary>
     /// <returns>A tuple of GameOutcome and GameEndReason.</returns>
     public static (GameOutcome Outcome, GameEndReason Reason) GetDetailedOutcome(State state) {
-        if (state.HalfMovesSincePawnMoveOrCapture >= 100) return (GameOutcome.Draw, GameEndReason.FiftyMoveRule);
+        if (state.HalfMovesSincePawnMoveOrCapture >= HalfMoveLimit) return (GameOutcome.Draw, GameEndReason.FiftyMoveRule);
         
         if (state.GetAllPieces().PopCount() <= 2) return (GameOutcome.Draw, GameEndReason.InsufficientMaterial); // insufficient material (KK)
         // cannot mate with only a knight (KNK)
