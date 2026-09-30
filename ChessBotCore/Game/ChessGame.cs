@@ -157,6 +157,23 @@ public class ChessGame : IDisposable {
             _stateRepetitionCounter[state]++;
         }
     }
+
+    private async Task<GameResult?> CheckTerminalStateAsync() {
+        
+        if (CheckThreeFoldRepetition()) {
+            var finalResult = new GameResult(GameOutcome.Draw, GameEndReason.ThreeFoldRepetition, _moveList);
+            await PushGameEndAsync(finalResult);
+            return finalResult;                
+        }
+            
+        var (currentOutcome, reason) = GetDetailedOutcome(_state);
+        if (currentOutcome != GameOutcome.NonTerminal) {
+            var finalResult = new GameResult(currentOutcome, reason, _moveList);
+            await PushGameEndAsync(finalResult);
+            return finalResult;
+        }
+        return null;
+    }
     
     /// <summary>
     /// Runs the entire game loop until time has ran out, or a terminal state has been reached.
@@ -170,19 +187,9 @@ public class ChessGame : IDisposable {
         await PushGameStartAsync();
 
         while (true) {
-            if (CheckThreeFoldRepetition()) {
-                var finalResult = new GameResult(GameOutcome.Draw, GameEndReason.ThreeFoldRepetition, _moveList);
-                await PushGameEndAsync(finalResult);
-                return finalResult;                
-            }
+            var endResult = await CheckTerminalStateAsync();
+            if (endResult is not null) return endResult;
             
-            var (currentOutcome, reason) = GetDetailedOutcome(_state);
-            if (currentOutcome != GameOutcome.NonTerminal) {
-                var finalResult = new GameResult(currentOutcome, reason, _moveList);
-                await PushGameEndAsync(finalResult);
-                return finalResult;
-            }
-
             var whiteIsActive = _state.WhiteIsActive;
             var playerTime = _timers.ActiveTime(whiteIsActive);
             
