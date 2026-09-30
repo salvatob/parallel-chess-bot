@@ -220,7 +220,7 @@ public class ChessGame : IDisposable {
             }
 
             _timers.UpdateTimer(sw.Elapsed, whiteIsActive);
-            timeOutCts.Cancel();
+            await timeOutCts.CancelAsync();
 
             // the result is already finished, so the await is instant
             var searchResult = await moveHandle.Result;
