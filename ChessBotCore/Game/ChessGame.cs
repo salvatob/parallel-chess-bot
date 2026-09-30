@@ -199,10 +199,11 @@ public class ChessGame : IDisposable {
             var timeOutTask = Task.Delay(playerTime, timeOutCts.Token);
 
             var sw = Stopwatch.StartNew();
-            using var moveHandle = ActivePlayer().ChooseMoveAsync(_state, _timers);
+            var moveCts = new CancellationTokenSource();
+            var searchResult = ActivePlayer().ChooseMoveAsync(_state, _timers, moveCts.Token);
 
 
-            var t = await Task.WhenAny(moveHandle.Result, timeOutTask);
+            var t = await Task.WhenAny(searchResult, timeOutTask);
 
             sw.Stop();
             // player has lost on time
@@ -215,7 +216,8 @@ public class ChessGame : IDisposable {
                 
                 await PushGameEndAsync(gameResult);
                 // the handle should be cancelled after the game end is propagated
-                moveHandle.Cancel();
+                await moveCts.CancelAsync();
+                
                 return gameResult;
             }
 
@@ -223,10 +225,10 @@ public class ChessGame : IDisposable {
             await timeOutCts.CancelAsync();
 
             // the result is already finished, so the await is instant
-            var searchResult = await moveHandle.Result;
 
 
-            var move = searchResult.BestMove;
+            await searchResult;
+            var move = searchResult.Result.BestMove;
             
             LogMovePlayed(verbosity, ActivePlayer(), move);
 
