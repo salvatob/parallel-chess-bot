@@ -1,6 +1,6 @@
 using ChessBotCore;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 public class FenToFen {
     [Theory]

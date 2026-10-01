@@ -1,10 +1,8 @@
 using ChessBotCore;
 using ChessBotCore.Game;
-using ChessBotCore.Players;
 using ChessBotCore.Search;
-using Xunit;
 
-namespace UnitTests;
+namespace UnitTests.GameTests;
 
 public class ThreeFoldRepetitionTests {
     private class SequencePlayer : IPlayer {

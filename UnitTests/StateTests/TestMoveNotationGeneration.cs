@@ -2,7 +2,7 @@ using ChessBotCore;
 using ChessBotCore.Board;
 using Xunit.Abstractions;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 public class TestMoveNotationGeneration {
     private readonly ITestOutputHelper _output;

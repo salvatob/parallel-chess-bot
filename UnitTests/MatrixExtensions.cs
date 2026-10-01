@@ -1,4 +1,4 @@
-namespace TestProject1;
+namespace UnitTests;
 
 public static class MatrixExtensions {
     public static TItem[] Flatten<TItem>(this TItem[,] matrix) {

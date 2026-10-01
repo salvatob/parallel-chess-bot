@@ -1,6 +1,6 @@
 using ChessBotCore;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 /// <summary>
 ///     Tests transformation between a string (FEN), and internal game state  representation.

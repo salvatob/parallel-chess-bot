@@ -1,7 +1,7 @@
 using System.Reflection;
 using ChessBotCore.MoveGenerators.PieceGenerators;
 
-namespace TestProject1;
+namespace UnitTests;
 
 public class CompileTimeTests {
     [Theory]

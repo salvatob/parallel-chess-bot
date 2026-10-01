@@ -1,8 +1,7 @@
 using ChessBotCore;
 using ChessBotCore.Game;
-using Xunit;
 
-namespace UnitTests;
+namespace UnitTests.GameTests;
 
 public class GameOutcomeTests {
     [Fact]
