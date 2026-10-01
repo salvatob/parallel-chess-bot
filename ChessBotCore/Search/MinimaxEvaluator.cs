@@ -67,7 +67,7 @@ public class MinimaxEvaluator {
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken abandonSearch) {
         var timePerMove = _timeManager.CalculateAllowedTime(timers, state.WhiteIsActive);
         
-        var stopSearchCleanly = new CancellationTokenSource(); 
+        using var stopSearchCleanly = new CancellationTokenSource(); 
         stopSearchCleanly.CancelAfter(timePerMove);
         
         var scoredMoves = GetInitialScoredMoves(state);
