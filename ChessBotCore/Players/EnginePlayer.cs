@@ -10,22 +10,21 @@ public class EnginePlayer : IPlayer {
     private readonly MinimaxEvaluator _negamaxer = new();
     
     /// <inheritdoc/>
-    public SearchHandle ChooseMoveAsync(State state, Timers timers) {
-        var cts = new CancellationTokenSource();
+    public Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct) {
+        var moveTask = Task.Run(
+            () => _negamaxer.PrimitiveIterativeSearch(state, timers, ct),
+            ct
+        );
 
-        var task = Task.Run(() =>
-            _negamaxer.PrimitiveIterativeSearch(state, timers, cts.Token));
-
-        return new SearchHandle(cts, task);
+        return moveTask;
     }
-
     
     /// <inheritdoc/>
     public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) {
         // currently we don't store the move list
         
         // This could probably be pretty nice later, we could fire up some lookup tables,
-        // or load an opening bookor do similar work before the game starts
+        // or load an opening book or do similar work before the game starts
         return Task.CompletedTask;
     }
 
