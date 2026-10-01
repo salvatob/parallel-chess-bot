@@ -1,41 +1,11 @@
 using ChessBotCore;
 using ChessBotCore.Game;
 using ChessBotCore.Search;
+using UnitTests.MockPlayers;
 
 namespace UnitTests.GameTests;
 
 public class ThreeFoldRepetitionTests {
-    private class SequencePlayer : IPlayer {
-        private readonly List<MoveDTO> _moves;
-        private int _moveIndex = 0;
-
-        public SequencePlayer(IEnumerable<string> moves) {
-            _moves = moves.Select(MoveDTO.Parse).ToList();
-        }
-
-        public Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct) {
-            if (_moveIndex >= _moves.Count) {
-                throw new MoveException("No more moves in sequence");
-            }
-
-            var moveDto = _moves[_moveIndex++];
-            var move = Move.FindFullMove(moveDto, state);
-            
-            var result = new SearchResults {
-                BestMove = move
-            };
-            
-            return Task.FromResult(result);
-        }
-
-        public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) => Task.CompletedTask;
-        public Task OnGameStartAsync() => Task.CompletedTask;
-        public Task OnGameEndAsync(bool yourColor, GameResult result) => Task.CompletedTask;
-        public Task OnOpponentsMoveAsync(Move move, State newState) => Task.CompletedTask;
-        public Task OnErrorNotifyAsync(Exception error, bool gameEnd) => Task.CompletedTask;
-        public Task OnErrorNotifyAsync(string errorMessage, bool gameEnd) => Task.CompletedTask;
-        public void Dispose() { }
-    }
 
     [Fact]
     public async Task SimpleRepetition_IsDraw() {

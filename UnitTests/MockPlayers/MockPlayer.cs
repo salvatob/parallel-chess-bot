@@ -3,9 +3,7 @@ using ChessBotCore.Game;
 using ChessBotCore.Players;
 using ChessBotCore.Search;
 
-
-namespace UnitTests;
-
+namespace UnitTests.MockPlayers;
 
 public class MockPlayer : EmptyPlayer {
     public bool Disposed { get; private set; }
@@ -29,31 +27,5 @@ public class MockPlayer : EmptyPlayer {
     
     public override void Dispose() {
         Disposed = true;
-    }
-}
-
-
-public class BlockingPlayer : MockPlayer {
-    private TaskCompletionSource<SearchResults> _tcs = new();
-
-    public override Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct = default) {
-        return _tcs.Task;
-    }
-
-    public void Release() {
-        var oldTcs = _tcs;
-        _tcs = new TaskCompletionSource<ChessBotCore.Search.SearchResults>();
-        var move = new Move(0, 0); // Still default move, but now we ensure Game 1 ends eventually
-        oldTcs.SetResult(new ChessBotCore.Search.SearchResults { BestMove = move });
-    }
-
-    public void EndGame() {
-        _tcs.TrySetException(new OperationCanceledException());
-    }
-}
-
-public class ThrowingPlayer : MockPlayer {
-    public override Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct = default) {
-        throw new InvalidOperationException("Simulated crash");
     }
 }
