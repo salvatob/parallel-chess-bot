@@ -174,19 +174,23 @@ public class ChessGame : IDisposable {
         }
         return null;
     }
-    
+
     /// <summary>
     /// Runs the entire game loop until time has ran out, or a terminal state has been reached.
     /// </summary>
     /// <param name="verbosity">Verbosity level (0,1,2)</param>
+    /// <param name="abortToken">Token to stop the game loop by throwing a <seealso cref="OperationCanceledException"/>.</param>
     /// <returns>The outcome of the game.</returns>
     /// <exception cref="InvalidOperationException">The game has already been played.</exception>
-    public async Task<GameResult> PlayAsync(int verbosity = 0) {
+    /// <exception cref="OperationCanceledException">When the <param name="abortToken"> was cancelled.</param></exception>
+    public async Task<GameResult> PlayAsync(int verbosity = 0, CancellationToken abortToken = default) {
         ThrowIfGameStarted();
         IncrementRepetitionCounter( _state);
         await PushGameStartAsync();
 
         while (true) {
+            abortToken.ThrowIfCancellationRequested();
+            
             var endResult = await CheckTerminalStateAsync();
             if (endResult is not null) return endResult;
             
@@ -195,12 +199,18 @@ public class ChessGame : IDisposable {
             
             LogGameProgress(verbosity, ActivePlayer(), playerTime);
 
-            using var timeOutCts = new CancellationTokenSource();
+            
+            // create a second cts, that aborts when the outer one does, or when the time runs out
+            using var timeOutCts =  new CancellationTokenSource();
+            
             var timeOutTask = Task.Delay(playerTime, timeOutCts.Token);
 
             var sw = Stopwatch.StartNew();
-            var moveCts = new CancellationTokenSource();
-            var searchResult = ActivePlayer().ChooseMoveAsync(_state, _timers, moveCts.Token);
+            
+            // a cts that aborts this search, if the outer one cancels,
+            // or we explicitly want to cancel it because of timing out 
+            using var searchCts = CancellationTokenSource.CreateLinkedTokenSource(abortToken);
+            var searchResult = ActivePlayer().ChooseMoveAsync(_state, _timers, searchCts.Token);
 
 
             var t = await Task.WhenAny(searchResult, timeOutTask);
@@ -216,17 +226,16 @@ public class ChessGame : IDisposable {
                 
                 await PushGameEndAsync(gameResult);
                 // the handle should be cancelled after the game end is propagated
-                await moveCts.CancelAsync();
+                await searchCts.CancelAsync();
                 
                 return gameResult;
             }
 
+            // means the player returned their move in time
             _timers.UpdateTimer(sw.Elapsed, whiteIsActive);
             await timeOutCts.CancelAsync();
 
             // the result is already finished, so the await is instant
-
-
             await searchResult;
             var move = searchResult.Result.BestMove;
             
