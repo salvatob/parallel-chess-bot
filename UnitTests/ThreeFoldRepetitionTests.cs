@@ -15,7 +15,7 @@ public class ThreeFoldRepetitionTests {
             _moves = moves.Select(MoveDTO.Parse).ToList();
         }
 
-        public SearchHandle ChooseMoveAsync(State state, Timers timers) {
+        public Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct) {
             if (_moveIndex >= _moves.Count) {
                 throw new MoveException("No more moves in sequence");
             }
@@ -27,7 +27,7 @@ public class ThreeFoldRepetitionTests {
                 BestMove = move
             };
             
-            return new SearchHandle(new CancellationTokenSource(), Task.FromResult(result));
+            return Task.FromResult(result);
         }
 
         public Task PrepareAsync(bool yourColor, State state, Timers timers, IReadOnlyList<Move> moveHistory) => Task.CompletedTask;
