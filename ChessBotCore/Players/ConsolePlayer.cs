@@ -37,6 +37,10 @@ public class ConsolePlayer : IPlayer {
         while (true) {
             // this should throw if the token is cancelled
             var command = await _reader.ReadLineAsync(ct);
+            if (command is null) {
+                ct.ThrowIfCancellationRequested();
+                throw new MoveException("Move command has failed.");
+            }
             if (string.IsNullOrWhiteSpace(command)) continue;
             
             MoveDTO moveDto;
