@@ -5,7 +5,7 @@ using ChessBotCore.Search;
 
 namespace UnitTests.MockPlayers;
 
-public class SequencePlayer : EmptyPlayer {
+public class SequencePlayer : MockPlayer {
     private readonly List<MoveDTO> _moves;
     private int _moveIndex = 0;
 
