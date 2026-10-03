@@ -44,15 +44,17 @@ public class PlayerTests(ITestOutputHelper _out) {
         // assert
         try {
             // WaitAsync here ensures we don't hang forever if there is a deadlock bug
-            await Assert.ThrowsAsync<OperationCanceledException>(async () => 
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
                 await moveTask.WaitAsync(TimeSpan.FromSeconds(1))
             );
         } catch (TimeoutException) {
             _out.WriteLine($"[DEBUG_LOG] {player.GetType().Name} deadlocked.");
             Assert.Fail("The move request deadlocked and did not respond to cancellation within the timeout.");
+        } finally {
+            player.Dispose();
+            
         }
         
-
     }
     
 }
