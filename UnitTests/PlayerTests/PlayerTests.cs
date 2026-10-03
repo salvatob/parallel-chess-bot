@@ -28,43 +28,31 @@ public class PlayerTests(ITestOutputHelper _out) {
             BaseBlackTime = TimeSpan.FromHours(1), 
             Increment = TimeSpan.Zero 
         };
-    
         // act
-        var moveTask = Task.Run(async () => {
-            var innerTask = player.ChooseMoveAsync(state, timers, cts.Token);
-        
-            // Ensure the task has started
-            if (readerWaiter is not null) {
-                await readerWaiter;
-            } else {
-                await Task.Delay(100); 
-            }
-            
-            cts.Cancel();
+        var moveTask = player.ChooseMoveAsync(state, timers, cts.Token);
 
-            await innerTask;
-        });
+        // Ensure the player is actually "at work" before we cancel
+        if (readerWaiter is not null) {
+            await readerWaiter;
+        } else {
+            // Fallback for players without a ready signal (like EnginePlayer)
+            await Task.Delay(100); 
+        }
 
-        var timeoutTask = Task.Delay(TimeSpan.FromSeconds(1));
-        var completedTask = await Task.WhenAny(moveTask, timeoutTask);
-    
+        cts.Cancel();
+
         // assert
-        if (completedTask == timeoutTask) {
+        try {
+            // WaitAsync here ensures we don't hang forever if there is a deadlock bug
+            await Assert.ThrowsAsync<OperationCanceledException>(async () => 
+                await moveTask.WaitAsync(TimeSpan.FromSeconds(1))
+            );
+        } catch (TimeoutException) {
             _out.WriteLine($"[DEBUG_LOG] {player.GetType().Name} deadlocked.");
             Assert.Fail("The move request deadlocked and did not respond to cancellation within the timeout.");
-            return; 
         }
+        
 
-        try {
-            await moveTask;
-            Assert.Fail("Expected OperationCanceledException but task completed successfully.");
-        } catch (OperationCanceledException) {
-            // Success
-        } catch (Exception ex) {
-            Assert.Fail($"Expected OperationCanceledException but got {ex.GetType().Name}: {ex.Message}");
-        }
-    
-        // player.Dispose();
     }
     
 }
