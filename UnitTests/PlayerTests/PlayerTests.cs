@@ -52,9 +52,6 @@ public class PlayerTests(ITestOutputHelper _out) {
             Assert.Fail("The move request deadlocked and did not respond to cancellation within the timeout.");
         } finally {
             player.Dispose();
-            
         }
-        
     }
-    
 }
