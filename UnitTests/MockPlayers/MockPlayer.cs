@@ -6,7 +6,7 @@ using ChessBotCore.Search;
 namespace UnitTests.MockPlayers;
 
 public class MockPlayer : EmptyPlayer {
-    public bool Disposed { get; private set; }
+    public bool IsDisposed { get; private set; }
     public int OnGameEndCalledCount { get; private set; }
     public TaskCompletionSource PlayTaskSource { get; } = new();
 
@@ -26,6 +26,6 @@ public class MockPlayer : EmptyPlayer {
     }
     
     public override void Dispose() {
-        Disposed = true;
+        IsDisposed = true;
     }
 }
