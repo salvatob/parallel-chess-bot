@@ -100,7 +100,7 @@ public class ConsolePlayer : IPlayer {
                 return new SearchResults {
                     BestMove = move
                 };
-            } catch (ArgumentException ae) {
+            } catch (ArgumentException) {
                 Console.WriteLine($"Move <{moveDto}> is illegal");
                 continue;
             }
