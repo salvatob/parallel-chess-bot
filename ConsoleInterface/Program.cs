@@ -35,69 +35,26 @@ internal class Program {
         var ai = new EnginePlayer();
 
         Timers timers = new();
-        var nextMove = ai.ChooseMoveAsync(state, timers);
+        var cts = new CancellationTokenSource();
+        var ct = cts.Token;
+        var nextMove = ai.ChooseMoveAsync(state, timers, ct);
 
-        nextMove.Register(() =>
+        ct.Register(() =>
             Console.WriteLine("Cancellation requested!"));
 
         var command = Task.Run(Console.ReadLine);
 
-        var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
+        var nextMoveRequested = await Task.WhenAny(nextMove, command);
 
 
         if (nextMoveRequested == command)
             if (command.Result != null && command.Result.StartsWith("ok"))
-                nextMove.Cancel();
+                await cts.CancelAsync();
 
-        var aiMoveResult = await nextMove.Result;
+        var aiMoveResult = await nextMove;
 
         Console.WriteLine(aiMoveResult.BestMove);
     }
-
-    public static async Task TryUCI() {
-        var state = State.Initial;
-        var negamaxer = new EnginePlayer();
-        while (true)
-            try {
-                Timers timers = new() {
-                    BaseWhiteTime = TimeSpan.FromMinutes(5),
-                    BaseBlackTime = TimeSpan.FromMinutes(5),
-                    Increment = TimeSpan.FromSeconds(2)
-                };
-                var nextMove = negamaxer.ChooseMoveAsync(state, timers);
-
-                nextMove.Register(() =>
-                    Console.WriteLine("Cancellation requested!"));
-
-                var command = Task.Run(Console.ReadLine);
-
-                var nextMoveRequested = await Task.WhenAny(nextMove.Result, command);
-
-                if (nextMoveRequested == command)
-                    if (command.Result != null && command.Result.StartsWith("ok"))
-                        nextMove.Cancel();
-
-                // command.WaitAsync()
-                var aiMoveResult = await nextMove.Result;
-
-
-                var aiMove = aiMoveResult.BestMove;
-                state.ApplyMove(aiMove);
-                Console.WriteLine("---------after AI----------");
-                Console.WriteLine(state.PrettyPrint());
-                Console.WriteLine("-------------------------------");
-
-                var playerMove = MoveDTO.Parse(Console.ReadLine());
-                state.ApplyMove(playerMove);
-                Console.WriteLine("---------after player------");
-                Console.WriteLine(state.PrettyPrint());
-                Console.WriteLine("-------------------------------");
-            }
-            catch (Exception e) {
-                Console.WriteLine(e);
-            }
-    }
-
     private static void CompareMoveGeneration() {
         // DividePerft(State.Initial, 3, chessSingle);
 

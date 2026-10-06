@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 using FluentAssertions;
 using Xunit.Abstractions;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 public class MovingPieces {
     private readonly ITestOutputHelper _testOutputHelper;

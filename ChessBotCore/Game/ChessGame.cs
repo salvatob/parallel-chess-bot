@@ -157,45 +157,63 @@ public class ChessGame : IDisposable {
             _stateRepetitionCounter[state]++;
         }
     }
-    
+
+    private async Task<GameResult?> CheckTerminalStateAsync() {
+        
+        if (CheckThreeFoldRepetition()) {
+            var finalResult = new GameResult(GameOutcome.Draw, GameEndReason.ThreeFoldRepetition, _moveList);
+            await PushGameEndAsync(finalResult);
+            return finalResult;                
+        }
+            
+        var (currentOutcome, reason) = GetDetailedOutcome(_state);
+        if (currentOutcome != GameOutcome.NonTerminal) {
+            var finalResult = new GameResult(currentOutcome, reason, _moveList);
+            await PushGameEndAsync(finalResult);
+            return finalResult;
+        }
+        return null;
+    }
+
     /// <summary>
     /// Runs the entire game loop until time has ran out, or a terminal state has been reached.
     /// </summary>
     /// <param name="verbosity">Verbosity level (0,1,2)</param>
+    /// <param name="abortToken">Token to stop the game loop by throwing a <seealso cref="OperationCanceledException"/>.</param>
     /// <returns>The outcome of the game.</returns>
     /// <exception cref="InvalidOperationException">The game has already been played.</exception>
-    public async Task<GameResult> PlayAsync(int verbosity = 0) {
+    /// <exception cref="OperationCanceledException">When the <param name="abortToken"> was cancelled.</param></exception>
+    public async Task<GameResult> PlayAsync(int verbosity = 0, CancellationToken abortToken = default) {
         ThrowIfGameStarted();
         IncrementRepetitionCounter( _state);
         await PushGameStartAsync();
 
         while (true) {
-            if (CheckThreeFoldRepetition()) {
-                var finalResult = new GameResult(GameOutcome.Draw, GameEndReason.ThreeFoldRepetition, _moveList);
-                await PushGameEndAsync(finalResult);
-                return finalResult;                
-            }
+            abortToken.ThrowIfCancellationRequested();
             
-            var (currentOutcome, reason) = GetDetailedOutcome(_state);
-            if (currentOutcome != GameOutcome.NonTerminal) {
-                var finalResult = new GameResult(currentOutcome, reason, _moveList);
-                await PushGameEndAsync(finalResult);
-                return finalResult;
-            }
-
+            var endResult = await CheckTerminalStateAsync();
+            if (endResult is not null) return endResult;
+            
             var whiteIsActive = _state.WhiteIsActive;
             var playerTime = _timers.ActiveTime(whiteIsActive);
             
             LogGameProgress(verbosity, ActivePlayer(), playerTime);
 
-            using var timeOutCts = new CancellationTokenSource();
+            
+            // create a second cts, that aborts when the outer one does, or when the time runs out
+            using var timeOutCts =  new CancellationTokenSource();
+            
             var timeOutTask = Task.Delay(playerTime, timeOutCts.Token);
 
             var sw = Stopwatch.StartNew();
-            using var moveHandle = ActivePlayer().ChooseMoveAsync(_state, _timers);
+            
+            // a cts that aborts this search, if the outer one cancels,
+            // or we explicitly want to cancel it because of timing out 
+            using var searchCts = CancellationTokenSource.CreateLinkedTokenSource(abortToken);
+            var searchResult = ActivePlayer().ChooseMoveAsync(_state, _timers, searchCts.Token);
 
 
-            var t = await Task.WhenAny(moveHandle.Result, timeOutTask);
+            var t = await Task.WhenAny(searchResult, timeOutTask);
 
             sw.Stop();
             // player has lost on time
@@ -208,18 +226,18 @@ public class ChessGame : IDisposable {
                 
                 await PushGameEndAsync(gameResult);
                 // the handle should be cancelled after the game end is propagated
-                moveHandle.Cancel();
+                await searchCts.CancelAsync();
+                
                 return gameResult;
             }
 
+            // means the player returned their move in time
             _timers.UpdateTimer(sw.Elapsed, whiteIsActive);
-            timeOutCts.Cancel();
+            await timeOutCts.CancelAsync();
 
             // the result is already finished, so the await is instant
-            var searchResult = await moveHandle.Result;
-
-
-            var move = searchResult.BestMove;
+            await searchResult;
+            var move = searchResult.Result.BestMove;
             
             LogMovePlayed(verbosity, ActivePlayer(), move);
 

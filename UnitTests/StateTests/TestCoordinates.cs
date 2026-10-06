@@ -1,6 +1,6 @@
 using ChessBotCore.Board;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 public class TestCoordinates {
     [Theory]

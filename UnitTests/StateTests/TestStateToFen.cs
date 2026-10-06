@@ -1,6 +1,6 @@
 using ChessBotCore;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 public class TestStateToFen {
     public static IEnumerable<object[]> StateToFenPieces_Data => new[] {

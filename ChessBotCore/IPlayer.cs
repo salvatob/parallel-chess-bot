@@ -1,5 +1,5 @@
 using ChessBotCore.Game;
-using ChessBotCore.Players;
+using ChessBotCore.Search;
 
 namespace ChessBotCore;
 
@@ -9,9 +9,10 @@ public interface IPlayer : IDisposable {
     /// </summary>
     /// <param name="state">The state from which the player should move.</param>
     /// <param name="timers">Information about time both players have to play.</param>
+    /// <param name="ct">Token used in case the move is no longer wanted.</param>
     /// <throws> <see cref="MoveException" /> if there is a problem with the move retrieval.</throws>
     /// <returns>A nonblocking move Result Handle.</returns>
-    public SearchHandle ChooseMoveAsync(State state, Timers timers);
+    public Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct = default);
 
     /// <summary>
     ///     Prepares the player for an upcoming game.

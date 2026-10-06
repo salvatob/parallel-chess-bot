@@ -1,6 +1,6 @@
 using ChessBotCore;
 
-namespace TestProject1;
+namespace UnitTests.StateTests;
 
 public class StateToMatrix_Dense {
     private readonly char[] _emptyRow = new char[8]

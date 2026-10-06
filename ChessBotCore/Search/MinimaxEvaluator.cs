@@ -38,17 +38,18 @@ public class MinimaxEvaluator {
     
 
     /// <summary>
-    /// A simple way to run the search.
+    /// A simple way to run the search to a specified depth.
     /// </summary>
     /// <param name="state">The state from which to search the best move</param>
     /// <param name="maxDepth">The depth to which to run the search.</param>
     /// <returns></returns>
     public SearchResults ChooseBestMove(State state, int maxDepth) {
         var searchContext = new SearchContext {
+            CleanStopToken = CancellationToken.None,
             Stats = new SearchStats { MaxDepth = maxDepth }
         };
         State copy = state.Clone();
-        var scoredMove = NegamaxBase(copy, maxDepth, searchContext);
+        var scoredMove = SmartABNegamaxBase(copy, maxDepth, searchContext);
         var results = new EngineSearchResults(scoredMove, searchContext.Stats);
 
         return results;
@@ -59,33 +60,36 @@ public class MinimaxEvaluator {
     /// </summary>
     /// <param name="state">The starting board state.</param>
     /// <param name="timers">The game timers.</param>
-    /// <param name="cancellationToken">Token to cancel the search.</param>
+    /// <param name="abandonSearch">Token to abort the search by throwing <seealso cref="OperationCanceledException"/>>.</param>
     /// <returns>The search results containing the best move found.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the state has no legal moves.</exception>
-    public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken cancellationToken) {
+    /// <exception cref="OperationCanceledException">Thrown if the search is aborted.</exception>
+    public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken abandonSearch) {
         var timePerMove = _timeManager.CalculateAllowedTime(timers, state.WhiteIsActive);
         
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(timePerMove);
+        using var stopSearchCleanly = new CancellationTokenSource(); 
+        stopSearchCleanly.CancelAfter(timePerMove);
         
         var scoredMoves = GetInitialScoredMoves(state);
-        if (scoredMoves.Count == 0) throw new InvalidOperationException("Current State has no moves available, so it cannot be searched.");
+        if (scoredMoves.Count == 0) 
+            throw new InvalidOperationException("Current State has no moves available, so it cannot be searched.");
         
         var lastCompletedResult = new EngineSearchResults(scoredMoves[0], new SearchStats {
             NodesSearched = (ulong)scoredMoves.Count,
             MaxDepth = 1
         });
 
-        for (int depth = 2; depth <= 100; depth++) {
+        for (int depth = 2; depth <= 200; depth++) {
             var context = new SearchContext {
-                CancellationToken = cts.Token,
+                AbortToken = abandonSearch,
+                CleanStopToken = stopSearchCleanly.Token,
                 Stats = new SearchStats { MaxDepth = depth }
             };
             if (context.ShouldStop()) break;
 
             PerformSearchIteration(state, depth, context, scoredMoves);
             
-            if (!context.StopRequested) {
+            if (!context.ShouldStop()) {
                 scoredMoves.Sort((a, b) => b.Score.CompareTo(a.Score));
                 
                 lastCompletedResult = new EngineSearchResults(scoredMoves[0], context.Stats);
@@ -96,7 +100,7 @@ public class MinimaxEvaluator {
     }
     
     /// <summary>
-    /// Performs a single depth iteration of the search.
+    /// Scores the provided moves and updates the scores in the list.
     /// </summary>
     /// <param name="state">The current board state.</param>
     /// <param name="depth">The target depth for this iteration.</param>
@@ -112,7 +116,7 @@ public class MinimaxEvaluator {
             
             state.UndoMove(move, undo);
             
-            if (!context.StopRequested) {
+            if (!context.ShouldStop()) {
                 scoredMoves[i] = new ScoredMove(move, score);
                 if (score > context.Alpha) context.Alpha = score;
             }
@@ -144,7 +148,8 @@ public class MinimaxEvaluator {
     /// <param name="maxDepth">The maximum depth to search.</param>
     /// <param name="context">The search context.</param>
     /// <returns>The best move found and its score.</returns>
-    private ScoredMove NegamaxBase(State state, int maxDepth, SearchContext context) {
+    // ReSharper disable once InconsistentNaming
+    private ScoredMove SmartABNegamaxBase(State state, int maxDepth, SearchContext context) {
         context.IncrementNodeCount();
                 var moves = _moveGenerator.GenerateMoves(state).GetLegalMoves();
 
@@ -260,10 +265,19 @@ public class MinimaxEvaluator {
     ///     Currently isn't thread safe.
     /// </summary>
     public class SearchContext {
-        public CancellationToken CancellationToken { get; set; }
+        /// <summary>
+        /// Used to abort the search by throwing <seealso cref="OperationCanceledException"/> and discarding any search results.
+        /// </summary>
+        public CancellationToken AbortToken { get; init; }
+        
+        /// <summary>
+        /// Used internally by the search algorithm to signal end of search, and to return the best result found.
+        /// </summary>
+        public required CancellationToken CleanStopToken { get; set; }
 
-        public bool StopRequested { get; private set; }
         public SearchStats Stats { get; init; } = new();
+
+        private volatile bool _stopRequested = false;
         
         // TODO think of a way to keep it thread safe
         public SearchScore Alpha { get; set; } = new (int.MinValue + 1); // to prevent negation overflow
@@ -272,26 +286,25 @@ public class MinimaxEvaluator {
         public void IncrementNodeCount() {
             Interlocked.Increment(ref Stats.NodesSearched);
         }
-
-        public void Reset() {
-            
-        }
         
-        /// <summary>
-        /// Periodically checks, if the cancellation token has been called. If so 
-        /// </summary>
-        /// <returns>If the search should stop ASAP.</returns>
         public bool ShouldStop() {
             // in future this should also handle things like if we already found mate,
             // or in case of another thread finding a dominating move (alpha beta hit).
+            
+            // filter the token calls to every few thousand nodes
+            if ((Stats.NodesSearched & 0xFFF) != 0) {
+                if (AbortToken.IsCancellationRequested) {
+                    // just abort the whole search
+                    throw new OperationCanceledException();
+                }
 
-            if ((Stats.NodesSearched & 0x3FFF) != 0)
-                return StopRequested;
-
-            if (CancellationToken.IsCancellationRequested)
-                StopRequested = true;
-
-            return StopRequested;
+                if (CleanStopToken.IsCancellationRequested) {
+                    // store the intent to stop the search,
+                    // so other threads see it without waiting for the node count condition 
+                    _stopRequested = true;
+                }
+            }
+            return _stopRequested;
         }
     }
 }

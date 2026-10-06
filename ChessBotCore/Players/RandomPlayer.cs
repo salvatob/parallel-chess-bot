@@ -14,7 +14,7 @@ public class RandomPlayer : IPlayer {
     public void Dispose() { }
 
     /// <inheritdoc/>
-    public SearchHandle ChooseMoveAsync(State state, Timers timers) {
+    public Task<SearchResults> ChooseMoveAsync(State state, Timers timers, CancellationToken ct) {
         var generator = new MoveGenerator();
         var moves = generator.GenerateMoves(state).GetLegalMoves();
 
@@ -24,7 +24,7 @@ public class RandomPlayer : IPlayer {
             BestMove = move
         };
         
-        return new SearchHandle(new CancellationTokenSource(), Task.FromResult(result));
+        return Task.FromResult(result);
     }
 
     /// <inheritdoc/>
