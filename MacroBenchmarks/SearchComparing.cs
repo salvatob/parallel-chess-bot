@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ChessBotCore;
+using ChessBotCore.Board;
 using ChessBotCore.Game;
 using ChessBotCore.Search;
 
@@ -10,7 +11,7 @@ class MockTimeManager : ITimeManager {
     
     public MockTimeManager(TimeSpan recommendedTime) => _recommendedTime = recommendedTime;
     
-    public TimeSpan CalculateAllowedTime(Timers timers, bool isWhite) {
+    public TimeSpan CalculateAllowedTime(Timers timers, Color color) {
         return _recommendedTime;
     }
 }

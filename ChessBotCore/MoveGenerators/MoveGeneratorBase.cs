@@ -21,7 +21,7 @@ public abstract class MoveGeneratorBase : IPieceMoveGenerator {
     /// <param name="state">The state before the move</param>
     /// <returns>A <see cref="Move" /> struct</returns>
     protected Move CreateMove(Bitboard maskBefore, Bitboard maskAfter, State state) {
-        Pieces pieceType = state.WhiteIsActive ? WhitePiece : BlackPiece; 
+        Pieces pieceType = state.ChooseActive( WhitePiece , BlackPiece); 
         Pieces? capture = state.DetectPieceCollision(maskAfter);
         MoveFlags flags = MoveFlags.None;
         if (capture.HasValue) flags |= MoveFlags.Capture;

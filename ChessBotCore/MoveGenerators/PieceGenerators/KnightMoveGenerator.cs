@@ -22,7 +22,7 @@ public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton
     public static IPieceMoveGenerator Instance => new KnightMoveGenerator();
 
     public override void GenerateMoves(State state, List<Move> buffer) {
-        var knights = state.WhiteIsActive ? state.WhiteKnights : state.BlackKnights;
+        var knights = state.ChooseActive( state.WhiteKnights , state.BlackKnights);
         var allyPieces = state.GetActivePieces();
 
         foreach (var dir in KnightDirections) {

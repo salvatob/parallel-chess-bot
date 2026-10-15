@@ -10,7 +10,7 @@ public abstract class RayMoveGenerator : MoveGeneratorBase {
 
 
     public override void GenerateMoves(State state, List<Move> buffer) {
-        Bitboard rayPiece = state.GetPieces(state.WhiteIsActive ? WhitePiece : BlackPiece);
+        Bitboard rayPiece = state.GetPieces(state.ChooseActive( WhitePiece , BlackPiece));
         Bitboard allyPieces = state.GetActivePieces();
         Bitboard enemyPieces = state.GetInactivePieces();
         

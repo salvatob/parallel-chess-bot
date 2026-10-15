@@ -1,3 +1,4 @@
+using ChessBotCore.Board;
 using ChessBotCore.Game;
 using ChessBotCore.MoveGenerators;
 
@@ -65,7 +66,7 @@ public class MinimaxEvaluator {
     /// <exception cref="InvalidOperationException">Thrown if the state has no legal moves.</exception>
     /// <exception cref="OperationCanceledException">Thrown if the search is aborted.</exception>
     public SearchResults PrimitiveIterativeSearch(State state, Timers timers, CancellationToken abandonSearch) {
-        var timePerMove = _timeManager.CalculateAllowedTime(timers, state.WhiteIsActive);
+        var timePerMove = _timeManager.CalculateAllowedTime(timers, state.ActiveColor);
         
         using var stopSearchCleanly = new CancellationTokenSource(); 
         stopSearchCleanly.CancelAfter(timePerMove);
@@ -184,7 +185,7 @@ public class MinimaxEvaluator {
     internal SearchScore Negamax(State state, int depth) {
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);
-            return state.WhiteIsActive ? score : -score;
+            return state.ChooseActive(  score , -score);
         }
 
         SearchScore bestScore = new SearchScore(int.MinValue);
@@ -225,7 +226,7 @@ public class MinimaxEvaluator {
             return alpha;
         }
 
-        bool isMaxing = state.WhiteIsActive;
+        bool isMaxing = state.ActiveColor.IsWhite();
 
         if (depth <= 0 || state.IsTerminal()) {
             var score = Eval(state);

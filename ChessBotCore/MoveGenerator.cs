@@ -63,8 +63,8 @@ public sealed class MoveGenerator : IMoveGenerator {
         // After ApplyMove, WhiteIsActive has flipped.
         // If white just moved, it's now black's turn. 
         // We need to check if white's king is under attack.
-        var wasWhiteTurn = !state.WhiteIsActive;
-        var kingBoard = wasWhiteTurn ? state.WhiteKing : state.BlackKing;
+        var wasWhiteTurn = state.ActiveColor.Opposite();
+        var kingBoard = wasWhiteTurn.Choose( state.WhiteKing , state.BlackKing);
 
         bool legal;
         if (kingBoard.IsEmpty()) {
@@ -72,7 +72,7 @@ public sealed class MoveGenerator : IMoveGenerator {
         }
         else {
             var kingSquare = kingBoard.TrailingZeroCount();
-            legal = !IsSquareAttacked(kingSquare, state.WhiteIsActive, state);
+            legal = !IsSquareAttacked(kingSquare, state.ActiveColor, state);
         }
 
         state.UndoMove(move, undo);
@@ -83,19 +83,19 @@ public sealed class MoveGenerator : IMoveGenerator {
     ///     Checks if a specific square is under attack by a given player.
     /// </summary>
     /// <param name="square">The square index to check.</param>
-    /// <param name="byWhite">True to check for white attackers, false for black.</param>
+    /// <param name="byColor">True to check for white attackers, false for black.</param>
     /// <param name="state">The board state.</param>
     /// <returns>True if the square is attacked, false otherwise.</returns>
-    internal static bool IsSquareAttacked(int square, bool byWhite, State state) {
+    internal static bool IsSquareAttacked(int square, Color byColor, State state) {
         Bitboard squareMask = BitBoardHelpers.OneBitMask(square);
         Bitboard allPieces = state.GetAllPieces();
 
         // 1. Knights
-        Bitboard knightAttackers = GetKnightAttacks(square) & (byWhite ? state.WhiteKnights : state.BlackKnights);
+        Bitboard knightAttackers = GetKnightAttacks(square) & (byColor.Choose( state.WhiteKnights , state.BlackKnights));
         if (!knightAttackers.IsEmpty()) return true;
 
         // 2. Pawns
-        if (byWhite) {
+        if (byColor.IsWhite()) {
             if (!((squareMask.MovePieces(Direction.SW) & state.WhitePawns).IsEmpty() &&
                   (squareMask.MovePieces(Direction.SE) & state.WhitePawns).IsEmpty()))
                 return true;
@@ -106,20 +106,20 @@ public sealed class MoveGenerator : IMoveGenerator {
         }
 
         // 3. King
-        Bitboard kingAttackers = GetKingAttacks(square) & (byWhite ? state.WhiteKing : state.BlackKing);
+        Bitboard kingAttackers = GetKingAttacks(square) & byColor.Choose( state.WhiteKing , state.BlackKing);
         if (!kingAttackers.IsEmpty()) return true;
 
         // 4. Sliding Pieces (Rooks, Bishops, Queens)
         // Orthogonal (Rook/Queen)
         Direction[] orthoDirs = [Direction.N, Direction.S, Direction.E, Direction.W];
-        Bitboard orthoSliders = byWhite ? state.WhiteRooks | state.WhiteQueens : state.BlackRooks | state.BlackQueens;
+        Bitboard orthoSliders = byColor.Choose( state.WhiteRooks | state.WhiteQueens , state.BlackRooks | state.BlackQueens);
         foreach (var dir in orthoDirs)
             if (!GetSliderAttack(square, dir, allPieces, orthoSliders).IsEmpty())
                 return true;
 
         // Diagonal (Bishop/Queen)
         Direction[] diagDirs = [Direction.NE, Direction.NW, Direction.SE, Direction.SW];
-        Bitboard diagSliders = byWhite ? state.WhiteBishops | state.WhiteQueens : state.BlackBishops | state.BlackQueens;
+        Bitboard diagSliders = byColor.Choose( state.WhiteBishops | state.WhiteQueens , state.BlackBishops | state.BlackQueens);
         foreach (var dir in diagDirs) {
             if (!GetSliderAttack(square, dir, allPieces, diagSliders).IsEmpty())
                 return true;

@@ -23,7 +23,7 @@ internal static class FenCreator {
 
     public static string GetFen(State state) {
         string pieces = EncodePieces(state);
-        char activeColor = state.WhiteIsActive ? 'w' : 'b';
+        char activeColor = state.ChooseActive( 'w' , 'b');
         string castles = EncodeCastles(state);
         string enpassant = EncodeEnPassant(state);
         string halfClock = state.HalfMovesSincePawnMoveOrCapture.ToString();

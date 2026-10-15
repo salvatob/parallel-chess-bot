@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using ChessBotCore.Board;
 
 namespace ChessBotCore.Game;
 
@@ -71,8 +72,8 @@ public class Timers {
     /// </summary>
     /// <param name="elapsedTime">The amount of time the player used for their move.</param>
     /// <param name="white">True means the player is white.</param>
-    /// <returns>If the new value is negative, ie the player has lost on time.</returns>
-    public bool UpdateTimer(TimeSpan elapsedTime, bool white) {
+    /// <returns>If the new value is negative, ie, the timer stat is illegal, ie the player has lost on time.</returns>
+    public bool UpdateTimer(TimeSpan elapsedTime, Color white) {
         ref var activeTime = ref ActiveTime(white);
         activeTime -= elapsedTime;
         if (activeTime < TimeSpan.Zero) return false;
@@ -80,12 +81,26 @@ public class Timers {
         return true;
     }
 
+
     /// <summary>
-    ///     Returns the active players Time by reference.
+    /// Retrieves the active time reference for the specified color.
     /// </summary>
-    /// <param name="color">True means white</param>
-    /// <returns>The Time by reference.</returns>
-    public ref TimeSpan ActiveTime(bool color) {
-        return ref color ? ref _whiteTime : ref _blackTime;
+    /// <param name="color">
+    /// The color for which the active time is to be retrieved.
+    /// </param>
+    /// <returns>
+    /// A reference to the active <see cref="TimeSpan"/> for the specified color.
+    /// </returns>
+    public ref TimeSpan ActiveTime(Color color) {
+        return ref color.Choose(ref _whiteTime, ref _blackTime);
+    }
+
+    /// <summary>
+    /// Retrieves a reference to the active timer for the color specified in the provided game state.
+    /// </summary>
+    /// <param name="state">The current game state containing the active player's color.</param>
+    /// <returns>A reference to the <see cref="TimeSpan"/> representing the timer for the active player.</returns>
+    public ref TimeSpan ActiveTime(State state) {
+        return ref ActiveTime(state.ActiveColor);
     }
 }
