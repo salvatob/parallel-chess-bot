@@ -1,10 +1,9 @@
 name: Chess Framework CI
 
 on:
-  # all branches
-  push:
   pull_request:
-    branches: [master]
+    branches: [master, dev]
+
   workflow_call:
 
 
