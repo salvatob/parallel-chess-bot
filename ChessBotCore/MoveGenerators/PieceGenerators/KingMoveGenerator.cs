@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
-public sealed class KingMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
+public sealed class KingMoveGenerator : MoveGeneratorBase {
     private static readonly Direction[] MoveDirections = [
         Direction.N,
         Direction.S,

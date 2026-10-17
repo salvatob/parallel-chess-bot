@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
-public sealed class QueenMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
+public sealed class QueenMoveGenerator : RayMoveGenerator {
     private QueenMoveGenerator() { }
 
     protected override Pieces WhitePiece => Pieces.WhiteQueens;

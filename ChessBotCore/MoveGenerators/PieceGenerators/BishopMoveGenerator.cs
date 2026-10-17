@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
-public sealed class BishopMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
+public sealed class BishopMoveGenerator : RayMoveGenerator {
     protected override Pieces WhitePiece => Pieces.WhiteBishops;
     protected override Pieces BlackPiece => Pieces.BlackBishops;
 

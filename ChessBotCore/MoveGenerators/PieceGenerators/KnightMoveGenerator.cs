@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
-public sealed class KnightMoveGenerator : MoveGeneratorBase, IGeneratorSingleton {
+public sealed class KnightMoveGenerator : MoveGeneratorBase {
     private static readonly Direction[] KnightDirections = [
         Direction.NNE,
         Direction.NEE,
