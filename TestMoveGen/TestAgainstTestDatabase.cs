@@ -13,37 +13,21 @@ public class TestAgainstTestDatabase {
     public TestAgainstTestDatabase(ITestOutputHelper output) {
         _out = output;
     }
-
-    public static IEnumerable<object[]> TestCases => LoadTestCases().ToList();
-
-
-    private static bool IsNotCastle(Expected c)
-        => c.Move != "O-O" && c.Move != "O-O-O";
-
-    private string DeleteEnpassantFromFen(string fen) {
-        var tokens = fen.Split(" ", 6);
-        tokens[3] = "-";
-        return string.Join(" ", tokens);
-    }
-
+    
     [Theory]
-    [MemberData(nameof(TestCases), DisableDiscoveryEnumeration = true)]
+    [ClassData(typeof(MoveGenTestDataSource))]
     public void GetAllMoves(TestCases testCase) {
         //arrange
-
-        // if (testCase.Start.Fen != "8/8/8/p7/PR1Ppk1p/6pP/6P1/2K5 b - d3 0 1") return;
-
+        
         _out.WriteLine($"TestCase fen : {testCase.Start.Fen}");
         var start = State.FromFen(testCase.Start.Fen);
 
         IEnumerable<string> expectedEnumerable =
             from c in testCase.Expected
             select c.Fen;
-
-
+        
         //act
         var moves = _generator.GenerateMoves(start).GetLegalMoves();
-
 
         var moveFens = moves.Select(m => {
             var nextState = start.Clone();
@@ -58,7 +42,6 @@ public class TestAgainstTestDatabase {
         var extra = actual.Except(expected).OrderBy(x => x).ToArray();
 
         // only detect false positives (not generating some legal moves is fine, generating illegal is not)
-        // if (extra.Length == 0)
         if (missing.Length == 0 && extra.Length == 0)
             return; // success
 
@@ -96,27 +79,8 @@ public class TestAgainstTestDatabase {
         Assert.Fail(msg.ToString());
     }
 
-    private static IEnumerable<object[]> LoadTestCases() {
-        string[] files = ["standard", "castling", "famous", "pawns", "promotions", "taxing"];
-        foreach (var fileName in files) {
-            var path = AppContext.BaseDirectory + $@"/testcases\{fileName}.json";
-
-            var options = new JsonSerializerOptions {
-                PropertyNameCaseInsensitive = true
-            };
-            string json = new StreamReader(path).ReadToEnd();
-            RootObject? cases = JsonSerializer.Deserialize<RootObject>(json, options);
-
-            foreach (var c in cases.TestCases) {
-                c.TestSet = fileName;
-                yield return [c];
-            }
-        }
-    }
-
     // Convert a FEN -> 8x8 ASCII board (only uses the placement part)
     public static string AsciiBoardFromFen(string fen) {
-        if (fen is null) return "<null fen>";
         var parts = fen.Split(' ');
         if (parts.Length == 0) return fen;
 
