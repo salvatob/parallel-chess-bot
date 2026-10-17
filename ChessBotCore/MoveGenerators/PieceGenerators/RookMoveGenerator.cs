@@ -2,7 +2,7 @@ using ChessBotCore.Board;
 
 namespace ChessBotCore.MoveGenerators.PieceGenerators;
 
-public sealed class RookMoveGenerator : RayMoveGenerator, IGeneratorSingleton {
+public sealed class RookMoveGenerator : RayMoveGenerator {
     private RookMoveGenerator() { }
 
     protected override Direction[] RayDirections => [
