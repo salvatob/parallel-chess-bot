@@ -1,4 +1,3 @@
-
 name: Chess Framework CI
 
 on:
@@ -23,13 +22,6 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Debug project paths
-        run: |
-          pwd
-          ls -la
-          ls -la Benchmarks
-          find . -iname '*benchmark*.csproj'
-    
       - name: Restore dependencies
         run: dotnet restore ParallelChessBot.sln
 
