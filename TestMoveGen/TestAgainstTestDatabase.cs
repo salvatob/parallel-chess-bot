@@ -13,12 +13,9 @@ public class TestAgainstTestDatabase {
     public TestAgainstTestDatabase(ITestOutputHelper output) {
         _out = output;
     }
-
-    public static IEnumerable<object[]> TestCases => LoadTestCases().ToList();
-
-
+    
     [Theory]
-    [MemberData(nameof(TestCases), DisableDiscoveryEnumeration = true)]
+    [ClassData(typeof(MoveGenTestDataSource))]
     public void GetAllMoves(TestCases testCase) {
         //arrange
         
@@ -80,26 +77,6 @@ public class TestAgainstTestDatabase {
         }
 
         Assert.Fail(msg.ToString());
-    }
-
-    private static IEnumerable<object[]> LoadTestCases() {
-        string[] files = ["standard", "castling", "famous", "pawns", "promotions", "taxing"];
-        foreach (var fileName in files) {
-            var path = AppContext.BaseDirectory + Path.Combine("testcases", $"{fileName}.json"); 
-
-            var options = new JsonSerializerOptions {
-                PropertyNameCaseInsensitive = true,
-                RespectNullableAnnotations = true
-            };
-            string json = new StreamReader(path).ReadToEnd();
-            TestSet cases = JsonSerializer.Deserialize<TestSet>(json, options)
-                            ?? throw new JsonException("The JSON root cannot be null.");
-
-            foreach (var c in cases.TestCases) {
-                c.TestSet = fileName;
-                yield return [c];
-            }
-        }
     }
 
     // Convert a FEN -> 8x8 ASCII board (only uses the placement part)
