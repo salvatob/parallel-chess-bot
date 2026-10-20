@@ -5,7 +5,25 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+    
     <ItemGroup>
         <InternalsVisibleTo Include="Benchmarks"/>
     </ItemGroup>
+    
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+
+        <PackageId>Salvat.Chess</PackageId>
+        <Version>1.0.1</Version>
+        
+        <Authors>Tobiáš Salva</Authors>
+        <Description>A C#/.NET framework for building chess applications and chess engines.</Description>
+
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+        <RepositoryUrl>https://github.com/salvatob/parallel-chess-bot</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>chess;chess-engine;game;dotnet</PackageTags>
+    </PropertyGroup>
+
 </Project>
