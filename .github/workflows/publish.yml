@@ -2,7 +2,7 @@
 name: Test and Publish Package
 
 on:
-  push:
+  pull_request:
     branches: [master]
 
 permissions:
@@ -13,6 +13,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
 
   publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     name: Publish NuGet Package
     needs: test
     runs-on: ubuntu-latest
@@ -24,16 +25,107 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '9.0.x'
 
+      - name: Get Versions
+        id: versions
+        run: |
+          # Get current version
+          CURRENT_VERSION=$(dotnet msbuild ChessBotCore/ChessBotCore.csproj -getProperty:Version)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          # Determine base ref for comparison
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="origin/${{ github.base_ref }}"
+          else
+            BASE_REF="HEAD^"
+          fi
+          
+          # Get previous version
+          # We need to extract the project file from the base ref and run msbuild on it, 
+          # but msbuild needs a file on disk.
+          git show "$BASE_REF:ChessBotCore/ChessBotCore.csproj" > previous_ChessBotCore.csproj
+          PREVIOUS_VERSION=$(dotnet msbuild previous_ChessBotCore.csproj -getProperty:Version)
+          echo "previous_version=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+          rm previous_ChessBotCore.csproj
+          
+          echo "Current version: $CURRENT_VERSION"
+          echo "Previous version: $PREVIOUS_VERSION"
+
+      - name: Check Version
+        id: check_version
+        env:
+          CURRENT_VERSION: ${{ steps.versions.outputs.current_version }}
+          PREVIOUS_VERSION: ${{ steps.versions.outputs.previous_version }}
+        run: |
+#          CURRENT_VERSION="${{ steps.versions.outputs.current_version }}"
+#          PREVIOUS_VERSION="${{ steps.versions.outputs.previous_version }}"
+
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Version is empty. Skipping publish."
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Simple semver comparison (might need more robust comparison if versions are complex)
+          # For now, we'll use a basic check or just compare strings if they follow standard semver
+          # A better way is to use a tool or a small script.
+          
+          if [[ "$CURRENT_VERSION" == "$PREVIOUS_VERSION" ]]; then
+            echo "Version has not changed ($CURRENT_VERSION). Skipping publish."
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Use sort -V for version comparison if available (usually is on ubuntu-latest)
+          LOWER_VERSION=$(printf '%s\n%s' "$CURRENT_VERSION" "$PREVIOUS_VERSION" | sort -V | head -n1)
+          
+          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ "$LOWER_VERSION" == "$CURRENT_VERSION" ]; then
+            echo "Error: Current version ($CURRENT_VERSION) is lower than previous version ($PREVIOUS_VERSION)."
+            exit 1
+          fi
+          
+          echo "Version updated from $PREVIOUS_VERSION to $CURRENT_VERSION."
+          echo "should_publish=true" >> $GITHUB_OUTPUT
+
+      - name: Check if Package Exists
+        if: steps.check_version.outputs.should_publish == 'true'
+        run: |
+          CURRENT_VERSION="${{ steps.versions.outputs.current_version }}"
+          PACKAGE_NAME="Salvat.Chess"
+          # Check GitHub Packages for the version
+          # We can use the GitHub API to check if the version exists.
+          # The package name in CSPROJ is Salvat.Chess
+          
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/orgs/${{ github.repository_owner }}/packages/nuget/$PACKAGE_NAME/versions")
+          
+          # If org query fails (e.g. 404), try user query
+          if echo "$RESPONSE" | grep -q "Not Found"; then
+            RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/users/${{ github.repository_owner }}/packages/nuget/$PACKAGE_NAME/versions")
+          fi
+          
+          EXISTS=$(echo "$RESPONSE" | grep -o "\"name\": \"$CURRENT_VERSION\"" | head -n 1)
+          
+          if [ -n "$EXISTS" ]; then
+            echo "Error: Package $PACKAGE_NAME version $CURRENT_VERSION already exists."
+            exit 1
+          fi
+          echo "Version $CURRENT_VERSION does not exist yet. Proceeding."
+
       - name: Pack
+        if: steps.check_version.outputs.should_publish == 'true' && github.event_name == 'push'
         run: dotnet pack ChessBotCore/ChessBotCore.csproj --configuration Release -o ./artifacts
 
       - name: Publish to GitHub Packages
+        if: steps.check_version.outputs.should_publish == 'true' && github.event_name == 'push'
         run: |
           dotnet nuget add source \
             --username "$GITHUB_ACTOR" \
