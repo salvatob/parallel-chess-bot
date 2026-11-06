@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
 
   publish:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     name: Publish NuGet Package
     needs: test
     runs-on: ubuntu-latest
@@ -57,16 +57,12 @@ jobs:
           
           echo "Current version: $CURRENT_VERSION"
           echo "Previous version: $PREVIOUS_VERSION"
-
       - name: Check Version
         id: check_version
         env:
           CURRENT_VERSION: ${{ steps.versions.outputs.current_version }}
           PREVIOUS_VERSION: ${{ steps.versions.outputs.previous_version }}
         run: |
-#          CURRENT_VERSION="${{ steps.versions.outputs.current_version }}"
-#          PREVIOUS_VERSION="${{ steps.versions.outputs.previous_version }}"
-
           if [ -z "$CURRENT_VERSION" ]; then
             echo "Version is empty. Skipping publish."
             echo "should_publish=false" >> $GITHUB_OUTPUT
